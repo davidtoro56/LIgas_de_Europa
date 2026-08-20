@@ -1,0 +1,3175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modelo Poisson — Premier League 25/26</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1B14;
+    --surface:#16241C;
+    --surface2:#1C2C22;
+    --line: rgba(240,237,228,0.10);
+    --chalk:#F0EDE4;
+    --chalk-dim:#A9AF9F;
+    --gold:#E8C468;
+    --steel:#5B8FB0;
+    --sage:#7C8577;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at top, rgba(232,196,104,0.06), transparent 55%),
+      var(--bg);
+    color:var(--chalk);
+    font-family:'Inter',sans-serif;
+    padding:28px 16px 60px;
+    min-height:100vh;
+  }
+  .wrap{max-width:640px;margin:0 auto;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:6px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(24px,6vw,32px);
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  .subtitle{
+    color:var(--chalk-dim);
+    font-size:13px;
+    margin-bottom:28px;
+    line-height:1.5;
+  }
+  .league-bar{ margin-bottom:14px; }
+  .league-bar select{
+    width:100%;
+    background:var(--surface2);
+    border:1px solid var(--line);
+    color:var(--gold);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:.06em;
+    padding:11px 10px;
+    border-radius:4px;
+    appearance:none;
+    text-align:center;
+    cursor:pointer;
+  }
+  .league-empty{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:22px 18px;
+    text-align:center;
+    color:var(--chalk-dim);
+    font-size:13px;
+    line-height:1.6;
+  }
+  .selectors{
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    gap:10px;
+    align-items:center;
+    margin-bottom:22px;
+  }
+  select{
+    width:100%;
+    background:var(--surface);
+    border:1px solid var(--line);
+    color:var(--chalk);
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    padding:14px 10px;
+    border-radius:4px;
+    appearance:none;
+    text-align:center;
+  }
+  select:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  .vs{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    color:var(--sage);
+    font-size:13px;
+  }
+  .home-label, .away-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--chalk-dim);
+    text-align:center;
+    margin-bottom:5px;
+  }
+  .scoreboard{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:22px 18px;
+    margin-bottom:20px;
+  }
+  .xg-row{
+    display:flex;
+    justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--chalk-dim);
+    margin-bottom:16px;
+    padding-bottom:14px;
+    border-bottom:1px dashed var(--line);
+  }
+  .xg-row span b{color:var(--chalk); font-size:16px;}
+  .prob-bar{
+    display:flex;
+    height:46px;
+    border-radius:4px;
+    overflow:hidden;
+    margin-bottom:10px;
+  }
+  .seg{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    font-family:'JetBrains Mono',monospace;
+    transition:width .4s ease;
+  }
+  .seg .pct{font-size:16px;font-weight:700;line-height:1;}
+  .seg .lbl{font-size:9px;letter-spacing:.08em;margin-top:3px;opacity:.85;}
+  .seg.home{background:var(--gold); color:#1a1406;}
+  .seg.draw{background:var(--sage); color:#0F1B14;}
+  .seg.away{background:var(--steel); color:#0a1620;}
+
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;}
+  .stat-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:14px 16px;
+  }
+  .stat-card .k{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.1em; color:var(--chalk-dim); text-transform:uppercase;}
+  .stat-card .v{font-family:'Fraunces',serif; font-size:22px; margin-top:4px;}
+
+  .section-title{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--chalk-dim);
+    margin:26px 0 12px;
+  }
+
+  .heatmap-wrap{overflow-x:auto; background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:14px;}
+  table.heat{border-collapse:collapse; width:100%; font-family:'JetBrains Mono',monospace; font-size:11px;}
+  table.heat th{color:var(--chalk-dim); font-weight:500; padding:4px 6px; text-align:center;}
+  table.heat td{
+    text-align:center;
+    padding:7px 4px;
+    color:#0F1B14;
+    font-weight:700;
+    border-radius:2px;
+  }
+  table.heat th.corner{color:var(--sage); font-size:9px;}
+
+  .adjustments{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .adj-col{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:14px;
+  }
+  .adj-col h3{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin:0 0 12px;
+  }
+  .adj-field{margin-bottom:12px;}
+  .adj-field:last-child{margin-bottom:0;}
+  .adj-field label{
+    display:block;
+    font-size:10.5px;
+    color:var(--chalk-dim);
+    margin-bottom:5px;
+  }
+  .adj-field select{
+    padding:9px 8px;
+    font-size:12px;
+    font-weight:500;
+    text-align:left;
+  }
+  .ctx-value{
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    color:var(--chalk);
+    background:var(--surface2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:8px 10px;
+  }
+  .ctx-value.flag{color:var(--gold);}
+  .research-note{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--sage);
+    text-align:center;
+    margin:-4px 0 14px;
+  }
+  .impact-note{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:var(--sage);
+    margin-top:16px;
+    text-align:center;
+  }
+  .market-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:16px 18px;
+    margin-bottom:4px;
+  }
+  .market-row{display:flex; justify-content:space-between; align-items:baseline;}
+  .market-label{font-size:12px; color:var(--chalk-dim);}
+  .market-value{font-family:'Fraunces',serif; font-size:24px; color:var(--gold);}
+  .market-sub{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--sage); margin-top:2px; margin-bottom:12px;}
+  .lines-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+  .line-box{
+    background:var(--surface2);
+    border-radius:4px;
+    padding:8px 6px;
+    text-align:center;
+  }
+  .line-box .line-label{font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--chalk-dim);}
+  .line-box .line-pct{font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700; color:var(--chalk); margin-top:3px;}
+  .conf-badge{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    padding:7px 10px;
+    margin:6px 0 2px;
+    border-radius:4px;
+    background:var(--surface2);
+  }
+  .conf-badge .conf-top{display:flex; align-items:center; gap:7px;}
+  .conf-badge .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .conf-badge.alta .dot{background:#8FD19E;}
+  .conf-badge.media .dot{background:var(--gold);}
+  .conf-badge.baja .dot{background:#E88A8A;}
+  .conf-badge .label{color:var(--chalk-dim); text-transform:uppercase; letter-spacing:.05em;}
+  .conf-badge .score{color:var(--chalk); font-weight:700; margin-left:auto;}
+  .conf-badge .conf-reasons{
+    margin-top:5px; padding-top:5px; border-top:1px solid var(--line);
+    color:var(--sage); font-size:9.5px; line-height:1.5;
+    text-transform:none; letter-spacing:normal;
+  }
+  .conf-disclaimer{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;
+    color:var(--steel);
+    line-height:1.5;
+    padding:4px 10px 10px;
+    font-style:italic;
+  }
+  .market-panel{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    background:var(--surface2);
+    border-radius:4px;
+    padding:8px 10px;
+    margin:4px 0 6px;
+  }
+  .market-empty{color:var(--chalk-dim); font-size:10.5px; line-height:1.5;}
+  .market-empty code{color:var(--gold); font-style:normal;}
+  .market-stale{color:#E88A8A; font-size:10px; margin-bottom:6px; line-height:1.4;}
+  .market-fresh{color:var(--sage); font-size:10px; margin-bottom:6px;}
+  .edge-row{display:flex; justify-content:space-between; gap:8px; padding:3px 0;}
+  .edge-market{color:var(--chalk-dim); flex:1; text-align:center;}
+  .edge-val{font-weight:700; min-width:52px; text-align:right;}
+  .edge-val.edge-pos{color:#8FD19E;}
+  .edge-val.edge-neg{color:#E88A8A;}
+  .market-note{color:var(--steel); font-size:9px; font-style:italic; margin-top:6px; line-height:1.4;}
+  .confidence{
+    margin-top:28px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:14px 16px;
+  }
+  .confidence-title{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--chalk-dim);
+    margin-bottom:10px;
+  }
+  .conf-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:6px 0;
+    border-bottom:1px solid var(--line);
+    font-size:12px;
+  }
+  .conf-row:last-child{border-bottom:none;}
+  .conf-market{color:var(--chalk);}
+  .conf-score{font-family:'JetBrains Mono',monospace; font-weight:700;}
+  .conf-score.high{color:#8FD19E;}
+  .conf-score.mid{color:var(--gold);}
+  .conf-score.low{color:#D98F6F;}
+  .confidence-note{
+    font-size:10.5px;
+    color:var(--sage);
+    margin-top:10px;
+    line-height:1.5;
+  }
+  .autosave-status{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    color:var(--sage);
+    text-align:center;
+    margin:2px 0 22px;
+    min-height:14px;
+  }
+  .autosave-status.new{color:var(--gold);}
+
+              
+  .batch-panel{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:14px 16px;
+    margin-bottom:12px;
+  }
+  .batch-status{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--sage); margin-bottom:10px;}
+  .batch-status.done{color:#8FD19E;}
+  .fx-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:7px 0; border-bottom:1px solid var(--line); font-size:12px;
+  }
+  .fx-row:last-child{border-bottom:none;}
+  .fx-teams{flex:1;}
+
+  .tc-button{
+    width:100%;
+    background:var(--gold);
+    color:var(--base);
+    border:none;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.04em;
+    padding:11px 10px;
+    border-radius:4px;
+    cursor:pointer;
+    margin-bottom:8px;
+  }
+  .tc-button:hover{ opacity:0.9; }
+  .tc-panel{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:10px 12px;
+    margin-bottom:14px;
+    display:none;
+  }
+  .tc-panel.show{ display:block; }
+  .tc-note{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;
+    color:#E88A8A;
+    line-height:1.5;
+    margin-bottom:8px;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--line);
+  }
+  .tc-row{
+    display:flex; align-items:center; gap:8px;
+    font-size:11px;
+    padding:6px 0;
+    border-bottom:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+  .tc-row:last-child{ border-bottom:none; }
+  .tc-rank{ color:var(--gold); font-weight:700; min-width:16px; }
+  .tc-league{ color:var(--chalk-dim); font-size:9.5px; min-width:70px; }
+  .tc-teams{ flex:1; min-width:140px; }
+  .tc-date{ color:var(--chalk-dim); font-family:'JetBrains Mono',monospace; font-size:9.5px; }
+  .tc-pred{ color:var(--gold); font-family:'JetBrains Mono',monospace; font-size:10px; }
+  .tc-conf{ font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; padding:2px 6px; border-radius:3px; }
+  .tc-conf.alta{ background:rgba(143,209,158,0.15); color:#8FD19E; }
+  .tc-conf.media{ background:rgba(212,175,55,0.15); color:var(--gold); }
+  .tc-conf.baja{ background:rgba(232,138,138,0.15); color:#E88A8A; }
+  .tc-edge{ font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--chalk-dim); }
+  .tc-edge.edge-pos{ color:#8FD19E; }
+  .tc-edge.edge-neg{ color:#E88A8A; }
+  .tc-noedge{ font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--steel); font-style:italic; }
+  .tc-button-alt{ background:var(--surface2); color:var(--gold); border:1px solid var(--gold); }
+  .tc-breakdown{ width:100%; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--steel); margin-top:2px; }
+  .tc-edge-big{ font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--gold); flex:1; }
+  .tc-scope-toggle{
+    display:flex; align-items:center; gap:6px;
+    font-family:'JetBrains Mono',monospace; font-size:9.5px;
+    color:var(--chalk-dim);
+    margin-bottom:8px;
+    cursor:pointer;
+  }
+  .tc-scope-toggle input{ accent-color:var(--gold); }
+  .fx-date{font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--chalk-dim); margin-right:10px; min-width:42px;}
+  .fx-probs{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--gold); white-space:nowrap;}
+  .fx-promoted{color:var(--steel); font-size:9px;}
+  .calibration{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:14px 16px;
+    margin-bottom:12px;
+  }
+  .cal-title{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--chalk-dim);
+    margin-bottom:8px;
+  }
+  .cal-status{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--sage); margin-bottom:8px;}
+  .cal-status.active{color:#8FD19E;}
+  .cal-row{
+    display:flex; justify-content:space-between;
+    font-size:12px; padding:5px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .cal-row:last-of-type{border-bottom:none;}
+  .cal-adj{font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--gold);}
+  .cal-note{font-size:10.5px; color:var(--sage); line-height:1.5; margin-top:8px;}
+                              </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Multi-liga · xG + forma + ensemble Elo</div>
+  <h1>Premier League 2026-27</h1>
+  <div class="subtitle">Ensemble Poisson/Elo (65/35) sobre xG, con Dixon-Coles y aprendizaje ponderado por recencia.</div>
+
+  <div class="league-bar">
+    <select id="leagueSelect"></select>
+  </div>
+
+  <label class="tc-scope-toggle">
+    <input type="checkbox" id="allLeaguesToggle" checked>
+    <span>Todas las ligas (desmarcar = solo la liga seleccionada arriba)</span>
+  </label>
+
+  <button id="topConfidenceBtn" class="tc-button">🏆 Top 10 por confianza (todas las ligas)</button>
+  <div class="tc-panel" id="topConfidencePanel"></div>
+
+  <button id="topDiscrepanciesBtn" class="tc-button tc-button-alt">⚡ Top 10 discrepancia con el mercado</button>
+  <div class="tc-panel" id="topDiscrepanciesPanel"></div>
+
+  <div class="selectors">
+    <div>
+      <div class="home-label">Local</div>
+      <select id="homeTeam"></select>
+    </div>
+    <div class="vs">vs</div>
+    <div>
+      <div class="away-label">Visitante</div>
+      <select id="awayTeam"></select>
+    </div>
+  </div>
+
+  <div class="scoreboard">
+    <div class="xg-row">
+      <span id="homeName">—</span>
+      <span>xG esperado &nbsp; <b id="homeXG">-</b> &nbsp;–&nbsp; <b id="awayXG">-</b></span>
+      <span id="awayName">—</span>
+    </div>
+    <div class="prob-bar" id="probBar"></div>
+    <div class="conf-badge" id="confBadgeGoals"></div>
+    <div class="conf-disclaimer" id="confDisclaimer"></div>
+    <div class="market-panel" id="marketPanel"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="stat-card">
+      <div class="k">Over / Under 2.5</div>
+      <div class="v" id="overUnder">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="k">Ambos anotan (BTTS)</div>
+      <div class="v" id="btts">-</div>
+    </div>
+  </div>
+
+  <div class="autosave-status" id="autosaveStatus">—</div>
+
+  <div class="section-title">Corners</div>
+  <div class="conf-badge" id="confBadgeCorners"></div>
+  <div class="market-card">
+    <div class="market-row">
+      <span class="market-label">Esperados (total)</span>
+      <span class="market-value" id="cornersTotal">-</span>
+    </div>
+    <div class="market-sub" id="cornersSplit">-</div>
+    <div class="lines-grid" id="cornersLines"></div>
+  </div>
+
+  <div class="section-title">Tiros a puerta</div>
+  <div class="conf-badge" id="confBadgeSOT"></div>
+  <div class="market-card">
+    <div class="market-row">
+      <span class="market-label">Esperados (total)</span>
+      <span class="market-value" id="sotTotal">-</span>
+    </div>
+    <div class="market-sub" id="sotSplit">-</div>
+    <div class="lines-grid" id="sotLines"></div>
+  </div>
+
+  <div class="section-title">Tarjetas</div>
+  <div class="conf-badge" id="confBadgeCards"></div>
+  <div class="market-card">
+    <div class="market-row">
+      <span class="market-label">Esperadas (total)</span>
+      <span class="market-value" id="cardsTotal">-</span>
+    </div>
+    <div class="market-sub" id="cardsSplit">-</div>
+    <div class="lines-grid" id="cardsLines"></div>
+  </div>
+
+  <div class="section-title">Matriz de marcadores probables</div>
+  <div class="heatmap-wrap">
+    <table class="heat" id="heatTable"></table>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// REGISTRO DE LIGAS
+//
+// Cada liga aporta sus propios equipos, calendario y constantes. El motor de
+// cálculo es único y no sabe de qué liga se trata: recibe el objeto de liga
+// activa y opera sobre él. Agregar una liga nueva = agregar una entrada acá.
+//
+// Las constantes de goles/corners/tiros son ESPECÍFICAS de cada liga: la
+// Bundesliga promedia más goles que la Ligue 1, y la ventaja de local varía
+// entre países. Usar constantes de la Premier para todas sería un error grueso.
+// ============================================================
+const LEAGUES = {
+  'premier-league': {
+    name: 'Premier League',
+    country: 'Inglaterra',
+    code: 'ENG',
+    season: '2026-27',
+    // Promedios de liga (goles por equipo por partido, local y visitante)
+    homeAvg: 1.549, awayAvg: 1.206,
+    cornerHomeAvg: 4.99, cornerAwayAvg: 4.99,
+    sotHomeAvg: 4.17, sotAwayAvg: 4.17,
+    // Datos base: temporada 2025-26 completa (38 jornadas)
+    teams: {
+      // CORREGIDO: TheStatsAPI (350/380 partidos, 100% con stats detalladas),
+      // reemplaza la mezcla original OddAlerts/PL oficial/APWin/My Football Facts
+      // que había quedado sin actualizar desde antes del refactor multi-liga.
+      // Nota: 35 de 38 partidos por equipo (faltan 30 del total de la temporada
+      // en la respuesta de la API) -- igual, muchísimo más confiable que antes.
+      "West Ham": {gf:43, ga:60, xg:39.9, xga:56.35, pj:35, cf:4.8, ca:6, sf:3.77, sa:5.09, cards:1.77},
+      "Leeds United": {gf:48, ga:53, xg:50.4, xga:51.8, pj:35, cf:4.34, ca:5.17, sf:4.03, sa:4.34, cards:1.69},
+      "Tottenham": {gf:45, ga:48, xg:37.8, xga:45.5, pj:35, cf:5.51, ca:4.86, sf:3.89, sa:3.91, cards:2.66},
+      "Everton": {gf:42, ga:47, xg:42.0, xga:52.85, pj:35, cf:4.29, ca:5.26, sf:3.66, sa:4.17, cards:1.97},
+      "Sunderland": {gf:39, ga:44, xg:34.3, xga:49.0, pj:35, cf:3.63, ca:5, sf:3.51, sa:4.46, cards:2.17},
+      "Chelsea": {gf:52, ga:48, xg:59.85, xga:49.7, pj:35, cf:5.69, ca:4.29, sf:4.37, sa:4.2, cards:2.49},
+      "Fulham": {gf:42, ga:48, xg:43.05, xga:48.65, pj:35, cf:4.91, ca:5.46, sf:3.63, sa:4.09, cards:1.97},
+      "Newcastle": {gf:48, ga:49, xg:52.85, xga:46.2, pj:35, cf:6.17, ca:5.03, sf:4.49, sa:4.29, cards:1.6},
+      "Nottingham Forest": {gf:45, ga:46, xg:42.35, xga:51.1, pj:35, cf:5.31, ca:4.89, sf:4.17, sa:4.14, cards:1.51},
+      "Bournemouth": {gf:57, ga:53, xg:58.1, xga:51.1, pj:35, cf:5.6, ca:5.31, sf:4.71, sa:4.37, cards:2.31},
+      "Crystal Palace": {gf:36, ga:48, xg:54.25, xga:47.25, pj:35, cf:4.23, ca:5.23, sf:3.77, sa:4, cards:1.91},
+      "Arsenal": {gf:64, ga:25, xg:61.6, xga:25.55, pj:35, cf:5.8, ca:3.14, sf:4.91, sa:2.26, cards:1.37},
+      "Liverpool": {gf:56, ga:49, xg:54.95, xga:44.1, pj:35, cf:5.97, ca:4.37, sf:4.49, sa:4.11, cards:1.54},
+      "Brentford": {gf:51, ga:47, xg:56.35, xga:50.05, pj:35, cf:4.71, ca:5.49, sf:3.86, sa:4.31, cards:1.86},
+      "Manchester City": {gf:72, ga:32, xg:65.8, xga:40.95, pj:35, cf:6.57, ca:3.83, sf:5.31, sa:3.26, cards:1.77},
+      "Aston Villa": {gf:54, ga:42, xg:44.45, xga:48.65, pj:35, cf:5.26, ca:5.06, sf:4.49, sa:4.37, cards:1.49},
+      "Burnley": {gf:34, ga:68, xg:29.75, xga:70.7, pj:35, cf:3.6, ca:5.8, sf:3.11, sa:5.77, cards:1.74},
+      "Wolves": {gf:23, ga:66, xg:32.55, xga:53.9, pj:35, cf:3.54, ca:5.77, sf:3.17, sa:4.69, cards:2.06},
+      "Brighton": {gf:48, ga:44, xg:54.25, xga:46.2, pj:35, cf:4.94, ca:4.86, sf:4.54, sa:3.97, cards:2.2},
+      "Manchester United": {gf:65, ga:47, xg:60.2, xga:45.15, pj:35, cf:4.83, ca:4.91, sf:5.6, sa:3.69, cards:1.6},
+      "Coventry City":  {gf:44.4, ga:69.4, xg:42.2, xga:66.0, pj:38, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
+      "Hull City":      {gf:44.4, ga:69.4, xg:42.2, xga:66.0, pj:38, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
+      "Ipswich Town":   {gf:44.4, ga:69.4, xg:42.2, xga:66.0, pj:38, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
+    },
+    active: ["Arsenal","Manchester City","Manchester United","Chelsea","Liverpool",
+  "Brentford","Bournemouth","Aston Villa","Brighton","Tottenham","Newcastle","Fulham",
+  "Leeds United","Sunderland","Crystal Palace","Everton","Nottingham Forest",
+  "Coventry City","Hull City","Ipswich Town"],
+    fixtures: [
+  // Jornada 1
+  {mw:1, date:"2026-08-21", home:"Arsenal", away:"Coventry City"},
+  {mw:1, date:"2026-08-22", home:"Hull City", away:"Manchester United"},
+  {mw:1, date:"2026-08-22", home:"Everton", away:"Crystal Palace"},
+  {mw:1, date:"2026-08-22", home:"Ipswich Town", away:"Sunderland"},
+  {mw:1, date:"2026-08-22", home:"Nottingham Forest", away:"Leeds United"},
+  {mw:1, date:"2026-08-22", home:"Brentford", away:"Tottenham"},
+  {mw:1, date:"2026-08-23", home:"Brighton", away:"Aston Villa"},
+  {mw:1, date:"2026-08-23", home:"Manchester City", away:"Bournemouth"},
+  {mw:1, date:"2026-08-23", home:"Newcastle", away:"Liverpool"},
+  {mw:1, date:"2026-08-24", home:"Fulham", away:"Chelsea"},
+  // Jornada 2
+  {mw:2, date:"2026-08-28", home:"Crystal Palace", away:"Manchester City"},
+  {mw:2, date:"2026-08-29", home:"Liverpool", away:"Nottingham Forest"},
+  {mw:2, date:"2026-08-29", home:"Bournemouth", away:"Everton"},
+  {mw:2, date:"2026-08-29", home:"Coventry City", away:"Hull City"},
+  {mw:2, date:"2026-08-29", home:"Tottenham", away:"Newcastle"},
+  {mw:2, date:"2026-08-29", home:"Aston Villa", away:"Arsenal"},
+  {mw:2, date:"2026-08-29", home:"Manchester United", away:"Ipswich Town"},
+  {mw:2, date:"2026-08-29", home:"Sunderland", away:"Fulham"},
+  {mw:2, date:"2026-08-30", home:"Chelsea", away:"Brighton"},
+  {mw:2, date:"2026-08-30", home:"Leeds United", away:"Brentford"},
+  // Jornada 3
+  {mw:3, date:"2026-09-05", home:"Arsenal", away:"Chelsea"},
+  {mw:3, date:"2026-09-05", home:"Brentford", away:"Sunderland"},
+  {mw:3, date:"2026-09-05", home:"Brighton", away:"Leeds United"},
+  {mw:3, date:"2026-09-05", home:"Everton", away:"Manchester United"},
+  {mw:3, date:"2026-09-05", home:"Fulham", away:"Crystal Palace"},
+  {mw:3, date:"2026-09-05", home:"Hull City", away:"Aston Villa"},
+  {mw:3, date:"2026-09-05", home:"Ipswich Town", away:"Liverpool"},
+  {mw:3, date:"2026-09-05", home:"Manchester City", away:"Coventry City"},
+],
+  },
+
+  // === PLANTILLAS PARA LAS LIGAS PENDIENTES ===
+  // Se completan cuando lleguen los datos de la API. Quedan declaradas para que
+  // el selector las muestre como "sin datos" en vez de simplemente no existir.
+  'la-liga': {
+    name: 'LaLiga', country: 'España', code: 'ESP', season: '2026-27',
+    homeAvg: 1.574, awayAvg: 1.121,
+    cornerHomeAvg: 4.82, cornerAwayAvg: 4.82,
+    sotHomeAvg: 4.31, sotAwayAvg: 4.31,
+    teams: {
+      "Villarreal": {gf:72, ga:46, xg:59.66, xga:46.74, pj:38, cf:4.24, ca:4.89, sf:4.54, sa:3.97, cards:2.11},
+      "Atlético Madrid": {gf:62, ga:44, xg:59.28, xga:49.78, pj:38, cf:6.38, ca:4.35, sf:5.08, sa:3.78, cards:2.16},
+      "Girona FC": {gf:39, ga:55, xg:49.78, xga:57.0, pj:38, cf:4.31, ca:5.28, sf:4.25, sa:4.69, cards:2.11},
+      "Elche": {gf:49, ga:57, xg:43.32, xga:62.7, pj:38, cf:3.76, ca:4.3, sf:3.76, sa:4.73, cards:2.05},
+      "Valencia": {gf:46, ga:55, xg:50.54, xga:46.74, pj:38, cf:5.05, ca:4.73, sf:3.16, sa:4.05, cards:1.81},
+      "Barcelona": {gf:95, ga:36, xg:85.5, xga:45.98, pj:38, cf:6.64, ca:4.22, sf:6.36, sa:3.36, cards:1.56},
+      "Real Madrid": {gf:77, ga:35, xg:77.14, xga:40.66, pj:38, cf:6.29, ca:3.66, sf:6.66, sa:3.21, cards:1.84},
+      "Athletic Club": {gf:43, ga:58, xg:48.26, xga:41.8, pj:38, cf:5.92, ca:3.92, sf:4.61, sa:4.31, cards:2.08},
+      "Mallorca": {gf:47, ga:57, xg:43.32, xga:62.7, pj:38, cf:3.68, ca:6.29, sf:4.18, sa:4.47, cards:2.18},
+      "Real Oviedo": {gf:26, ga:60, xg:35.34, xga:59.28, pj:38, cf:3.79, ca:5.32, sf:3.05, sa:5.26, cards:2.11},
+      "Getafe": {gf:32, ga:38, xg:30.78, xga:41.04, pj:38, cf:4.35, ca:4.68, sf:2.73, sa:4.05, cards:2.84},
+      "Osasuna": {gf:44, ga:50, xg:44.08, xga:50.54, pj:38, cf:3.69, ca:4.89, sf:3.83, sa:4.56, cards:2.25},
+      "Espanyol": {gf:43, ga:55, xg:48.64, xga:55.1, pj:38, cf:4.68, ca:4.84, sf:4.16, sa:5.13, cards:2.39},
+      "Real Sociedad": {gf:59, ga:61, xg:53.96, xga:54.34, pj:38, cf:5.54, ca:4.41, sf:4.57, sa:4.32, cards:2.32},
+      "Celta Vigo": {gf:53, ga:48, xg:49.78, xga:50.16, pj:38, cf:3.97, ca:4.56, sf:4.06, sa:4.28, cards:1.86},
+      "Sevilla": {gf:46, ga:60, xg:38.76, xga:56.62, pj:38, cf:4.79, ca:4.55, sf:3.61, sa:4.21, cards:2.82},
+      "Real Betis": {gf:59, ga:48, xg:56.62, xga:45.6, pj:38, cf:4.51, ca:5.11, sf:4.89, sa:4.38, cards:1.95},
+      "Levante UD": {gf:47, ga:61, xg:52.44, xga:58.9, pj:38, cf:4.27, ca:6.03, sf:3.86, sa:5.19, cards:2.22},
+      "Deportivo Alavés": {gf:44, ga:56, xg:47.5, xga:47.88, pj:38, cf:4.86, ca:5.08, sf:4.05, sa:4, cards:2.43},
+      "Rayo Vallecano": {gf:41, ga:44, xg:51.68, xga:50.16, pj:38, cf:5.76, ca:5.32, sf:4.84, sa:4.22, cards:2.7},
+      "Racing Santander": {gf:41.0, ga:64.0, xg:38.9, xga:60.8, pj:38, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
+      "Deportivo La Coruña": {gf:41.0, ga:64.0, xg:38.9, xga:60.8, pj:38, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
+      "Málaga": {gf:41.0, ga:64.0, xg:38.9, xga:60.8, pj:38, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
+    },
+    active: ["Villarreal", "Atlético Madrid", "Elche", "Valencia", "Barcelona", "Real Madrid", "Athletic Club", "Getafe", "Osasuna", "Espanyol", "Real Sociedad", "Celta Vigo", "Sevilla", "Real Betis", "Levante UD", "Deportivo Alavés", "Rayo Vallecano", "Racing Santander", "Deportivo La Coruña", "Málaga"],
+        fixtures: [
+      // Jornada 1 — COMPLETA (10/10). Escalonada por el Mundial: los primeros
+      // partidos ya se jugaron (marcados abajo), el resto llega hasta el 27/08.
+      {mw:1, date:"2026-08-15", home:"Deportivo Alavés", away:"Getafe"},           // ya jugado: 3-0
+      {mw:1, date:"2026-08-15", home:"Sevilla", away:"Rayo Vallecano"},            // ya jugado: 2-1
+      {mw:1, date:"2026-08-16", home:"Racing Santander", away:"Villarreal"},       // ya jugado: 2-2
+      {mw:1, date:"2026-08-16", home:"Espanyol", away:"Levante UD"},               // ya jugado: 3-0
+      {mw:1, date:"2026-08-17", home:"Deportivo La Coruña", away:"Elche"},         // ya jugado: 1-1
+      {mw:1, date:"2026-08-19", home:"Atlético Madrid", away:"Málaga"},
+      {mw:1, date:"2026-08-25", home:"Valencia", away:"Real Betis"},
+      {mw:1, date:"2026-08-26", home:"Real Madrid", away:"Real Sociedad"},
+      {mw:1, date:"2026-08-27", home:"Celta Vigo", away:"Osasuna"},
+      {mw:1, date:"2026-08-27", home:"Barcelona", away:"Athletic Club"},
+    ], // pendiente: calendario de arranque 26-27
+  },
+  'serie-a': {
+    name: 'Serie A', country: 'Italia', code: 'ITA', season: '2026-27',
+    homeAvg: 1.276, awayAvg: 1.15,
+    cornerHomeAvg: 4.41, cornerAwayAvg: 4.41,
+    sotHomeAvg: 4.03, sotAwayAvg: 4.03,
+    teams: {
+      "Torino": {gf:44, ga:63, xg:45.22, xga:53.96, pj:38, cf:3.84, ca:4.68, sf:3.97, sa:4.5, cards:1.87},
+      "Juventus": {gf:61, ga:34, xg:67.64, xga:32.68, pj:38, cf:5.42, ca:3.76, sf:5.97, sa:2.82, cards:1.37},
+      "Milan": {gf:53, ga:35, xg:58.9, xga:44.46, pj:38, cf:4.26, ca:4.29, sf:4.37, sa:3.68, cards:1.68},
+      "Cagliari": {gf:40, ga:53, xg:38, xga:53.58, pj:38, cf:3.79, ca:5.16, sf:3.47, sa:4.63, cards:2.13},
+      "Cremonese": {gf:32, ga:57, xg:35.34, xga:57.76, pj:38, cf:3.5, ca:5.97, sf:3.29, sa:5.16, cards:1.92},
+      "Como": {gf:65, ga:29, xg:61.94, xga:33.82, pj:38, cf:4.47, ca:3.21, sf:5.11, sa:3.11, cards:2.11},
+      "Lecce": {gf:28, ga:50, xg:31.16, xga:55.86, pj:38, cf:4.29, ca:5.34, sf:2.55, sa:4.26, cards:1.82},
+      "Genoa": {gf:41, ga:51, xg:45.22, xga:48.64, pj:38, cf:3.68, ca:4.87, sf:3.76, sa:4.26, cards:1.66},
+      "Hellas Verona": {gf:25, ga:61, xg:36.1, xga:50.16, pj:38, cf:3.95, ca:5.08, sf:3.71, sa:4.21, cards:2.34},
+      "Roma": {gf:59, ga:31, xg:55.1, xga:39.52, pj:38, cf:5.16, ca:3.47, sf:4.68, sa:3.63, cards:1.79},
+      "Napoli": {gf:58, ga:36, xg:51.68, xga:36.86, pj:38, cf:5.47, ca:2.76, sf:4.71, sa:3.03, cards:1.29},
+      "Udinese": {gf:45, ga:48, xg:42.56, xga:52.44, pj:38, cf:4.47, ca:4.79, sf:3.82, sa:3.89, cards:1.87},
+      "Parma": {gf:28, ga:46, xg:31.92, xga:55.86, pj:38, cf:3.84, ca:4.97, sf:2.74, sa:4.32, cards:1.68},
+      "Sassuolo": {gf:46, ga:50, xg:42.18, xga:55.48, pj:38, cf:3.76, ca:4.89, sf:3.76, sa:4.95, cards:2.21},
+      "Lazio": {gf:41, ga:40, xg:41.8, xga:46.74, pj:38, cf:3.74, ca:4.18, sf:4.08, sa:4.21, cards:2.03},
+      "Pisa": {gf:26, ga:71, xg:38.76, xga:58.52, pj:38, cf:3.55, ca:4.82, sf:2.79, sa:4.68, cards:2.05},
+      "Bologna": {gf:49, ga:46, xg:43.7, xga:45.6, pj:38, cf:4.47, ca:4.24, sf:3.79, sa:3.71, cards:1.76},
+      "Inter": {gf:89, ga:35, xg:71.44, xga:33.82, pj:38, cf:6.34, ca:2.89, sf:6, sa:2.92, cards:1.66},
+      "Fiorentina": {gf:41, ga:50, xg:53.2, xga:50.54, pj:38, cf:4.45, ca:4.58, sf:3.45, sa:4.66, cards:2.18},
+      "Atalanta": {gf:51, ga:36, xg:57.76, xga:42.56, pj:38, cf:5.66, ca:4.16, sf:4.61, sa:4, cards:1.58},
+      "Venezia": {gf:36.9, ga:57.6, xg:35.1, xga:54.7, pj:38, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
+      "Frosinone": {gf:36.9, ga:57.6, xg:35.1, xga:54.7, pj:38, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
+      "Monza": {gf:36.9, ga:57.6, xg:35.1, xga:54.7, pj:38, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
+    },
+    active: ["Torino", "Juventus", "Milan", "Cagliari", "Como", "Lecce", "Genoa", "Roma", "Napoli", "Udinese", "Parma", "Sassuolo", "Lazio", "Bologna", "Inter", "Fiorentina", "Atalanta", "Venezia", "Frosinone", "Monza"],
+        fixtures: [
+      // Jornada 1 (22-23 agosto 2026) — CONFIRMADA COMPLETA
+      {mw:1, date:"2026-08-22", home:"Atalanta", away:"Sassuolo"},
+      {mw:1, date:"2026-08-22", home:"Bologna", away:"Lazio"},
+      {mw:1, date:"2026-08-22", home:"Frosinone", away:"Juventus"},
+      {mw:1, date:"2026-08-22", home:"Genoa", away:"Napoli"},
+      {mw:1, date:"2026-08-22", home:"Inter", away:"Monza"},
+      {mw:1, date:"2026-08-22", home:"Parma", away:"Cagliari"},
+      {mw:1, date:"2026-08-23", home:"Roma", away:"Fiorentina"},
+      {mw:1, date:"2026-08-23", home:"Torino", away:"Milan"},
+      {mw:1, date:"2026-08-23", home:"Udinese", away:"Como"},
+      {mw:1, date:"2026-08-23", home:"Venezia", away:"Lecce"},
+    ], // pendiente: calendario de arranque 26-27
+  },
+  'bundesliga': {
+    name: 'Bundesliga', country: 'Alemania', code: 'GER', season: '2026-27',
+    homeAvg: 1.778, awayAvg: 1.458,
+    cornerHomeAvg: 4.88, cornerAwayAvg: 4.88,
+    sotHomeAvg: 4.77, sotAwayAvg: 4.77,
+    teams: {
+      "FC St. Pauli": {gf:29, ga:60, xg:30.26, xga:57.12, pj:34, cf:4.74, ca:5.15, sf:3.35, sa:5.41, cards:1.59},
+      "VfL Wolfsburg": {gf:45, ga:69, xg:47.26, xga:61.2, pj:34, cf:4.44, ca:7.44, sf:4.21, sa:5.59, cards:2},
+      "1. FC Heidenheim": {gf:41, ga:72, xg:47.6, xga:63.92, pj:34, cf:4.53, ca:5.06, sf:3.62, sa:5.68, cards:1.41},
+      "1. FSV Mainz 05": {gf:44, ga:53, xg:55.08, xga:55.76, pj:34, cf:5.06, ca:4.59, sf:4.15, sa:5.06, cards:2.06},
+      "SV Werder Bremen": {gf:37, ga:60, xg:41.14, xga:54.4, pj:34, cf:4.53, ca:4.97, sf:4.12, sa:5.12, cards:2.26},
+      "Borussia Dortmund": {gf:70, ga:34, xg:63.24, xga:39.1, pj:34, cf:5.32, ca:4.21, sf:4.79, sa:3.53, cards:1.85},
+      "Eintracht Frankfurt": {gf:61, ga:65, xg:45.9, xga:49.64, pj:34, cf:4.68, ca:4.56, sf:4.62, sa:4.88, cards:1.82},
+      "VfB Stuttgart": {gf:71, ga:49, xg:60.18, xga:50.66, pj:34, cf:5.68, ca:4.24, sf:6.09, sa:4.71, cards:1.85},
+      "Borussia M'gladbach": {gf:42, ga:53, xg:42.5, xga:53.04, pj:34, cf:3.76, ca:4.88, sf:4.18, sa:5.56, cards:1.76},
+      "TSG Hoffenheim": {gf:65, ga:52, xg:55.76, xga:50.32, pj:34, cf:5.79, ca:4.79, sf:5.18, sa:4.44, cards:2.15},
+      "1. FC Union Berlin": {gf:44, ga:58, xg:45.56, xga:52.02, pj:34, cf:5, ca:4.82, sf:3.91, sa:4.38, cards:2.09},
+      "FC Augsburg": {gf:45, ga:61, xg:46.24, xga:63.58, pj:34, cf:4.62, ca:5.56, sf:4.62, sa:5, cards:2.38},
+      "Bayer 04 Leverkusen": {gf:68, ga:47, xg:64.26, xga:45.9, pj:34, cf:5.59, ca:4.12, sf:5.15, sa:5, cards:2.06},
+      "Hamburger SV": {gf:40, ga:54, xg:40.8, xga:60.52, pj:34, cf:3.68, ca:5.85, sf:4.56, sa:5.09, cards:2.26},
+      "FC Bayern München": {gf:122, ga:36, xg:100.3, xga:41.14, pj:34, cf:6.35, ca:3.53, sf:8.5, sa:3.09, cards:1.71},
+      "1. FC Köln": {gf:49, ga:63, xg:51.34, xga:55.42, pj:34, cf:4.62, ca:5.53, sf:4.59, sa:4.71, cards:1.88},
+      "SC Freiburg": {gf:51, ga:57, xg:48.28, xga:47.6, pj:34, cf:4.12, ca:4.18, sf:4.21, sa:4.62, cards:1.5},
+      "RB Leipzig": {gf:66, ga:47, xg:66.3, xga:50.32, pj:34, cf:5.29, ca:4.32, sf:6, sa:3.97, cards:1.53},
+      "Schalke 04": {gf:44.0, ga:68.8, xg:41.8, xga:65.4, pj:34, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
+      "SV Elversberg": {gf:44.0, ga:68.8, xg:41.8, xga:65.4, pj:34, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
+      "SC Paderborn": {gf:44.0, ga:68.8, xg:41.8, xga:65.4, pj:34, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
+    },
+    active: ["1. FSV Mainz 05", "SV Werder Bremen", "Borussia Dortmund", "Eintracht Frankfurt", "VfB Stuttgart", "Borussia M'gladbach", "TSG Hoffenheim", "1. FC Union Berlin", "FC Augsburg", "Bayer 04 Leverkusen", "Hamburger SV", "FC Bayern München", "1. FC Köln", "SC Freiburg", "RB Leipzig", "Schalke 04", "SV Elversberg", "SC Paderborn"],
+        fixtures: [
+      // Jornada 1 (28-30 agosto 2026) — CONFIRMADA COMPLETA
+      {mw:1, date:"2026-08-28", home:"FC Bayern München", away:"VfB Stuttgart"},
+      {mw:1, date:"2026-08-29", home:"SV Elversberg", away:"Bayer 04 Leverkusen"},
+      {mw:1, date:"2026-08-29", home:"1. FC Köln", away:"TSG Hoffenheim"},
+      {mw:1, date:"2026-08-29", home:"1. FC Union Berlin", away:"Eintracht Frankfurt"},
+      {mw:1, date:"2026-08-29", home:"1. FSV Mainz 05", away:"SC Paderborn"},
+      {mw:1, date:"2026-08-29", home:"RB Leipzig", away:"Borussia M'gladbach"},
+      {mw:1, date:"2026-08-29", home:"Borussia Dortmund", away:"Hamburger SV"},
+      {mw:1, date:"2026-08-30", home:"SC Freiburg", away:"SV Werder Bremen"},
+      {mw:1, date:"2026-08-30", home:"FC Augsburg", away:"Schalke 04"},
+      // Jornada 2 (5-6 septiembre 2026) — CONFIRMADA COMPLETA
+      {mw:2, date:"2026-09-05", home:"TSG Hoffenheim", away:"Borussia Dortmund"},
+      {mw:2, date:"2026-09-05", home:"Bayer 04 Leverkusen", away:"1. FC Union Berlin"},
+      {mw:2, date:"2026-09-05", home:"Borussia M'gladbach", away:"SV Elversberg"},
+      {mw:2, date:"2026-09-05", home:"SV Werder Bremen", away:"RB Leipzig"},
+      {mw:2, date:"2026-09-05", home:"SC Paderborn", away:"SC Freiburg"},
+      {mw:2, date:"2026-09-05", home:"Schalke 04", away:"FC Bayern München"},
+      {mw:2, date:"2026-09-06", home:"Hamburger SV", away:"1. FSV Mainz 05"},
+      {mw:2, date:"2026-09-06", home:"Eintracht Frankfurt", away:"FC Augsburg"},
+      {mw:2, date:"2026-09-06", home:"1. FC Köln", away:"VfB Stuttgart"}, // inferido: únicos 2 sin emparejar en MD2
+    ], // pendiente: calendario de arranque 26-27
+  },
+  'ligue-1': {
+    name: 'Ligue 1', country: 'Francia', code: 'FRA', season: '2026-27',
+    homeAvg: 1.587, awayAvg: 1.243,
+    cornerHomeAvg: 4.79, cornerAwayAvg: 4.79,
+    sotHomeAvg: 4.32, sotAwayAvg: 4.31,
+    teams: {
+      "Olympique Lyonnais": {gf:53, ga:40, xg:52.36, xga:42.5, pj:34, cf:5.85, ca:5.12, sf:4.67, sa:3.88, cards:1.79},
+      "RC Lens": {gf:66, ga:35, xg:66.64, xga:44.54, pj:34, cf:6.16, ca:4.29, sf:5.52, sa:3.45, cards:1.9},
+      "Paris FC": {gf:47, ga:50, xg:45.22, xga:55.42, pj:34, cf:4.38, ca:5.56, sf:3.97, sa:4, cards:2.09},
+      "Paris Saint-Germain": {gf:74, ga:29, xg:69.7, xga:31.62, pj:34, cf:6.35, ca:3.15, sf:6.65, sa:3.24, cards:1.03},
+      "Nice": {gf:37, ga:60, xg:43.52, xga:58.14, pj:34, cf:5.09, ca:5.71, sf:3.94, sa:5.18, cards:1.97},
+      "Metz": {gf:32, ga:76, xg:34.68, xga:62.56, pj:34, cf:4.24, ca:5.26, sf:3.18, sa:5.74, cards:1.59},
+      "Stade Brestois": {gf:43, ga:55, xg:46.24, xga:49.64, pj:34, cf:4.09, ca:5.84, sf:3.53, sa:4.53, cards:1.63},
+      "Angers": {gf:29, ga:48, xg:32.3, xga:55.76, pj:34, cf:3.56, ca:5.21, sf:3.29, sa:5.5, cards:1.5},
+      "Olympique de Marseille": {gf:63, ga:45, xg:60.86, xga:46.24, pj:34, cf:5.18, ca:3.62, sf:5.74, sa:3.97, cards:2.35},
+      "Stade Rennais": {gf:59, ga:50, xg:54.4, xga:53.38, pj:34, cf:6, ca:4.59, sf:4.97, sa:4.29, cards:1.71},
+      "Lille": {gf:52, ga:37, xg:53.72, xga:38.42, pj:34, cf:5.34, ca:3.72, sf:4.44, sa:3.38, cards:2.25},
+      "Auxerre": {gf:34, ga:44, xg:35.36, xga:47.94, pj:34, cf:4.76, ca:4.71, sf:3.5, sa:4.65, cards:2.06},
+      "RC Strasbourg": {gf:58, ga:47, xg:54.4, xga:45.56, pj:34, cf:4.28, ca:4.66, sf:4.59, sa:4.56, cards:1.81},
+      "AS Monaco": {gf:60, ga:54, xg:56.78, xga:48.62, pj:34, cf:5.06, ca:4.32, sf:4.44, sa:4.47, cards:2.18},
+      "Lorient": {gf:48, ga:51, xg:43.52, xga:45.9, pj:34, cf:3.5, ca:5.28, sf:3.91, sa:3.88, cards:1.59},
+      "Le Havre": {gf:32, ga:44, xg:39.1, xga:51.68, pj:34, cf:4.24, ca:4.55, sf:3.7, sa:4, cards:1.85},
+      "Toulouse": {gf:47, ga:46, xg:42.9, xga:42.57, pj:33, cf:4.45, ca:5.12, sf:4.33, sa:4, cards:2.33},
+      "Nantes": {gf:29, ga:52, xg:36.63, xga:45.87, pj:33, cf:3.66, ca:5.59, sf:3.31, sa:4.84, cards:2},
+      "Troyes": {gf:43.0, ga:67.2, xg:40.9, xga:63.8, pj:38, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
+      "Le Mans": {gf:43.0, ga:67.2, xg:40.9, xga:63.8, pj:38, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
+    },
+    active: ["Olympique Lyonnais", "RC Lens", "Paris FC", "Paris Saint-Germain", "Nice", "Stade Brestois", "Angers", "Olympique de Marseille", "Stade Rennais", "Lille", "Auxerre", "RC Strasbourg", "AS Monaco", "Lorient", "Le Havre", "Toulouse", "Troyes", "Le Mans"],
+        fixtures: [
+      // Jornada 1 (22-23 agosto 2026) — 8 confirmados, 1 inferido (Brestois-Le Mans:
+      // únicos 2 equipos sin aparecer en ninguna fuente consultada para esta fecha)
+      {mw:1, date:"2026-08-22", home:"Angers", away:"Lille"},
+      {mw:1, date:"2026-08-22", home:"Le Havre", away:"AS Monaco"},
+      {mw:1, date:"2026-08-22", home:"RC Lens", away:"Auxerre"},
+      {mw:1, date:"2026-08-22", home:"Olympique de Marseille", away:"RC Strasbourg"},
+      {mw:1, date:"2026-08-22", home:"Nice", away:"Lorient"},
+      {mw:1, date:"2026-08-22", home:"Paris Saint-Germain", away:"Stade Rennais"},
+      {mw:1, date:"2026-08-23", home:"Toulouse", away:"Olympique Lyonnais"},
+      {mw:1, date:"2026-08-23", home:"Troyes", away:"Paris FC"},
+      {mw:1, date:"2026-08-23", home:"Stade Brestois", away:"Le Mans"}, // inferido
+    ], // pendiente: calendario de arranque 26-27
+  },
+};
+
+// Liga activa. Todo el motor opera sobre L().
+let currentLeague = 'premier-league';
+function L(){ return LEAGUES[currentLeague]; }
+function leagueHasData(key){
+  const lg = LEAGUES[key];
+  return lg && lg.active && lg.active.length > 0 && Object.keys(lg.teams||{}).length > 0;
+}
+
+// FASE 2: mezcla xG / goles reales.
+// El xG es más predictivo (menos ruido de suerte), pero los goles reales
+// capturan algo de calidad de definición que sí persiste. Usamos 75/25.
+const XG_WEIGHT = 0.75;
+
+// ============================================================
+// DERIVACIÓN DE FUERZAS POR LIGA
+// Calcula promedios de liga y fuerzas relativas de cada equipo. Se ejecuta
+// una vez por liga; el resultado queda cacheado en el objeto de liga.
+//
+// CLAVE: las fuerzas se normalizan contra el promedio de SU PROPIA liga.
+// Por eso un 1.30 de Premier no es comparable con un 1.30 de Bundesliga.
+// Comparar entre ligas (Champions/Europa) exigirá una capa de conversión
+// que todavía no existe.
+// ============================================================
+// ============================================================
+// AJUSTE POR FICHAJES NOTABLES (mercado de pases verano 2026)
+//
+// NOTA METODOLÓGICA: igual que motivación/financiero, sin respaldo
+// científico — es criterio propio sobre qué tan grande fue el movimiento,
+// no un estudio. Alcance deliberadamente acotado: solo los 6-8 casos donde
+// el cambio de plantel es lo bastante grande como para justificar tocar el
+// prior (no los ~100 equipos de las 5 ligas). Magnitud conservadora (±3-5%)
+// a pedido explícito, porque el aprendizaje bayesiano (PRIOR_STRENGTH=12) va
+// a corregir esto con evidencia real en las primeras fechas de todos modos —
+// este ajuste solo importa para no arrancar mal calibrado en el arranque.
+//
+// Fuentes: football365, ESPN, Goal.com, premierleague.com (agosto 2026).
+// ============================================================
+const TRANSFER_FX = {
+  'premier-league': {
+    'Chelsea':     { attackAdj: 1.05, note: 'Ficha a Morgan Rogers (£117M, la transferencia más cara del verano)' },
+    'Aston Villa': { attackAdj: 0.96, note: 'Pierde a Morgan Rogers, su referente ofensivo' },
+    'Tottenham':   { attackAdj: 1.04, note: 'Ficha a Sandro Tonali (£92.5M) desde Newcastle' },
+    'Newcastle':   { attackAdj: 0.95, note: 'Pierde a Tonali (Spurs) y Gordon (Barcelona) — dos titulares' },
+  },
+  'la-liga': {
+    'Barcelona': { attackAdj: 1.05, note: 'Ficha a Anthony Gordon (Newcastle) y Karim Adeyemi (Dortmund)' },
+  },
+  'serie-a': {
+    'Napoli': { attackAdj: 1.04, note: 'Hojlund pasa a fijo desde Manchester United (opción de compra ejecutada)' },
+  },
+  'bundesliga': {
+    'Borussia Dortmund': { attackAdj: 0.97, note: 'Pierde a Karim Adeyemi (Barcelona)' },
+  },
+  'ligue-1': {
+    'Olympique de Marseille': { attackAdj: 0.95, note: 'Pierde a Mason Greenwood (37 goles+12 asist. en 2 temporadas) sin reemplazo confirmado' },
+  },
+};
+
+// ============================================================
+// SHRINKAGE POR CONFIANZA DEL DATO (usadas en computeLeagueDerived y en
+// combinedFactors/combinedMarketFactors). La idea: un factor estimado sin
+// respaldo real no debería mover el cálculo tanto como uno medido, incluso
+// si matemáticamente están escritos igual (un multiplicador). En vez de
+// solo avisar después con el índice de confianza, esto hace que el propio
+// cálculo confíe menos en lo que no está medido.
+//
+// 0.5 = "a mitad de camino a neutro (1.0)". No es 0 (ignorarlo del todo,
+// perdería la única información que tenemos) ni 1 (tratarlo como dato real).
+// Declaradas ACÁ (no junto a PRIOR_STRENGTH más abajo) porque
+// computeLeagueDerived las usa y se ejecuta apenas se declara, antes de
+// llegar a esa parte del archivo -- un const más abajo rompería por
+// temporal dead zone.
+// ============================================================
+const PROMOTED_SHRINKAGE = 0.5; // priors de equipos ascendidos (estimados, no medidos)
+const UNBACKED_SHRINKAGE = 0.5; // fichajes, motivación, estrés financiero (sin respaldo científico)
+
+// Cuánto influye la "combatividad" del RIVAL en las tarjetas propias. A
+// diferencia de corners/tiros (ataque propio × defensa rival, con respaldo
+// directo: generás más si el rival defiende peor), tarjetas no tiene ese
+// mecanismo causal simple -- no existe "defensa de tarjetas". Lo que sí está
+// documentado en análisis de fútbol es el efecto de partido caliente: dos
+// equipos con tendencia a la falta se contagian entre sí. Peso moderado
+// (0.4, no 1.0 como corners/tiros) porque el mecanismo es más indirecto y
+// esto es criterio propio, no algo con el mismo respaldo que Dixon-Coles.
+const OPPONENT_CARDS_INFLUENCE = 0.4;
+
+function computeLeagueDerived(leagueKey){
+  const lg = LEAGUES[leagueKey];
+  if (!lg || !lg.active || lg.active.length === 0) return false;
+
+  let totalGF=0, totalGA=0, totalPJ=0, totalXG=0, totalXGA=0;
+  let sumCF=0, sumCA=0, sumSF=0, sumSA=0, sumCards=0;
+  let n = 0;
+  for (const name of lg.active){
+    const t = lg.teams[name];
+    if (!t) continue;
+    totalGF+=t.gf; totalGA+=t.ga; totalPJ+=t.pj;
+    totalXG+=t.xg; totalXGA+=t.xga;
+    sumCF+=t.cf; sumCA+=t.ca; sumSF+=t.sf; sumSA+=t.sa; sumCards+=t.cards;
+    n++;
+  }
+  if (n === 0 || totalPJ === 0) return false;
+
+  const avgGF = totalGF/totalPJ, avgGA = totalGA/totalPJ;
+  const avgXG = totalXG/totalPJ, avgXGA = totalXGA/totalPJ;
+  const avgCF = sumCF/n, avgCA = sumCA/n;
+  const avgSF = sumSF/n, avgSA = sumSA/n;
+  const avgCards = sumCards/n;
+
+  for (const name of lg.active){
+    const t = lg.teams[name];
+    if (!t) continue;
+    const atkGoals = (t.gf/t.pj)/avgGF;
+    const defGoals = (t.ga/t.pj)/avgGA;
+    const atkXG = (t.xg/t.pj)/avgXG;
+    const defXG = (t.xga/t.pj)/avgXGA;
+    t.attack  = XG_WEIGHT*atkXG  + (1-XG_WEIGHT)*atkGoals;
+    t.defense = XG_WEIGHT*defXG  + (1-XG_WEIGHT)*defGoals;
+    t.attackGoals = atkGoals; t.attackXG = atkXG;
+    t.defenseGoals = defGoals; t.defenseXG = defXG;
+    t.cornerAttack = t.cf/avgCF;   t.cornerDefense = t.ca/avgCA;
+    t.sotAttack    = t.sf/avgSF;   t.sotDefense    = t.sa/avgSA;
+    // Ratio normalizado de tarjetas (~1.0 promedio de liga). NO es "ataque/
+    // defensa" como corners/tiros -- se usa como proxy de "combatividad" del
+    // equipo, para el efecto de partido caliente entre dos rivales que cometen
+    // muchas faltas (ver OPPONENT_CARDS_INFLUENCE más abajo).
+    t.cardsRatio = t.cards / avgCards;
+
+    // ============================================================
+    // SHRINKAGE POR CONFIANZA DEL DATO (no solo avisar después, pesar menos
+    // en el cálculo). Equipos ascendidos usan un prior ESTIMADO (0.80x/1.25x
+    // genérico), no medido -- aplicarlo a fuerza plena sería tratarlo como si
+    // fuera tan confiable como un equipo con 35-38 partidos reales. Se acerca
+    // a neutro (1.0) a mitad de camino: seguimos usando la estimación como
+    // mejor información disponible, pero sin la misma confianza que un dato
+    // real. PROMOTED_SHRINKAGE=0.5 significa "la mitad de la distancia a 1.0".
+    // ============================================================
+    if (t.promoted) {
+      const shrink = (v) => 1 + PROMOTED_SHRINKAGE*(v-1);
+      t.attack = shrink(t.attack); t.defense = shrink(t.defense);
+      t.cornerAttack = shrink(t.cornerAttack); t.cornerDefense = shrink(t.cornerDefense);
+      t.sotAttack = shrink(t.sotAttack); t.sotDefense = shrink(t.sotDefense);
+      t.cards = 1 + PROMOTED_SHRINKAGE*(t.cards-1);
+    }
+
+    // Ajuste por fichaje/venta notable (ver TRANSFER_FX). Se aplica DESPUÉS de
+    // normalizar contra el prior histórico 25-26, porque corrige algo que esos
+    // datos no pueden reflejar: la plantilla real con la que arranca la 26-27.
+    // Mismo criterio de shrinkage: es estimación propia sin respaldo científico
+    // (a diferencia de Dixon-Coles o la fatiga, que sí tienen literatura detrás),
+    // así que se aplica a mitad de fuerza, no completo.
+    const tfx = TRANSFER_FX[leagueKey] && TRANSFER_FX[leagueKey][name];
+    if (tfx) {
+      const shrinkUnbacked = (v) => 1 + UNBACKED_SHRINKAGE*(v-1);
+      if (tfx.attackAdj) t.attack  *= shrinkUnbacked(tfx.attackAdj);
+      if (tfx.defenseAdj) t.defense *= shrinkUnbacked(tfx.defenseAdj);
+      t.transferNote = tfx.note;
+    }
+  }
+  lg._derived = { avgGF, avgGA, avgXG, avgXGA, avgCF, avgCA, avgSF, avgSA, n };
+  return true;
+}
+
+// Derivar todas las ligas que tengan datos
+Object.keys(LEAGUES).forEach(k => computeLeagueDerived(k));
+
+// ============================================================
+// CONTEXTO SITUACIONAL
+// Investigado por partido real (bajas, calendario, motivación, finanzas).
+// Por defecto todos los equipos de todas las ligas quedan en estado neutral.
+// ============================================================
+const situationalContext = {};
+Object.keys(LEAGUES).forEach(k=>{
+  (LEAGUES[k].active||[]).forEach(name=>{
+    situationalContext[name] = { injury:'none', fatigue:'normal', motivation:'normal', financial:'none', note:'' };
+  });
+});
+function ctxFor(name){
+  return situationalContext[name] || { injury:'none', fatigue:'normal', motivation:'normal', financial:'none' };
+}
+
+// ============================================================
+// FACTORES SITUACIONALES
+// Aplican igual a todas las ligas: la fatiga y las bajas afectan a un equipo
+// italiano igual que a uno inglés. Lo que sí es por-liga son las constantes
+// de goles/corners, que viven en el objeto de cada liga.
+// ============================================================
+const INJURY_FX = {
+  none:     [1.00, 1.00],
+  minor:    [0.95, 1.04],
+  major:    [0.88, 1.10],
+  multiple: [0.80, 1.16],
+};
+
+// FATIGA DIFERENCIADA POR COMPETENCIA (goles: [ataque, defensa])
+// Basado en Buchheit et al. (estudio 20 años CL/EL), datos de carga externa por
+// tipo de competencia, y la ventana de recuperación 72h/96h/120h.
+// Clave: la rotación en Copa hace que los TITULARES lleguen más descansados,
+// por eso "FA Cup rotada" tiene efecto neutro o levemente positivo.
+const FATIGUE_FX = {
+  normal:        [1.00, 1.00],  // 5+ días de descanso, sin partido entre semana
+  cup_rotated:   [1.01, 0.99],  // FA Cup/Carabao con plantel rotado: titulares descansados
+  cup_full:      [0.96, 1.04],  // Copa con equipo titular
+  europa_home:   [0.96, 1.04],  // Europa League en casa
+  europa_away:   [0.94, 1.06],  // Europa League fuera: viajes largos
+  ucl_home:      [0.95, 1.05],  // Champions en casa: intensidad alta, sin viaje
+  ucl_away:      [0.92, 1.08],  // Champions fuera: intensidad + viaje + husos horarios
+  extra_time:    [0.90, 1.10],  // 120 minutos jugados entre semana
+  congested:     [0.90, 1.10],  // 3+ partidos consecutivos entre semana (acumulado)
+};
+
+// FATIGA DIFERENCIADA POR COMPETENCIA (mercados: [corners, tiros, tarjetas])
+// Tarjetas SUBEN con fatiga: piernas cansadas = entradas tardías.
+// ESTRÉS FINANCIERO OPERATIVO (goles: [ataque, defensa])
+// NOTA METODOLÓGICA IMPORTANTE: a diferencia de fatiga (Buchheit/Verheijen) o
+// Dixon-Coles, NO existe literatura que cuantifique el efecto de impagos sobre
+// rendimiento. Estos valores son estimaciones conservadoras basadas en casos
+// observados, NO en estudios. Son los candidatos #1 a ser corregidos por la
+// recalibración automática una vez que haya muestra suficiente.
+//
+// Deliberadamente NO se modela el déficit contable: clubes con pérdidas enormes
+// (Chelsea, City) ganan títulos igual porque el dueño cubre el agujero. Lo que
+// predice rendimiento es el estrés OPERATIVO — si el plantel cobra o no.
+const FINANCIAL_FX = {
+  none:        [1.00, 1.00],  // sin señales de problemas
+  tension:     [0.98, 1.02],  // retrasos puntuales reportados en prensa
+  unpaid:      [0.93, 1.07],  // impago confirmado, 2+ meses sin cobrar
+  crisis:      [0.86, 1.14],  // administración/embargo/plantel en conflicto abierto
+  sanctioned:  [0.95, 1.05],  // sanción deportiva (puntos, veto de fichajes)
+};
+
+// ESTRÉS FINANCIERO (mercados: [corners, tiros, tarjetas])
+// Hipótesis: el conflicto salarial baja la producción ofensiva y sube la
+// indisciplina (frustración, menos compromiso táctico).
+const FINANCIAL_MKT = {
+  none:        [1.00, 1.00, 1.00],
+  tension:     [0.98, 0.98, 1.03],
+  unpaid:      [0.94, 0.93, 1.10],
+  crisis:      [0.88, 0.86, 1.18],
+  sanctioned:  [0.96, 0.95, 1.05],
+};
+
+const FATIGUE_MKT = {
+  normal:        [1.00, 1.00, 1.00],
+  cup_rotated:   [1.01, 1.01, 0.99],
+  cup_full:      [0.97, 0.96, 1.06],
+  europa_home:   [0.97, 0.96, 1.07],
+  europa_away:   [0.95, 0.94, 1.10],
+  ucl_home:      [0.96, 0.95, 1.08],
+  ucl_away:      [0.93, 0.92, 1.13],
+  extra_time:    [0.91, 0.90, 1.16],
+  congested:     [0.92, 0.90, 1.15],
+};
+const MOTIVATION_FX = {
+  normal:     [1.00, 1.00],
+  deadrubber: [0.90, 1.08],
+  decisive:   [1.06, 0.95],
+};
+
+function combinedFactors(injuryKey, fatigueKey, motivationKey, financialKey){
+  const i = INJURY_FX[injuryKey], f = FATIGUE_FX[fatigueKey]; // respaldados: sin shrinkage
+  const mRaw = MOTIVATION_FX[motivationKey];
+  const finRaw = FINANCIAL_FX[financialKey || 'none'] || FINANCIAL_FX.none;
+  // Motivación y estrés financiero NO tienen respaldo científico (a diferencia
+  // de lesiones/fatiga, que sí) -- se aplican a mitad de fuerza, no completa.
+  const shrink = (v) => 1 + UNBACKED_SHRINKAGE*(v-1);
+  const m = [shrink(mRaw[0]), shrink(mRaw[1])];
+  const fin = [shrink(finRaw[0]), shrink(finRaw[1])];
+  return {
+    attack: i[0]*f[0]*m[0]*fin[0],
+    defense: i[1]*f[1]*m[1]*fin[1],
+  };
+}
+
+// Contexto situacional investigado por equipo (Claude completa esto antes de cada pronóstico
+// real, buscando lesiones, calendario y contexto de tabla). Por defecto: "normal" para todos,
+// es decir, sin ajuste, hasta que se investigue un partido específico.
+const LABELS = {
+  injury:     { none:'Ninguna', minor:'Baja menor', major:'Baja importante', multiple:'Múltiples bajas' },
+  fatigue:    { normal:'Descanso normal', cup_rotated:'Copa (rotado)', cup_full:'Copa (titulares)', europa_home:'Europa League (casa)', europa_away:'Europa League (fuera)', ucl_home:'Champions (casa)', ucl_away:'Champions (fuera)', extra_time:'Prórroga entre semana', congested:'3+ partidos seguidos' },
+  motivation: { normal:'Normal', deadrubber:'Nada en juego', decisive:'Final decisiva' },
+  financial:  { none:'Sin problemas', tension:'Tensión salarial', unpaid:'Impago confirmado', crisis:'Crisis financiera', sanctioned:'Sanción deportiva' },
+};
+
+// Factores situacionales para MERCADOS SECUNDARIOS.
+// No se puede reutilizar el factor de goles: cada mercado reacciona distinto.
+// Clave: [efecto_corners, efecto_tiros, efecto_tarjetas_propias]
+// Tarjetas > 1 = el equipo comete MÁS faltas/recibe más tarjetas.
+const INJURY_MKT = {
+  none:     [1.00, 1.00, 1.00],
+  minor:    [0.97, 0.96, 1.02],  // suplentes menos hábiles -> algo más de falta
+  major:    [0.92, 0.90, 1.05],
+  multiple: [0.85, 0.82, 1.10],
+};
+const MOTIVATION_MKT = {
+  normal:     [1.00, 1.00, 1.00],
+  deadrubber: [0.90, 0.88, 0.85],  // partido de trámite: menos de todo, tarjetas incluidas
+  decisive:   [1.05, 1.06, 1.20],  // alta tensión -> bastantes más tarjetas
+};
+
+function combinedMarketFactors(injuryKey, fatigueKey, motivationKey, financialKey){
+  const i = INJURY_MKT[injuryKey], f = FATIGUE_MKT[fatigueKey]; // respaldados: sin shrinkage
+  const mRaw = MOTIVATION_MKT[motivationKey];
+  const finRaw = FINANCIAL_MKT[financialKey || 'none'] || FINANCIAL_MKT.none;
+  const shrink = (v) => 1 + UNBACKED_SHRINKAGE*(v-1);
+  const m = [shrink(mRaw[0]), shrink(mRaw[1]), shrink(mRaw[2])];
+  const fin = [shrink(finRaw[0]), shrink(finRaw[1]), shrink(finRaw[2])];
+  return {
+    corners: i[0]*f[0]*m[0]*fin[0],
+    sot:     i[1]*f[1]*m[1]*fin[1],
+    cards:   i[2]*f[2]*m[2]*fin[2],
+  };
+}
+
+function poissonPMF(k, lambda){
+  return Math.exp(-lambda) * Math.pow(lambda, k) / factorial(k);
+}
+function factorial(n){ let r=1; for(let i=2;i<=n;i++) r*=i; return r; }
+
+
+// Corrección Dixon-Coles (1997): el Poisson independiente subestima los marcadores
+// bajos porque asume que los goles de local y visitante son independientes, cuando en
+// realidad hay correlación táctica (en partidos cerrados ambos juegan con cautela).
+// ρ = -0.13 es el valor del paper original, ajustado sobre datos de fútbol inglés.
+const DC_RHO = -0.13;
+
+function dixonColesTau(x, y, lambda, mu, rho){
+  if (x === 0 && y === 0) return 1 - lambda*mu*rho;
+  if (x === 0 && y === 1) return 1 + lambda*rho;
+  if (x === 1 && y === 0) return 1 + mu*rho;
+  if (x === 1 && y === 1) return 1 - rho;
+  return 1.0; // el resto de marcadores queda intacto
+}
+
+function computeMatrix(homeXG, awayXG, maxGoals=6){
+  const matrix = [];
+  for(let h=0; h<=maxGoals; h++){
+    const row = [];
+    for(let a=0; a<=maxGoals; a++){
+      const base = poissonPMF(h,homeXG) * poissonPMF(a,awayXG);
+      row.push(base * dixonColesTau(h, a, homeXG, awayXG, DC_RHO));
+    }
+    matrix.push(row);
+  }
+  // Renormalizar: la corrección tau altera la masa total, hay que devolverla a 1
+  let sum = 0;
+  for(let h=0; h<matrix.length; h++) for(let a=0; a<matrix[h].length; a++) sum += matrix[h][a];
+  if (sum > 0){
+    for(let h=0; h<matrix.length; h++) for(let a=0; a<matrix[h].length; a++) matrix[h][a] /= sum;
+  }
+  return matrix;
+}
+
+function overUnderLines(lambda, lines){
+  // Probabilidad de estar por encima de cada línea (ej. 8.5) usando CDF de Poisson
+  return lines.map(line=>{
+    const threshold = Math.floor(line); // p.ej línea 8.5 -> over si total >= 9
+    let cdf = 0;
+    for(let k=0; k<=threshold; k++) cdf += poissonPMF(k, lambda);
+    const over = 1-cdf;
+    return {line, over};
+  });
+}
+
+// ============================================================
+// TOP 10 POR ÍNDICE DE CONFIANZA — todas las ligas juntas
+//
+// Recorre las 5 ligas, junta los partidos programados dentro de la ventana
+// de próximos días, y devuelve los N con mayor confianza en 1X2. Pensado
+// como herramienta de DECISIÓN: dónde el modelo está más seguro de su propio
+// número -- NO es lo mismo que "dónde hay ventaja de apuesta" (eso depende
+// de comparar contra el mercado, ver compareToMarket / el disclaimer fijo).
+// ============================================================
+function topConfidenceFixtures(topN = 10, onlyLeague = null){
+  const results = [];
+  const savedLeague = currentLeague; // restaurar al final, no dejar "pegado"
+
+  const leaguesToScan = onlyLeague ? [onlyLeague] : Object.keys(LEAGUES);
+  for (const lgKey of leaguesToScan) {
+    if (!leagueHasData(lgKey)) continue;
+    switchLeagueState(lgKey);
+    const fixtures = upcomingFixtures();
+    for (const f of fixtures) {
+      const fc = computeForecast(f.home, f.away);
+      if (!fc) continue;
+      const conf = computeConfidenceIndex(f.home, f.away);
+      if (!conf) continue;
+      const market = compareToMarket(f.home, f.away, {pHome:fc.pHome, pDraw:fc.pDraw, pAway:fc.pAway});
+      // Combinado: promedio de los 4 índices (goles/corners/tiros/tarjetas).
+      // Se muestran los 4 por separado también, para que un promedio alto no
+      // esconda un mercado puntual flojo.
+      const confCombined = (conf.goals.score + conf.corners.score + conf.sot.score + conf.cards.score) / 4;
+      results.push({
+        league: LEAGUES[lgKey].name, leagueKey: lgKey,
+        home: f.home, away: f.away, date: f.date,
+        pHome: fc.pHome, pDraw: fc.pDraw, pAway: fc.pAway,
+        confScore: conf.goals.score, confLevel: conf.goals.level, // se mantiene por compatibilidad
+        confGoals: conf.goals.score, confCorners: conf.corners.score,
+        confSOT: conf.sot.score, confCards: conf.cards.score,
+        confCombined,
+        confReasons: conf.reasons,
+        market, // null si no hay cuota cargada para este partido
+      });
+    }
+  }
+
+  switchLeagueState(savedLeague); // volver a como estaba antes de recorrer todo
+  results.sort((a,b) => b.confCombined - a.confCombined);
+  return results.slice(0, topN);
+}
+
+// ============================================================
+// TOP DISCREPANCIA CON EL MERCADO — ranking INDEPENDIENTE del de confianza.
+// Un partido puede tener confianza media pero una diferencia enorme contra
+// la cuota (o viceversa: confianza alta y coincidencia total con el mercado,
+// sin nada raro que mirar). Por eso es una lista aparte, no un filtro sobre
+// la de arriba. Solo incluye partidos con cuota REALMENTE cargada.
+// ============================================================
+function topMarketDiscrepancies(topN = 10, onlyLeague = null){
+  const results = [];
+  const savedLeague = currentLeague;
+
+  const leaguesToScan = onlyLeague ? [onlyLeague] : Object.keys(LEAGUES);
+  for (const lgKey of leaguesToScan) {
+    if (!leagueHasData(lgKey)) continue;
+    switchLeagueState(lgKey);
+    const fixtures = upcomingFixtures();
+    for (const f of fixtures) {
+      const fc = computeForecast(f.home, f.away);
+      if (!fc) continue;
+      const market = compareToMarket(f.home, f.away, {pHome:fc.pHome, pDraw:fc.pDraw, pAway:fc.pAway});
+      if (!market) continue; // sin cuota cargada, no hay nada que comparar
+      const conf = computeConfidenceIndex(f.home, f.away);
+      // Magnitud de la mayor discrepancia entre las 3 (local/empate/visita),
+      // sin importar el signo -- lo que importa acá es "qué tan lejos", no
+      // en qué dirección.
+      const maxAbsEdge = Math.max(Math.abs(market.edge.home), Math.abs(market.edge.draw), Math.abs(market.edge.away));
+      results.push({
+        league: LEAGUES[lgKey].name, leagueKey: lgKey,
+        home: f.home, away: f.away, date: f.date,
+        pHome: fc.pHome, pDraw: fc.pDraw, pAway: fc.pAway,
+        market, maxAbsEdge,
+        confScore: conf ? conf.goals.score : null, confLevel: conf ? conf.goals.level : null,
+      });
+    }
+  }
+
+  switchLeagueState(savedLeague);
+  results.sort((a,b) => b.maxAbsEdge - a.maxAbsEdge);
+  return results.slice(0, topN);
+}
+
+function renderTopConfidencePanel(){
+  const el = document.getElementById('topConfidencePanel');
+  if (!el) return;
+  const allLeagues = document.getElementById('allLeaguesToggle')?.checked !== false;
+  const top = topConfidenceFixtures(10, allLeagues ? null : currentLeague);
+
+  if (top.length === 0){
+    const scopeMsg = allLeagues ? 'en ninguna liga' : `en ${L().name}`;
+    el.innerHTML = `<div class="market-empty">No hay partidos programados en la ventana de próximos días ${scopeMsg}.</div>`;
+    return;
+  }
+
+  const rows = top.map((r, i) => {
+    const predLabel = r.pHome>=r.pDraw && r.pHome>=r.pAway ? `Local ${(r.pHome*100).toFixed(0)}%`
+                     : r.pDraw>=r.pAway ? `Empate ${(r.pDraw*100).toFixed(0)}%`
+                     : `Visita ${(r.pAway*100).toFixed(0)}%`;
+    const d = new Date(r.date + 'T12:00:00');
+    const ds = d.toLocaleDateString('es-AR', {day:'2-digit', month:'short'});
+    let edgeHTML = '<span class="tc-noedge">sin cuota cargada</span>';
+    if (r.market) {
+      const favoredEdge = r.pHome>=r.pDraw && r.pHome>=r.pAway ? r.market.edge.home
+                         : r.pDraw>=r.pAway ? r.market.edge.draw : r.market.edge.away;
+      const cls = Math.abs(favoredEdge*100)<3 ? '' : (favoredEdge>0?'edge-pos':'edge-neg');
+      const staleTag = r.market.age.stale ? ' ⚠️vieja' : '';
+      edgeHTML = `<span class="tc-edge ${cls}">edge ${favoredEdge>=0?'+':''}${(favoredEdge*100).toFixed(1)}pp${staleTag}</span>`;
+    }
+    const combLevel = r.confCombined>=80?'alta':(r.confCombined>=55?'media':'baja');
+    return `<div class="tc-row">
+      <span class="tc-rank">${i+1}</span>
+      <span class="tc-league">${r.league}</span>
+      <span class="tc-teams">${r.home} vs ${r.away}</span>
+      <span class="tc-date">${ds}</span>
+      <span class="tc-pred">${predLabel}</span>
+      <span class="tc-conf ${combLevel}">Ⓒ${r.confCombined.toFixed(0)}/100</span>
+      ${edgeHTML}
+      <span class="tc-breakdown">G${r.confGoals} · C${r.confCorners} · T${r.confSOT} · Tj${r.confCards}</span>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="tc-note">⚠ Confianza alta = el modelo confía en su propio número, NO es lo mismo que ventaja de apuesta. "Ⓒ" es el promedio de los 4 mercados (Goles·Corners·Tiros·Tarjetas, detalle abajo de cada fila). Ver "edge" para comparación de mercado, y aun así, no es una recomendación.</div>${rows}`;
+}
+
+function renderTopDiscrepanciesPanel(){
+  const el = document.getElementById('topDiscrepanciesPanel');
+  if (!el) return;
+  const allLeagues = document.getElementById('allLeaguesToggle')?.checked !== false;
+  const top = topMarketDiscrepancies(10, allLeagues ? null : currentLeague);
+
+  if (top.length === 0){
+    const scopeMsg = allLeagues ? 'en la ventana de próximos días' : `en ${L().name} en la ventana de próximos días`;
+    el.innerHTML = `<div class="market-empty">No hay partidos con cuota de mercado cargada ${scopeMsg}. Corré extraer_cuotas.js para tener con qué comparar.</div>`;
+    return;
+  }
+
+  const rows = top.map((r, i) => {
+    const predLabel = r.pHome>=r.pDraw && r.pHome>=r.pAway ? `Local ${(r.pHome*100).toFixed(0)}%`
+                     : r.pDraw>=r.pAway ? `Empate ${(r.pDraw*100).toFixed(0)}%`
+                     : `Visita ${(r.pAway*100).toFixed(0)}%`;
+    const d = new Date(r.date + 'T12:00:00');
+    const ds = d.toLocaleDateString('es-AR', {day:'2-digit', month:'short'});
+    const staleTag = r.market.age.stale ? ' ⚠️cuota vieja' : ` (${r.market.age.label})`;
+    const confHTML = r.confScore!==null ? `<span class="tc-conf ${r.confLevel}">conf. ${r.confScore}/100</span>` : '';
+    return `<div class="tc-row">
+      <span class="tc-rank">${i+1}</span>
+      <span class="tc-league">${r.league}</span>
+      <span class="tc-teams">${r.home} vs ${r.away}</span>
+      <span class="tc-date">${ds}</span>
+      <span class="tc-pred">${predLabel}</span>
+      <span class="tc-edge-big">${(r.maxAbsEdge*100).toFixed(1)}pp de diferencia${staleTag}</span>
+      ${confHTML}
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="tc-note">⚠ Discrepancia grande no significa que el modelo tenga razón y el mercado esté equivocado (o viceversa) -- puede ser al revés. Es una señal para MIRAR el partido con más atención, no una recomendación de apuesta.</div>${rows}`;
+}
+
+async function renderBatchPanel(){
+  // El trabajo de fondo (generar y guardar pronósticos de la próxima jornada)
+  // corre SIEMPRE, exista o no el panel visual. Antes cortaba acá si el
+  // elemento no existía, y eso hubiera dejado de guardar pronósticos apenas
+  // se saca la sección de la interfaz -- separado a propósito para que el
+  // guardado automático nunca dependa de si hay algo que mostrar en pantalla.
+  const fixtures = upcomingFixtures();
+  const el = document.getElementById('batchPanel'); // puede no existir, y está bien
+
+  if (fixtures.length === 0){
+    if (el) el.innerHTML = '<div class="batch-status">No hay partidos en los próximos ' + BATCH_WINDOW_DAYS + ' días dentro del calendario cargado.</div>';
+    return;
+  }
+
+  const result = await batchGenerate(); // siempre corre, con o sin panel visual
+  if (!el) return; // sin panel, no hace falta construir el HTML
+
+  const mw = fixtures[0].mw;
+  let statusText;
+  if (!result.ok){
+    statusText = '⚠️ No se pudieron guardar los pronósticos (almacenamiento no disponible)';
+  } else if (result.created > 0){
+    statusText = `✓ Jornada ${mw} · ${result.created} pronósticos generados y guardados automáticamente`;
+  } else {
+    statusText = `✓ Jornada ${mw} · ${result.existing} pronósticos ya guardados (no se regeneran)`;
+  }
+
+  let html = `<div class="batch-status ${result.ok?'done':''}">${statusText}</div>`;
+  for (const f of fixtures){
+    const fc = computeForecast(f.home, f.away);
+    if (!fc) continue;
+    const d = new Date(f.date + 'T12:00:00');
+    const ds = d.toLocaleDateString('es-AR', {day:'2-digit', month:'short'});
+    const promoted = (L().teams[f.home]?.promoted ? ' <span class="fx-promoted">▲</span>' : '')
+                   + (L().teams[f.away]?.promoted ? '' : '');
+    const promotedAway = L().teams[f.away]?.promoted ? ' <span class="fx-promoted">▲</span>' : '';
+    html += `<div class="fx-row">
+      <span class="fx-date">${ds}</span>
+      <span class="fx-teams">${f.home}${promoted} vs ${f.away}${promotedAway}</span>
+      <span class="fx-probs">${(fc.pHome*100).toFixed(0)}/${(fc.pDraw*100).toFixed(0)}/${(fc.pAway*100).toFixed(0)}</span>
+    </div>`;
+  }
+  html += '<div class="cal-note">▲ = equipo recién ascendido, sin datos reales de Premier League (usa prior estimado). Los pronósticos se guardan una sola vez y no se regeneran, para no falsear el historial.</div>';
+  el.innerHTML = html;
+}
+
+function renderConfidencePanel(){
+  const rowsEl = document.getElementById('confidenceRows');
+  const noteEl = document.getElementById('confidenceNote');
+  if (!rowsEl) return;
+
+  const active = L().active || [];
+  const nTotal = active.length;
+  // "Real" = no tiene el flag promoted (que marca prior estimado, no dato medido)
+  const realTeams = active.filter(n => !(L().teams[n] && L().teams[n].promoted));
+  const nReal = realTeams.length;
+
+  // Fuente según si esta liga vino de TheStatsAPI (tiene stats_pj/xg medido) o
+  // sigue con datos de investigación manual (caso viejo, ya no debería pasar
+  // salvo que se cargue una liga nueva a mano en el futuro).
+  const sourceLabel = 'TheStatsAPI · temporada 25-26';
+
+  const markets = [
+    { label: 'xG / xGA', ok: nReal, total: nTotal },
+    { label: 'Goles', ok: nReal, total: nTotal },
+    { label: 'Corners', ok: nReal, total: nTotal },
+    { label: 'Tiros a puerta', ok: nReal, total: nTotal },
+    { label: 'Tarjetas', ok: nReal, total: nTotal },
+  ];
+
+  rowsEl.innerHTML = markets.map(m => {
+    const pct = m.total ? m.ok/m.total : 0;
+    const band = pct >= 0.9 ? 'high' : (pct >= 0.6 ? 'mid' : 'low');
+    return `<div class="conf-row">
+      <span class="conf-market">${m.label}</span>
+      <span class="conf-score ${band}">${m.ok}/${m.total} real · ${sourceLabel}</span>
+    </div>`;
+  }).join('');
+
+  const promotedNames = active.filter(n => L().teams[n] && L().teams[n].promoted);
+  noteEl.innerHTML = `Equipos sin dato real (${promotedNames.length}/${nTotal}${promotedNames.length?': '+promotedNames.join(', '):''}): usan un prior estimado de "recién ascendido", no medido. Ajustes situacionales (bajas, calendario por competencia, motivación, estrés financiero) se investigan y aplican por partido real, sin mostrarse en pantalla.<br><br><b>Nota sobre solidez de los ajustes:</b> fatiga por competencia se apoya en estudios de carga (Buchheit, Verheijen); Dixon-Coles en el paper original de 1997. En cambio, <u>motivación, estrés financiero y ajuste por fichajes no tienen respaldo cuantitativo en la literatura</u> — son estimaciones conservadoras a la espera de que la recalibración automática las corrija con datos propios.`;
+}
+
+function renderCalibrationPanel(){
+  const el = document.getElementById('calibrationPanel');
+  if (!el) return;
+  const c = calibration;
+  const pct = (f) => ((f-1)*100);
+  const fmt = (f) => (pct(f)>=0?'+':'') + pct(f).toFixed(1) + '%';
+
+  const st = historySummaryStats;
+  const summaryHTML = `
+    <div class="cal-row" style="border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:8px;">
+      <span>Pronósticos guardados</span>
+      <span class="cal-adj">${st.total} · ${st.pending} pendientes${st.avgBrier!==null ? ` · Brier ${st.avgBrier.toFixed(3)}` : ''}</span>
+    </div>`;
+
+  if (!c.active){
+    const faltan = Math.max(0, CAL_MIN_SAMPLE - c.n);
+    el.innerHTML = summaryHTML + `
+      <div class="cal-title">Recalibración automática</div>
+      <div class="cal-status">⏳ Inactiva — ${c.n}/${CAL_MIN_SAMPLE} partidos liquidados</div>
+      <div class="cal-note">Faltan ${faltan} partidos para que el sistema empiece a corregirse solo. Por debajo de ${CAL_MIN_SAMPLE} se estaría ajustando ruido en vez de señal, y eso empeoraría los pronósticos.</div>
+    ` + learningBlockHTML();
+    return;
+  }
+
+  const d = c.detail;
+  const confLine = (d && d.conf && d.conf.meanConf !== null)
+    ? `Confianza declarada ${(d.conf.meanConf*100).toFixed(0)}% vs. acierto real ${(d.conf.hitRate*100).toFixed(0)}% → ${c.temp < 1 ? 'achatando (era sobreconfiado)' : (c.temp > 1 ? 'agudizando (era muy cauto)' : 'bien calibrado')}`
+    : '';
+
+  el.innerHTML = summaryHTML + `
+    <div class="cal-title">Recalibración automática</div>
+    <div class="cal-status active">✓ Activa — aprendiendo de ${c.n} partidos</div>
+    <div class="cal-row"><span>Corners</span><span class="cal-adj">${fmt(c.corners)}</span></div>
+    <div class="cal-row"><span>Tiros a puerta</span><span class="cal-adj">${fmt(c.sot)}</span></div>
+    <div class="cal-row"><span>Tarjetas</span><span class="cal-adj">${fmt(c.cards)}</span></div>
+    <div class="cal-row"><span>Confianza 1X2 (temp.)</span><span class="cal-adj">${c.temp.toFixed(2)}</span></div>
+    <div class="cal-note">${confLine}</div>
+    <div class="cal-note">Ajustes limitados a ±${(CAL_MAX_ADJ*100).toFixed(0)}% y mezclados con un prior global según muestra disponible.</div>
+  ` + learningBlockHTML();
+}
+
+function learningBlockHTML(){
+  let html = '';
+
+  // Bloque de fuerzas aprendidas por equipo
+  const learned = Object.keys(learnedStrength);
+  if (learned.length > 0){
+    const top = learned
+      .map(t => ({t, ...learnedStrength[t]}))
+      .filter(x => x.n >= 3)
+      .sort((a,b) => Math.abs(b.atkAdj-1) - Math.abs(a.atkAdj-1))
+      .slice(0,3);
+    if (top.length){
+      html += '<div class="cal-title" style="margin-top:14px;">Fuerzas aprendidas</div>';
+      html += '<div class="cal-note" style="margin-top:0;margin-bottom:6px;">El histórico 25-26 conserva ~30% del peso incluso con muchos partidos nuevos (recalculado tras subir la vida media a 120 días).</div>';
+      for (const x of top){
+        const pct = ((x.atkAdj-1)*100);
+        html += `<div class="cal-row"><span>${x.t} <span style="color:var(--sage);font-size:10px;">(${x.n} part. · ${x.nEff.toFixed(1)} efect.)</span></span><span class="cal-adj">${pct>=0?'+':''}${pct.toFixed(1)}% atq</span></div>`;
+      }
+    }
+  }
+
+  // Divergencia entre modelos del ensemble
+  if (lastEnsembleInfo && lastEnsembleInfo.divergence !== null){
+    const dv = lastEnsembleInfo.divergence*100;
+    html += '<div class="cal-title" style="margin-top:14px;">Ensemble Poisson/Elo</div>';
+    html += `<div class="cal-row"><span>Poisson (${(ENSEMBLE_WEIGHT*100).toFixed(0)}%)</span><span class="cal-adj">${(lastEnsembleInfo.poisson*100).toFixed(1)}%</span></div>`;
+    html += `<div class="cal-row"><span>Elo (${((1-ENSEMBLE_WEIGHT)*100).toFixed(0)}%)</span><span class="cal-adj">${(lastEnsembleInfo.elo*100).toFixed(1)}%</span></div>`;
+    html += `<div class="cal-note">Divergencia entre modelos: ${dv.toFixed(1)}pp. ${dv < 3 ? 'Baja — al inicio ambos derivan del mismo histórico, así que el ensemble aporta poco todavía. Se separan a medida que entren resultados reales.' : 'Los modelos ven el partido distinto; el ensemble modera entre ambos.'}</div>`;
+  }
+
+  // Bloque de validación out-of-sample
+  html += '<div class="cal-title" style="margin-top:14px;">Validación out-of-sample</div>';
+  const v = lastValidation;
+  if (!v.valid){
+    html += `<div class="cal-note">⏳ ${v.n||0}/${v.needed||20} partidos. Se necesita más muestra para separar entrenamiento y prueba.</div>`;
+  } else {
+    const skill = (v.skillVsHistorical*100);
+    html += `<div class="cal-row"><span>Brier del modelo</span><span class="cal-adj">${v.modelBrier.toFixed(3)}</span></div>`;
+    html += `<div class="cal-row"><span>Baseline histórico (45/25/30)</span><span class="cal-adj">${v.histBrier.toFixed(3)}</span></div>`;
+    html += `<div class="cal-row"><span>Baseline aleatorio (33/33/33)</span><span class="cal-adj">${v.uniformBrier.toFixed(3)}</span></div>`;
+    html += `<div class="cal-note">${v.beatsHistorical ? '✓' : '✗'} ${v.beatsHistorical ? `El modelo le gana al baseline histórico por ${skill.toFixed(1)}% — está aportando información real.` : 'El modelo NO le gana al baseline histórico. Predecir siempre 45/25/30 sería igual o mejor.'} (probado sobre ${v.nTest} partidos que no usó para aprender)</div>`;
+  }
+
+  // Bloque de diagnóstico por subgrupo
+  if (lastDiagnostics && lastDiagnostics.length){
+    html += '<div class="cal-title" style="margin-top:14px;">Dónde falla más</div>';
+    for (const d of lastDiagnostics.slice(0,4)){
+      const bias = d.goalBias ? ` · goles ${d.goalBias>1?'+':''}${((d.goalBias-1)*100).toFixed(0)}%` : '';
+      html += `<div class="cal-row"><span>${d.label} <span style="color:var(--sage);font-size:10px;">(${d.n})</span></span><span class="cal-adj">${d.avgBrier.toFixed(3)}${bias}</span></div>`;
+    }
+  }
+
+  return html;
+}
+
+function renderLineBoxes(containerId, lines){
+  const el = document.getElementById(containerId);
+  el.innerHTML = lines.map(l=>`
+    <div class="line-box">
+      <div class="line-label">Más de ${l.line}</div>
+      <div class="line-pct">${(l.over*100).toFixed(0)}%</div>
+    </div>
+  `).join('');
+}
+
+function render(){
+  const homeName = document.getElementById('homeTeam').value;
+  const awayName = document.getElementById('awayTeam').value;
+  const h = L().teams[homeName], a = L().teams[awayName];
+  const homeCtx = ctxFor(homeName);
+  const awayCtx = ctxFor(awayName);
+
+  const homeFx = combinedFactors(homeCtx.injury, homeCtx.fatigue, homeCtx.motivation, homeCtx.financial);
+  const awayFx = combinedFactors(awayCtx.injury, awayCtx.fatigue, awayCtx.motivation, awayCtx.financial);
+  const homeMkt = combinedMarketFactors(homeCtx.injury, homeCtx.fatigue, homeCtx.motivation, homeCtx.financial);
+  const awayMkt = combinedMarketFactors(awayCtx.injury, awayCtx.fatigue, awayCtx.motivation, awayCtx.financial);
+
+  // Fuerzas efectivas: prior histórico ajustado por lo aprendido de partidos reales
+  const hEff = effectiveStrength(homeName);
+  const aEff = effectiveStrength(awayName);
+
+  // xG base (sin ajustes situacionales)
+  const homeXGBase = L().homeAvg * hEff.attack * aEff.defense;
+  const awayXGBase = L().awayAvg * aEff.attack * hEff.defense;
+
+  // xG ajustado: el ataque de cada equipo se multiplica por su propio factor de ataque,
+  // y por el factor de defensa del rival (si el rival tiene bajas defensivas, el ataque contrario se beneficia)
+  const homeXG = L().homeAvg * hEff.attack * homeFx.attack * aEff.defense * awayFx.defense;
+  const awayXG = L().awayAvg * aEff.attack * awayFx.attack * hEff.defense * homeFx.defense;
+
+  document.getElementById('homeName').textContent = homeName;
+  document.getElementById('awayName').textContent = awayName;
+  document.getElementById('homeXG').textContent = homeXG.toFixed(2);
+  document.getElementById('awayXG').textContent = awayXG.toFixed(2);
+
+  const deltaHome = ((homeXG-homeXGBase)/homeXGBase*100);
+  const deltaAway = ((awayXG-awayXGBase)/awayXGBase*100);
+  const fmtDelta = (d) => (d>=0?'+':'') + d.toFixed(0) + '%';
+  const hasAdjustments = (deltaHome!==0 || deltaAway!==0);
+
+  const matrix = computeMatrix(homeXG, awayXG, 7);
+  let pHome=0, pDraw=0, pAway=0, over25=0, bttsYes=0;
+  for(let hh=0; hh<matrix.length; hh++){
+    for(let aa=0; aa<matrix[hh].length; aa++){
+      const p = matrix[hh][aa];
+      if(hh>aa) pHome+=p;
+      else if(hh===aa) pDraw+=p;
+      else pAway+=p;
+      if(hh+aa > 2.5) over25 += p;
+      if(hh>0 && aa>0) bttsYes += p;
+    }
+  }
+  // normalize (tail beyond maxGoals is negligible but let's normalize anyway)
+  const total = pHome+pDraw+pAway;
+  pHome/=total; pDraw/=total; pAway/=total;
+
+  // FASE 4: ensemble con Elo antes de la recalibración
+  const eloP = eloProbabilities(homeName, awayName);
+  lastEnsembleInfo = { poisson: pHome, elo: eloP.pHome, divergence: Math.abs(pHome - eloP.pHome) };
+  const blended = blendProbabilities({pHome,pDraw,pAway}, eloP, ENSEMBLE_WEIGHT);
+  pHome = blended.pHome; pDraw = blended.pDraw; pAway = blended.pAway;
+
+  // Recalibración automática de confianza (si hay muestra suficiente)
+  if (calibration.active && calibration.temp !== 1){
+    const cal = applyTemperature([pHome, pDraw, pAway], calibration.temp);
+    pHome = cal[0]; pDraw = cal[1]; pAway = cal[2];
+  }
+
+  const bar = document.getElementById('probBar');
+  bar.innerHTML = `
+    <div class="seg home" style="width:${(pHome*100).toFixed(1)}%">
+      <span class="pct">${(pHome*100).toFixed(0)}%</span><span class="lbl">LOCAL</span>
+    </div>
+    <div class="seg draw" style="width:${(pDraw*100).toFixed(1)}%">
+      <span class="pct">${(pDraw*100).toFixed(0)}%</span><span class="lbl">EMPATE</span>
+    </div>
+    <div class="seg away" style="width:${(pAway*100).toFixed(1)}%">
+      <span class="pct">${(pAway*100).toFixed(0)}%</span><span class="lbl">VISITA</span>
+    </div>
+  `;
+
+  document.getElementById('overUnder').textContent =
+    `${(over25*100).toFixed(0)}% / ${(100-over25*100).toFixed(0)}%`;
+  document.getElementById('btts').textContent =
+    `${(bttsYes*100).toFixed(0)}% Sí`;
+
+  // --- Corners --- (con ajuste situacional propio de cada equipo, + aprendizaje)
+  const hMktEff = effectiveMarketStrength(homeName);
+  const aMktEff = effectiveMarketStrength(awayName);
+  const homeCorners = L().cornerHomeAvg * hMktEff.cornerAttack * homeMkt.corners * aMktEff.cornerDefense;
+  const awayCorners = L().cornerAwayAvg * aMktEff.cornerAttack * awayMkt.corners * hMktEff.cornerDefense;
+  const totalCorners = (homeCorners + awayCorners) * calibration.corners;
+  document.getElementById('cornersTotal').textContent = totalCorners.toFixed(1);
+  document.getElementById('cornersSplit').textContent = `${homeName} ${homeCorners.toFixed(1)} · ${awayName} ${awayCorners.toFixed(1)}`;
+  renderLineBoxes('cornersLines', overUnderLines(totalCorners, [8.5, 9.5, 10.5]));
+
+  // --- Tiros a puerta --- (con ajuste situacional propio de cada equipo, + aprendizaje)
+  const homeSOT = L().sotHomeAvg * hMktEff.sotAttack * homeMkt.sot * aMktEff.sotDefense;
+  const awaySOT = L().sotAwayAvg * aMktEff.sotAttack * awayMkt.sot * hMktEff.sotDefense;
+  const totalSOT = (homeSOT + awaySOT) * calibration.sot;
+  document.getElementById('sotTotal').textContent = totalSOT.toFixed(1);
+  document.getElementById('sotSplit').textContent = `${homeName} ${homeSOT.toFixed(1)} · ${awayName} ${awaySOT.toFixed(1)}`;
+  renderLineBoxes('sotLines', overUnderLines(totalSOT, [7.5, 8.5, 9.5]));
+
+  // --- Tarjetas --- (con ajuste situacional: fatiga y tensión SUBEN las tarjetas, + aprendizaje)
+  // Influencia del rival: partido "caliente" si el otro equipo también es
+  // combativo (ver OPPONENT_CARDS_INFLUENCE). No es ataque/defensa, es un
+  // multiplicador moderado sobre la combatividad propia.
+  const rivalFactorForHome = 1 + OPPONENT_CARDS_INFLUENCE*(aMktEff.cardsRatio - 1);
+  const rivalFactorForAway = 1 + OPPONENT_CARDS_INFLUENCE*(hMktEff.cardsRatio - 1);
+  const homeCards = hMktEff.cards * 0.95 * homeMkt.cards * rivalFactorForHome; // ligera reducción por jugar de local
+  const awayCards = aMktEff.cards * 1.05 * awayMkt.cards * rivalFactorForAway; // ligero aumento de visitante
+  const totalCards = (homeCards + awayCards) * calibration.cards;
+  document.getElementById('cardsTotal').textContent = totalCards.toFixed(1);
+  document.getElementById('cardsSplit').textContent = `${homeName} ${homeCards.toFixed(1)} · ${awayName} ${awayCards.toFixed(1)}`;
+  renderLineBoxes('cardsLines', overUnderLines(totalCards, [2.5, 3.5, 4.5]));
+
+  // Heatmap (show 0-5 x 0-5)
+  const maxShow = 5;
+  let html = '<tr><th class="corner">L\\V</th>';
+  for(let a=0;a<=maxShow;a++) html += `<th>${a}</th>`;
+  html += '</tr>';
+  // find max prob for color scale
+  let maxP = 0;
+  for(let hh=0; hh<=maxShow; hh++) for(let aa=0; aa<=maxShow; aa++) maxP = Math.max(maxP, matrix[hh][aa]);
+
+  for(let hh=0; hh<=maxShow; hh++){
+    html += `<tr><th>${hh}</th>`;
+    for(let aa=0; aa<=maxShow; aa++){
+      const p = matrix[hh][aa];
+      const intensity = p/maxP; // 0 to 1
+      const bg = mixColor(intensity);
+      html += `<td style="background:${bg}">${(p*100).toFixed(1)}</td>`;
+    }
+    html += '</tr>';
+  }
+  document.getElementById('heatTable').innerHTML = html;
+
+  // Índice de confiabilidad: se calcula al final, con toda la info disponible
+  // (ensemble, calibración, aprendizaje) ya resuelta en esta corrida.
+  const conf = computeConfidenceIndex(homeName, awayName);
+  renderConfidenceBadges(conf);
+  const marketComp = compareToMarket(homeName, awayName, {pHome, pDraw, pAway});
+  const marketsComp = compareMarketsToOdds(homeName, awayName, {predCorners: totalCorners, predCards: totalCards, predSOT: totalSOT});
+  renderMarketPanel(marketComp, marketsComp);
+
+  // Guardar automáticamente (al final, ya con todas las variables calculadas)
+  lastResult = { home: homeName, away: awayName, homeXG, awayXG, pHome, pDraw, pAway,
+                 predCorners: totalCorners, predSOT: totalSOT, predCards: totalCards,
+                 predCornersHome: homeCorners, predCornersAway: awayCorners,
+                 predSOTHome: homeSOT, predSOTAway: awaySOT,
+                 predCardsHome: homeCards, predCardsAway: awayCards };
+  document.getElementById('autosaveStatus').textContent = 'Guardando...';
+  autoSavePrediction();
+}
+
+function renderMarketPanel(comp, marketsComp){
+  const el = document.getElementById('marketPanel');
+  if (!el) return;
+
+  if (!comp) {
+    el.innerHTML = `<div class="market-empty">Sin cuota de mercado cargada para este partido. Corré <code>extraer_cuotas.js</code> y pegá el resultado en <code>marketOddsDB</code>.</div>`;
+    return;
+  }
+
+  const { market, age, edge } = comp;
+  const staleWarning = age.stale
+    ? `<div class="market-stale">⚠ Cuota vieja (${age.label}) — el mercado ya se movió desde entonces. No usar para decidir sin refrescar.</div>`
+    : `<div class="market-fresh">Cuota de ${age.label}</div>`;
+
+  const edgeRow = (label, e, mkt) => {
+    const pct = (e*100);
+    const cls = Math.abs(pct) < 3 ? '' : (pct > 0 ? 'edge-pos' : 'edge-neg');
+    return `<div class="edge-row"><span>${label}</span><span class="edge-market">mercado ${(mkt*100).toFixed(1)}%</span><span class="edge-val ${cls}">${pct>=0?'+':''}${pct.toFixed(1)}pp</span></div>`;
+  };
+
+  let secundariosHTML = '';
+  if (marketsComp && (marketsComp.corners || marketsComp.cards || marketsComp.sot)) {
+    const secRow = (label, m) => {
+      if (!m) return '';
+      const pct = m.edge*100;
+      const cls = Math.abs(pct) < 3 ? '' : (pct > 0 ? 'edge-pos' : 'edge-neg');
+      return `<div class="edge-row"><span>${label} O/U ${m.line}</span><span class="edge-market">mercado over ${(m.marketOver*100).toFixed(0)}%</span><span class="edge-val ${cls}">${pct>=0?'+':''}${pct.toFixed(1)}pp</span></div>`;
+    };
+    secundariosHTML = `<div class="market-note" style="margin-top:8px;margin-bottom:4px;">Mercados secundarios (línea más líquida disponible):</div>
+      ${secRow('Corners', marketsComp.corners)}
+      ${secRow('Tarjetas', marketsComp.cards)}
+      ${secRow('Tiros a puerta', marketsComp.sot)}`;
+  }
+
+  el.innerHTML = `
+    ${staleWarning}
+    ${edgeRow('Local', edge.home, market.home)}
+    ${edgeRow('Empate', edge.draw, market.draw)}
+    ${edgeRow('Visitante', edge.away, market.away)}
+    ${secundariosHTML}
+    <div class="market-note">Edge = probabilidad del modelo menos la del mercado (ya sin margen de la casa). No es una señal de apostar por sí sola.</div>
+  `;
+}
+
+function renderConfidenceBadges(conf){
+  const gEl = document.getElementById('confBadgeGoals');
+  const cEl = document.getElementById('confBadgeCorners');
+  const sEl = document.getElementById('confBadgeSOT');
+  const kEl = document.getElementById('confBadgeCards');
+  const dEl = document.getElementById('confDisclaimer');
+  const els = [gEl, cEl, sEl, kEl];
+  if (els.some(e=>!e) || !conf) { els.forEach(e=>{ if(e) e.innerHTML=''; }); if(dEl) dEl.innerHTML=''; return; }
+
+  const labelFor = (lvl) => lvl==='alta' ? 'Confianza alta' : (lvl==='media' ? 'Confianza media' : 'Confianza baja');
+
+  const sharedReasonsHTML = conf.reasons.length
+    ? `<div class="conf-reasons">${conf.reasons.map(r=>'• '+r).join('<br>')}</div>`
+    : '';
+
+  gEl.className = 'conf-badge ' + conf.goals.level;
+  gEl.innerHTML = `<div class="conf-top"><span class="dot"></span><span class="label">${labelFor(conf.goals.level)} · 1X2 y goles</span><span class="score">${conf.goals.score}/100</span></div>${conf.goals.level!=='alta'?sharedReasonsHTML:''}`;
+
+  const renderMarketBadge = (el, data, label) => {
+    const ownReasons = (data.reasons && data.reasons.length)
+      ? `<div class="conf-reasons">${data.reasons.map(r=>'• '+r).join('<br>')}</div>` : '';
+    // Los mercados muestran sus motivos propios (calibración específica) más
+    // los compartidos (ascendido, situacionales, techo de validación) cuando
+    // la confianza no es alta.
+    const combined = data.level!=='alta' ? (ownReasons + sharedReasonsHTML) : '';
+    el.className = 'conf-badge ' + data.level;
+    el.innerHTML = `<div class="conf-top"><span class="dot"></span><span class="label">${labelFor(data.level)} · ${label}</span><span class="score">${data.score}/100</span></div>${combined}`;
+  };
+  renderMarketBadge(cEl, conf.corners, 'Corners');
+  renderMarketBadge(sEl, conf.sot, 'Tiros a puerta');
+  renderMarketBadge(kEl, conf.cards, 'Tarjetas');
+
+  if (dEl) dEl.innerHTML = `⚠ ${conf.bettingDisclaimer}`;
+}
+
+function mixColor(t){
+  // interpolate from surface color to gold based on intensity t (0-1)
+  const c1 = [28,44,34]; // surface2
+  const c2 = [232,196,104]; // gold
+  const r = Math.round(c1[0] + (c2[0]-c1[0])*t);
+  const g = Math.round(c1[1] + (c2[1]-c1[1])*t);
+  const b = Math.round(c1[2] + (c2[2]-c1[2])*t);
+  return `rgb(${r},${g},${b})`;
+}
+
+let lastResult = null;
+let lastDiagnostics = [];
+let lastEnsembleInfo = null;
+let historySummaryStats = { total:0, settled:0, pending:0, avgBrier:null };
+let lastValidation = { valid:false, n:0, needed:20 };
+let storageAvailable = true; // se apaga sola si falla una vez, para no spamear reintentos
+
+// ============================================================
+// MÓDULO DE RECALIBRACIÓN AUTOMÁTICA (jerárquica por liga)
+//
+// Cada liga aprende sus propios coeficientes de corrección a partir del
+// error observado en partidos ya liquidados. Cuando una liga tiene poca
+// muestra, se apoya parcialmente en un "prior global" (promedio de todas
+// las ligas), con peso decreciente a medida que acumula datos propios.
+//
+// Salvaguardas (no negociables, evitan que el modelo se auto-degrade):
+//  1. MIN_SAMPLE: por debajo de este número de partidos NO se aplica
+//     corrección — con poca muestra se estaría ajustando ruido, no señal.
+//  2. MAX_ADJ: ningún coeficiente puede desviarse más de ±25% del neutro,
+//     para que un outlier o una racha extraña no descalibre todo.
+// ============================================================
+const CAL_MIN_SAMPLE = 30;   // partidos liquidados mínimos por liga
+const CAL_MAX_ADJ = 0.25;    // desvío máximo permitido (±25%)
+const CAL_PRIOR_WEIGHT = 30; // "fuerza" del prior global, en partidos equivalentes
+
+// (la liga activa vive en currentLeague)
+
+function clampAdjustment(value){
+  return Math.max(1 - CAL_MAX_ADJ, Math.min(1 + CAL_MAX_ADJ, value));
+}
+
+// Calcula el sesgo (bias) medio con signo para un mercado continuo.
+// Devuelve el factor multiplicativo que corregiría ese sesgo.
+function computeBiasFactor(settled, predKey, actualKey){
+  const valid = settled.filter(r => r.actual && typeof r.actual[actualKey] === 'number' && r[predKey] > 0);
+  if (valid.length === 0) return { factor: 1, n: 0, meanPred: null, meanActual: null };
+  let sumPred = 0, sumActual = 0;
+  for (const r of valid){ sumPred += r[predKey]; sumActual += r.actual[actualKey]; }
+  const meanPred = sumPred / valid.length;
+  const meanActual = sumActual / valid.length;
+  const raw = meanPred > 0 ? (meanActual / meanPred) : 1;
+  return { factor: raw, n: valid.length, meanPred, meanActual };
+}
+
+// Mezcla jerárquica: combina el factor propio de la liga con el prior global,
+// pesando por cantidad de muestra. Con pocos partidos domina el prior global.
+function shrinkToPrior(leagueFactor, leagueN, globalFactor){
+  const w = leagueN / (leagueN + CAL_PRIOR_WEIGHT);
+  return w * leagueFactor + (1 - w) * globalFactor;
+}
+
+// Calibración de confianza en 1X2: mide si el modelo es sobre/infra-confiado.
+// Devuelve un exponente de "temperatura": <1 achata (menos confianza),
+// >1 agudiza (más confianza). Se aplica sobre las probabilidades y renormaliza.
+function computeConfidenceFactor(settled){
+  const valid = settled.filter(r => r.actual && typeof r.brier === 'number');
+  if (valid.length === 0) return { temp: 1, n: 0, meanConf: null, hitRate: null };
+  let sumMaxProb = 0, hits = 0;
+  for (const r of valid){
+    const probs = [r.pHome, r.pDraw, r.pAway];
+    const maxProb = Math.max(...probs);
+    const predIdx = probs.indexOf(maxProb);
+    sumMaxProb += maxProb;
+    const hg = r.actual.homeGoals, ag = r.actual.awayGoals;
+    const actualIdx = hg > ag ? 0 : (hg === ag ? 1 : 2);
+    if (predIdx === actualIdx) hits++;
+  }
+  const meanConf = sumMaxProb / valid.length;   // confianza media declarada
+  const hitRate = hits / valid.length;          // acierto real
+  // Si la confianza declarada supera el acierto real -> sobreconfiado -> achatar (temp<1).
+  // Buscamos temp tal que meanConf^temp ≈ hitRate, es decir:
+  //   temp = log(hitRate)/log(meanConf)
+  // OJO: ambos logs son negativos (probabilidades < 1), así que ese cociente da >1
+  // cuando hitRate < meanConf, que es lo contrario de lo que queremos. La relación
+  // correcta para achatar hacia el uniforme es el cociente inverso.
+  let temp = 1;
+  if (meanConf > 0 && meanConf < 1 && hitRate > 0 && hitRate < 1){
+    temp = Math.log(meanConf) / Math.log(hitRate);
+    if (!isFinite(temp) || temp <= 0) temp = 1;
+  }
+  return { temp, n: valid.length, meanConf, hitRate };
+}
+
+// Aplica temperatura a un vector de probabilidades y renormaliza
+function applyTemperature(probs, temp){
+  if (temp === 1) return probs.slice();
+  const powed = probs.map(p => Math.pow(Math.max(p, 1e-12), temp));
+  const s = powed.reduce((a,b)=>a+b, 0);
+  return s > 0 ? powed.map(p => p/s) : probs.slice();
+}
+
+// Estado de calibración activo (se recalcula cada vez que se refresca el historial)
+let calibration = {
+  active: false,
+  n: 0,
+  corners: 1,
+  sot: 1,
+  cards: 1,
+  temp: 1,
+  detail: null
+};
+
+// ============================================================
+// APRENDIZAJE #2: ACTUALIZACIÓN BAYESIANA DE FUERZAS POR EQUIPO
+//
+// Las fuerzas de la temporada 25-26 son el PRIOR. Cada partido nuevo
+// aporta evidencia que las corre. El peso de lo nuevo crece con la
+// muestra: con 1 partido casi no mueve, con 20 domina la evidencia nueva.
+//
+// PRIOR_STRENGTH = cuántos partidos "vale" el prior histórico. Con 38
+// jornadas de respaldo, ponerlo en 12 significa que hacen falta ~12
+// partidos nuevos para que la evidencia reciente pese lo mismo que el histórico.
+//
+// NOTA IMPORTANTE (descubierta en auditoría, actualizada tras subir la vida
+// media a 120 días con evidencia de backtesting): al combinarse con el
+// decaimiento temporal de Fase 3, la muestra efectiva tiene un TECHO. Con
+// partidos semanales y vida media de 120 días, la suma de pesos converge a
+// ~25.2, así que el peso máximo de la evidencia nueva es ~68% (antes era
+// ~52% con vida media de 60). El prior de la 25-26 sigue sin abandonarse
+// del todo, pero ahora la evidencia reciente puede pesar bastante más.
+// ============================================================
+const PRIOR_STRENGTH = 12;
+
+// Ajustes aprendidos por equipo. Vacío = usar solo el prior histórico.
+// Estado de aprendizaje SEGREGADO POR LIGA. Mezclarlo sería un error grave:
+// las fuerzas están normalizadas contra el promedio de cada liga, así que el
+// ajuste aprendido de un equipo inglés no significa lo mismo que el de uno italiano.
+const learningByLeague = {};   // { ligaKey: { equipo: {atkAdj, defAdj, n} } }
+const eloByLeague = {};        // { ligaKey: { equipo: rating } }
+const calibrationByLeague = {};// { ligaKey: {...} }
+
+let learnedStrength = {}; // alias de la liga activa
+
+// FASE 3: DECAIMIENTO TEMPORAL
+// Un partido de hace varios meses no dice lo mismo sobre el equipo de hoy
+// que uno reciente (lesiones, cambio de técnico, fichajes, forma).
+// Usamos decaimiento exponencial: peso = 0.5^(días / HALF_LIFE_DAYS).
+//
+// VALOR CALIBRADO CON BACKTESTING REAL (no de literatura genérica):
+// probamos sin decaimiento, con vida media de 60 y de 120 días, en un
+// walk-forward sobre los 1510 partidos evaluables de la temporada 25-26
+// completa (5 ligas), prior neutro, sin mirar nunca hacia adelante.
+//   Sin decaimiento: Brier 0.6125 (mejor)
+//   120 días:        Brier 0.6153
+//   60 días:         Brier 0.6178 (peor, valor anterior)
+// El patrón fue monótono: cuanto más agresivo el decaimiento, peor el
+// resultado -- dentro de una sola temporada la fuerza de un equipo no
+// cambia tan rápido como para que "olvidar" partidos de hace 3 meses
+// ayude. 120 días quedó como punto intermedio: mejora sobre 60 sin
+// llegar al extremo de no decaer nunca, que sí puede tener sentido para
+// la transición ENTRE temporadas (25-26 -> 26-27), un escenario que el
+// backtest no midió directamente.
+const HALF_LIFE_DAYS = 120;
+
+function timeWeight(matchDate, referenceDate){
+  const ms = referenceDate - new Date(matchDate);
+  const days = ms / (1000*60*60*24);
+  if (!isFinite(days) || days < 0) return 1; // fecha futura o inválida: peso pleno
+  return Math.pow(0.5, days / HALF_LIFE_DAYS);
+}
+
+// Guarda el estado aprendido de la liga actual y carga el de otra
+function switchLeagueState(newKey){
+  learningByLeague[currentLeague] = learnedStrength;
+  eloByLeague[currentLeague] = eloRatings;
+  calibrationByLeague[currentLeague] = calibration;
+  currentLeague = newKey;
+  learnedStrength = learningByLeague[newKey] || {};
+  eloRatings = eloByLeague[newKey] || {};
+  calibration = calibrationByLeague[newKey] || {
+    active:false, n:0, corners:1, sot:1, cards:1, temp:1, detail:null
+  };
+}
+
+function recomputeTeamStrengths(allRecords){
+  const settled = allRecords.filter(r => r.status==='settled' && r.actual);
+  const acc = {}; // equipo -> {gfObs, gaObs, gfExp, gaExp, n, wSum}
+
+  // Referencia: HOY (o el partido más reciente si hubiera fechas futuras).
+  // Es deliberado que sea "hoy" y no el último partido: si un equipo no juega
+  // hace meses (parón de verano, por ejemplo), la confianza en su fuerza
+  // estimada tiene que bajar, no quedar congelada como si fuera fresca.
+  let refDate = new Date();
+  for (const r of settled){
+    const d = new Date(r.date);
+    if (d > refDate) refDate = d;
+  }
+
+  for (const r of settled){
+    const hg = r.actual.homeGoals, ag = r.actual.awayGoals;
+    if (typeof hg !== 'number' || typeof ag !== 'number') continue;
+    const hExp = r.homeXG, aExp = r.awayXG;
+    if (!(hExp > 0) || !(aExp > 0)) continue;
+
+    const w = timeWeight(r.date, refDate); // peso por antigüedad
+
+    for (const [team, gf, ga, gfE, gaE] of [
+      [r.home, hg, ag, hExp, aExp],
+      [r.away, ag, hg, aExp, hExp],
+    ]){
+      if (!acc[team]) acc[team] = {gfObs:0, gaObs:0, gfExp:0, gaExp:0, n:0, wSum:0};
+      // Todo ponderado por antigüedad
+      acc[team].gfObs += gf*w; acc[team].gaObs += ga*w;
+      acc[team].gfExp += gfE*w; acc[team].gaExp += gaE*w;
+      acc[team].n++;
+      acc[team].wSum += w;
+    }
+  }
+
+  const out = {};
+  for (const team in acc){
+    const a = acc[team];
+    const atkRatio = a.gfExp > 0 ? a.gfObs / a.gfExp : 1;
+    const defRatio = a.gaExp > 0 ? a.gaObs / a.gaExp : 1;
+    // El peso bayesiano ahora usa la muestra EFECTIVA (suma de pesos), no el
+    // conteo bruto: 20 partidos viejos pesan menos que 20 recientes.
+    const nEff = a.wSum;
+    const w = nEff / (nEff + PRIOR_STRENGTH);
+    out[team] = {
+      atkAdj: 1 + w*(atkRatio - 1),
+      defAdj: 1 + w*(defRatio - 1),
+      n: a.n,
+      nEff,
+      weight: w,
+      atkRatio, defRatio
+    };
+  }
+  learnedStrength = out;
+  learningByLeague[currentLeague] = out;
+  return out;
+}
+
+// Devuelve la fuerza efectiva de un equipo: prior histórico × ajuste aprendido
+function effectiveStrength(teamName){
+  const t = L().teams[teamName];
+  const l = learnedStrength[teamName];
+  if (!l) return { attack: t.attack, defense: t.defense, learned: false, n: 0 };
+  // Tope de seguridad: el aprendizaje no puede mover la fuerza más de ±35%
+  const clamp = (v) => Math.max(0.65, Math.min(1.35, v));
+  return {
+    attack: t.attack * clamp(l.atkAdj),
+    defense: t.defense * clamp(l.defAdj),
+    learned: true,
+    n: l.n
+  };
+}
+
+// ============================================================
+// APRENDIZAJE POR EQUIPO: CORNERS, TIROS A PUERTA Y TARJETAS
+//
+// Mismo mecanismo que recomputeTeamStrengths (Bayesiano + decaimiento), pero
+// para los 3 mercados secundarios. Antes solo existía una corrección GLOBAL
+// de liga (calibration.corners/sot/cards) -- esto agrega aprendizaje
+// ESPECÍFICO por equipo, igual que ya tenía goles.
+//
+// Requiere el desglose local/visitante en resultsDB (homeCorners/awayCorners,
+// etc.) y que la predicción guardada tenga los valores esperados por lado
+// (predCornersHome/predCornersAway, etc.) -- ver autoSavePrediction/batchGenerate.
+//
+// Cards es distinto a corners/tiros: no tiene attack/defense separado en el
+// prior (es una sola tendencia por equipo, `cards`), así que acá también
+// aprende un solo ajuste por equipo, no un par.
+// ============================================================
+let learnedMarketStrength = {}; // { equipo: {cornerAtkAdj, cornerDefAdj, sotAtkAdj, sotDefAdj, cardsAdj, n} }
+const marketLearningByLeague = {};
+
+function recomputeMarketStrengths(allRecords){
+  const settled = allRecords.filter(r => r.status==='settled' && r.actual);
+  const acc = {};
+
+  let refDate = new Date();
+  for (const r of settled){
+    const d = new Date(r.date);
+    if (d > refDate) refDate = d;
+  }
+
+  for (const r of settled){
+    const a = r.actual;
+    if (typeof a.homeCorners !== 'number' || typeof a.awayCorners !== 'number') continue;
+    if (typeof a.homeSOT !== 'number' || typeof a.awaySOT !== 'number') continue;
+    if (typeof a.homeCards !== 'number' || typeof a.awayCards !== 'number') continue;
+    if (typeof r.predCornersHome !== 'number' || typeof r.predCornersAway !== 'number') continue;
+
+    const w = timeWeight(r.date, refDate);
+
+    for (const side of ['home','away']){
+      const team = side==='home' ? r.home : r.away;
+      const cornerObs = side==='home' ? a.homeCorners : a.awayCorners;
+      const cornerExp = side==='home' ? r.predCornersHome : r.predCornersAway;
+      const sotObs = side==='home' ? a.homeSOT : a.awaySOT;
+      const sotExp = side==='home' ? r.predSOTHome : r.predSOTAway;
+      const cardsObs = side==='home' ? a.homeCards : a.awayCards;
+      const cardsExp = side==='home' ? r.predCardsHome : r.predCardsAway;
+
+      if (!acc[team]) acc[team] = { cObs:0,cExp:0, sObs:0,sExp:0, kObs:0,kExp:0, n:0, wSum:0 };
+      acc[team].cObs += cornerObs*w; acc[team].cExp += cornerExp*w;
+      acc[team].sObs += sotObs*w;    acc[team].sExp += sotExp*w;
+      acc[team].kObs += cardsObs*w;  acc[team].kExp += cardsExp*w;
+      acc[team].n++; acc[team].wSum += w;
+    }
+  }
+
+  const out = {};
+  for (const team in acc){
+    const a = acc[team];
+    const cRatio = a.cExp > 0 ? a.cObs/a.cExp : 1;
+    const sRatio = a.sExp > 0 ? a.sObs/a.sExp : 1;
+    const kRatio = a.kExp > 0 ? a.kObs/a.kExp : 1;
+    const nEff = a.wSum;
+    const w = nEff / (nEff + PRIOR_STRENGTH);
+    out[team] = { cornerAdj: 1+w*(cRatio-1), sotAdj: 1+w*(sRatio-1), cardsAdj: 1+w*(kRatio-1), n:a.n, nEff, weight:w };
+  }
+  learnedMarketStrength = out;
+  marketLearningByLeague[currentLeague] = out;
+  return out;
+}
+
+function effectiveMarketStrength(teamName){
+  const t = L().teams[teamName];
+  const l = learnedMarketStrength[teamName];
+  const clamp = (v) => Math.max(0.65, Math.min(1.35, v));
+  if (!l) return {
+    cornerAttack: t.cornerAttack, cornerDefense: t.cornerDefense,
+    sotAttack: t.sotAttack, sotDefense: t.sotDefense,
+    cards: t.cards, cardsRatio: t.cardsRatio, learned: false, n: 0
+  };
+  return {
+    cornerAttack: t.cornerAttack * clamp(l.cornerAdj),
+    cornerDefense: t.cornerDefense,
+    sotAttack: t.sotAttack * clamp(l.sotAdj),
+    sotDefense: t.sotDefense,
+    cards: t.cards * clamp(l.cardsAdj),
+    cardsRatio: t.cardsRatio * clamp(l.cardsAdj), // mismo ajuste aprendido, en unidades de ratio
+    learned: true, n: l.n
+  };
+}
+
+// ============================================================
+// FASE 4: MODELO ELO + ENSEMBLE
+//
+// Elo modela el RESULTADO directamente, no los goles. Es complementario al
+// Poisson: un equipo que gana muchos 1-0 tiene Elo alto pero Poisson modesto.
+// Al promediar ambos, los errores tienden a compensarse.
+//
+// K = velocidad de actualización. 20 es el estándar en fútbol de clubes
+// (FiveThirtyEight usaba K≈20 para su modelo de fútbol).
+// ELO_HOME_ADV = ventaja de local en puntos Elo (~65 es el consenso).
+const ELO_K = 20;
+const ELO_HOME_ADV = 65;
+const ELO_SCALE = 400;
+const ELO_BASE = 1500;
+// SIN TOCAR TODAVÍA (decisión deliberada, no olvido): un backtest walk-forward
+// sobre la temporada 25-26 completa (N=1510, con split train/test cronológico
+// para evitar sobreajuste) encontró una dirección consistente y confirmada
+// fuera de muestra: más peso a Elo mejoraba el Brier, con Elo puro (peso=0)
+// dando +0.66% de mejora real en el 30% de datos nunca vistos al elegir el
+// peso. El efecto es modesto y el backtest usa constantes genéricas (no las
+// reales por liga) y sin xG por partido -- insuficiente para justificar un
+// cambio de producción todavía. Revisar si se construye un backtest más fiel
+// (con constantes por liga reales). Este peso solo afecta 1X2: Dixon-Coles y
+// el xG blend siguen siendo la base completa de over/under, BTTS y los
+// mercados de corners/tiros/tarjetas sin importar este valor.
+const ENSEMBLE_WEIGHT = 0.65; // 65% Poisson, 35% Elo
+
+let eloRatings = {}; // alias de la liga activa
+
+// Elo inicial derivado del prior: un equipo con ataque/defensa fuertes arranca alto.
+function initEloFromPrior(){
+  const out = {};
+  for (const name of L().active){
+    const t = L().teams[name];
+    if (!t) continue;
+    // Ratio ataque/defensa como proxy de calidad global
+    const quality = t.attack / Math.max(t.defense, 0.1);
+    // Mapeo a escala Elo: quality 1.0 -> 1500, cada 0.5 de quality ≈ 100 puntos
+    out[name] = ELO_BASE + Math.log(quality) * 250;
+  }
+  return out;
+}
+
+// Probabilidad esperada de victoria según diferencia de Elo (fórmula estándar)
+function eloExpected(ratingA, ratingB){
+  return 1 / (1 + Math.pow(10, (ratingB - ratingA) / ELO_SCALE));
+}
+
+// Recalcula los Elo procesando el historial en orden cronológico
+function recomputeElo(allRecords){
+  const ratings = initEloFromPrior();
+  const settled = allRecords
+    .filter(r => r.status==='settled' && r.actual && typeof r.actual.homeGoals==='number')
+    .sort((a,b) => new Date(a.date) - new Date(b.date));
+
+  for (const r of settled){
+    if (!(r.home in ratings)) ratings[r.home] = ELO_BASE;
+    if (!(r.away in ratings)) ratings[r.away] = ELO_BASE;
+    const rh = ratings[r.home] + ELO_HOME_ADV;
+    const ra = ratings[r.away];
+    const expH = eloExpected(rh, ra);
+    const hg = r.actual.homeGoals, ag = r.actual.awayGoals;
+    const scoreH = hg > ag ? 1 : (hg === ag ? 0.5 : 0);
+    // Multiplicador por margen de victoria (goleadas mueven más el rating)
+    const margin = Math.abs(hg - ag);
+    const marginMult = margin <= 1 ? 1 : (margin === 2 ? 1.5 : (1.75 + (margin-3)/8));
+    const delta = ELO_K * marginMult * (scoreH - expH);
+    ratings[r.home] += delta;
+    ratings[r.away] -= delta;
+  }
+  eloRatings = ratings;
+  eloByLeague[currentLeague] = ratings;
+  return ratings;
+}
+
+// Convierte la diferencia de Elo en probabilidades 1X2.
+// La probabilidad de empate se estima con una función del diferencial:
+// partidos parejos empatan más. Calibrado para dar ~25% en Elo igualado,
+// que es la frecuencia real de empates en la Premier League.
+function eloProbabilities(homeName, awayName){
+  const rh = (eloRatings[homeName] ?? ELO_BASE) + ELO_HOME_ADV;
+  const ra = eloRatings[awayName] ?? ELO_BASE;
+  const diff = rh - ra;
+  // Expectativa combinada (victoria + medio empate)
+  const exp = eloExpected(rh, ra);
+  // Empate: máximo cuando los equipos están parejos, decae con el diferencial
+  const pDraw = 0.28 * Math.exp(-Math.pow(diff/380, 2));
+  // Repartir el resto proporcionalmente a la expectativa
+  const rest = 1 - pDraw;
+  const pHome = rest * exp;
+  const pAway = rest * (1 - exp);
+  return { pHome, pDraw, pAway };
+}
+
+// ENSEMBLE: promedio ponderado de Poisson y Elo, renormalizado.
+// ============================================================
+// MODELO DE STACKING (reemplaza al pool lineal simple desde esta fecha)
+//
+// En vez de una fórmula fija (antes: 0.65×Poisson + 0.35×Elo), esto es una
+// regresión logística multinomial entrenada por backtesting walk-forward
+// sobre los 1510 partidos evaluables de la temporada 25-26 completa (5
+// ligas, con split train/test 70/30 cronológico para validar que generaliza
+// antes de llevarlo a producción -- no se ajustó y midió contra la misma
+// muestra).
+//
+// Resultados en el 30% de datos nunca vistos durante el ajuste:
+//   Stacking (este modelo):        Brier 0.6102
+//   Pool logarítmico (alternativa): Brier 0.6122
+//   Solo Elo:                       Brier 0.6123
+//   Pool lineal (el que reemplaza): Brier 0.6139
+//   Solo Poisson+DC:                Brier 0.6176
+//
+// Los coeficientes de acá fueron reentrenados con los 1510 partidos
+// COMPLETOS (train+test juntos) una vez confirmado que el método generaliza
+// -- el split 70/30 fue solo para validar, no para el modelo final.
+//
+// LIMITACIÓN CONOCIDA, documentada a propósito: es más complejo que el pool
+// lineal (21 parámetros vs. 1) y más rígido -- estos coeficientes quedan
+// fijos hasta que alguien vuelva a correr el proceso de backtesting con más
+// datos (por ejemplo, agregando la temporada 26-27 completa cuando termine).
+// No hay reentrenamiento automático.
+// ============================================================
+const STACKING_W = [[1.252024,-0.123035,-1.162469,1.25191,-0.241929,-1.043461],[-0.093857,0.046383,-0.004661,-0.171268,0.116158,0.002975],[-1.158167,0.076652,1.16713,-1.080642,0.125771,1.040486]];
+const STACKING_B = [-0.047225,-0.111571,0.158797];
+
+function stackingPredict(pPoisson, pElo){
+  const x = [...pPoisson, ...pElo];
+  const logits = STACKING_W.map((wc,c) => wc.reduce((s,w,i)=>s+w*x[i],0) + STACKING_B[c]);
+  const max = Math.max(...logits);
+  const exps = logits.map(l => Math.exp(l-max));
+  const sum = exps.reduce((a,b)=>a+b,0);
+  return exps.map(e=>e/sum);
+}
+
+// blendProbabilities ahora usa stacking por defecto. El pool lineal queda
+// disponible (pasando useLinear=true) solo como referencia/fallback, no se
+// usa en ningún lugar del código activo hoy.
+function blendProbabilities(poisson, elo, weight, useLinear){
+  if (!useLinear) {
+    const combined = stackingPredict(
+      [poisson.pHome, poisson.pDraw, poisson.pAway],
+      [elo.pHome, elo.pDraw, elo.pAway]
+    );
+    return { pHome: combined[0], pDraw: combined[1], pAway: combined[2] };
+  }
+  // Pool lineal (comportamiento anterior, ya no es el default)
+  const w = (typeof weight === 'number') ? weight : ENSEMBLE_WEIGHT;
+  const pH = w*poisson.pHome + (1-w)*elo.pHome;
+  const pD = w*poisson.pDraw + (1-w)*elo.pDraw;
+  const pA = w*poisson.pAway + (1-w)*elo.pAway;
+  const s = pH + pD + pA;
+  return s > 0 ? { pHome:pH/s, pDraw:pD/s, pAway:pA/s } : poisson;
+}
+
+// ============================================================
+// APRENDIZAJE #3: DIAGNÓSTICO POR SUBGRUPO
+// Detecta si el modelo falla sistemáticamente en cierto tipo de partido.
+// ============================================================
+function diagnoseBySubgroup(allRecords){
+  const settled = allRecords.filter(r => r.status==='settled' && typeof r.brier==='number');
+  const groups = {
+    parejos:      {label:'Partidos parejos', recs:[]},
+    desparejos:   {label:'Partidos desparejos', recs:[]},
+    altoGol:      {label:'Alto goleo esperado', recs:[]},
+    bajoGol:      {label:'Bajo goleo esperado', recs:[]},
+  };
+  for (const r of settled){
+    const maxP = Math.max(r.pHome, r.pDraw, r.pAway);
+    (maxP < 0.45 ? groups.parejos : groups.desparejos).recs.push(r);
+    const totalXG = (r.homeXG||0) + (r.awayXG||0);
+    (totalXG >= 2.8 ? groups.altoGol : groups.bajoGol).recs.push(r);
+  }
+  const out = [];
+  for (const k in groups){
+    const g = groups[k];
+    if (g.recs.length === 0) continue;
+    const avgBrier = g.recs.reduce((s,r)=>s+r.brier,0)/g.recs.length;
+    // Sesgo de goles: ¿el modelo predice de más o de menos en este subgrupo?
+    let obs=0, exp=0, m=0;
+    for (const r of g.recs){
+      if (r.actual && typeof r.actual.homeGoals==='number'){
+        obs += r.actual.homeGoals + r.actual.awayGoals;
+        exp += (r.homeXG||0) + (r.awayXG||0);
+        m++;
+      }
+    }
+    out.push({
+      key:k, label:g.label, n:g.recs.length, avgBrier,
+      goalBias: (m>0 && exp>0) ? (obs/exp) : null
+    });
+  }
+  return out.sort((a,b)=>b.avgBrier-a.avgBrier);
+}
+
+// ============================================================
+// APRENDIZAJE #4: VALIDACIÓN OUT-OF-SAMPLE
+// Divide el historial en entrenamiento (más viejo) y test (más reciente).
+// Compara el Brier del modelo contra dos baselines. Si el modelo no le gana
+// a un baseline trivial, no está aprendiendo nada útil.
+// ============================================================
+function validateOutOfSample(allRecords){
+  const settled = allRecords
+    .filter(r => r.status==='settled' && typeof r.brier==='number')
+    .sort((a,b)=> new Date(a.date) - new Date(b.date));
+  if (settled.length < 20) return { valid:false, n:settled.length, needed:20 };
+
+  const splitIdx = Math.floor(settled.length * 0.7);
+  const test = settled.slice(splitIdx);
+
+  const modelBrier = test.reduce((s,r)=>s+r.brier,0)/test.length;
+
+  // Baseline 1: siempre 33/33/33
+  let uniformBrier = 0;
+  // Baseline 2: frecuencias históricas de la Premier (45/25/30)
+  let histBrier = 0;
+  for (const r of test){
+    const hg=r.actual.homeGoals, ag=r.actual.awayGoals;
+    const o = hg>ag ? [1,0,0] : (hg===ag ? [0,1,0] : [0,0,1]);
+    const u=[1/3,1/3,1/3], hst=[0.45,0.25,0.30];
+    for(let i=0;i<3;i++){
+      uniformBrier += Math.pow(u[i]-o[i],2);
+      histBrier    += Math.pow(hst[i]-o[i],2);
+    }
+  }
+  uniformBrier /= test.length;
+  histBrier /= test.length;
+
+  return {
+    valid: true,
+    nTrain: splitIdx,
+    nTest: test.length,
+    modelBrier, uniformBrier, histBrier,
+    beatsUniform: modelBrier < uniformBrier,
+    beatsHistorical: modelBrier < histBrier,
+    skillVsHistorical: (histBrier - modelBrier) / histBrier
+  };
+}
+
+function recomputeCalibration(allRecords){
+  const settled = allRecords.filter(r => r.status === 'settled' && r.actual);
+  const n = settled.length;
+
+  // Prior global: por ahora una sola liga en el sistema, así que el prior
+  // es neutro (1). Cuando sumemos más ligas, acá se promedian sus factores.
+  const globalPrior = { corners: 1, sot: 1, cards: 1 };
+
+  const cRaw = computeBiasFactor(settled, 'predCorners', 'corners');
+  const sRaw = computeBiasFactor(settled, 'predSOT', 'sot');
+  const kRaw = computeBiasFactor(settled, 'predCards', 'cards');
+  const conf = computeConfidenceFactor(settled);
+
+  const active = n >= CAL_MIN_SAMPLE;
+
+  calibration = {
+    active,
+    n,
+    corners: active ? clampAdjustment(shrinkToPrior(cRaw.factor, cRaw.n, globalPrior.corners)) : 1,
+    sot:     active ? clampAdjustment(shrinkToPrior(sRaw.factor, sRaw.n, globalPrior.sot)) : 1,
+    cards:   active ? clampAdjustment(shrinkToPrior(kRaw.factor, kRaw.n, globalPrior.cards)) : 1,
+    temp:    active ? Math.max(0.5, Math.min(2.0, conf.temp)) : 1,
+    detail: { cRaw, sRaw, kRaw, conf, league: currentLeague }
+  };
+  calibrationByLeague[currentLeague] = calibration;
+  return calibration;
+}
+
+
+// ============================================================
+// BASE DE RESULTADOS REALES — la completo yo (Claude) investigando
+// cada vez que me pedís "actualizá resultados". Formato de clave:
+// "Equipo Local||Equipo Visitante". Cuando un partido guardado
+// coincide con una entrada de acá, se liquida solo, sin tipear nada.
+//
+// ESQUEMA ACTUALIZADO (desglose local/visitante, no totales) -- necesario
+// para el aprendizaje por equipo en corners/tiros/tarjetas. Las 5 entradas
+// que había antes (esquema viejo con "corners"/"sot"/"cards" como total
+// combinado) se vaciaron acá porque no tienen el desglose -- hay que volver
+// a correr extraer_resultados.js (ya actualizado) para recargarlas.
+// ============================================================
+const resultsDB = {
+  // Ejemplo de formato:
+  // "Arsenal||Manchester City": { homeGoals:2, awayGoals:1,
+  //   homeCorners:6, awayCorners:4, homeSOT:5, awaySOT:4,
+  //   homeCards:2, awayCards:2, date:"2026-08-22" },
+
+};
+
+// ============================================================
+// BASE DE CUOTAS DE MERCADO — se completa corriendo extraer_cuotas.js y
+// pegando el resultado acá. A DIFERENCIA de resultsDB, esto envejece rápido:
+// las cuotas se mueven hasta el pitazo inicial, así que conviene correr el
+// script cerca del partido (el mismo día o la noche anterior), no con una
+// semana de anticipación como el chequeo de resultados.
+//
+// Formato: "Equipo Local||Equipo Visitante": { home, draw, away (probabilidad
+// de mercado sin el margen de la casa, ya normalizada a sumar 1),
+// extractedAt (para calcular antigüedad), over25/under25 opcionales.
+//
+// NUEVO: corners/cards/sot opcionales -- cada uno es {line, over, under,
+// bookmakers} usando la línea más líquida disponible (no es fija como 2.5
+// en goles, varía según lo que ofrezcan las casas para ese partido).
+// ============================================================
+const marketOddsDB = {
+  // premier-league
+  "Fulham||Chelsea": {home:0.2529, draw:0.2522, away:0.4949, over25:0.5848, under25:0.4152, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Newcastle||Liverpool": {home:0.2588, draw:0.2437, away:0.4974, over25:0.6404, under25:0.3596, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Manchester City||Bournemouth": {home:0.6464, draw:0.1956, away:0.1581, over25:0.667, under25:0.333, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Brighton||Aston Villa": {home:0.4227, draw:0.2635, away:0.3138, over25:0.5734, under25:0.4266, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Brentford||Tottenham": {home:0.3924, draw:0.2627, away:0.3449, over25:0.5704, under25:0.4296, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Ipswich Town||Sunderland": {home:0.3477, draw:0.2944, away:0.3579, over25:0.4916, under25:0.5084, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Everton||Crystal Palace": {home:0.4389, draw:0.28, away:0.2812, over25:0.4968, under25:0.5032, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Nottingham Forest||Leeds United": {home:0.4127, draw:0.2807, away:0.3066, over25:0.498, under25:0.502, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Hull City||Manchester United": {home:0.1105, draw:0.1929, away:0.6966, over25:0.5748, under25:0.4252, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Arsenal||Coventry City": {home:0.8135, draw:0.1288, away:0.0576, over25:0.6099, under25:0.3901, extractedAt:"2026-08-19T02:02:31.557Z"},
+  // la-liga
+  "Barcelona||Athletic Club": {home:0.684, draw:0.1863, away:0.1297, over25:0.6274, under25:0.3726, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Celta Vigo||Osasuna": {home:0.4778, draw:0.2749, away:0.2473, over25:0.4475, under25:0.5525, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Real Madrid||Real Sociedad": {home:0.683, draw:0.1846, away:0.1324, over25:0.6258, under25:0.3742, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Valencia||Real Betis": {home:0.3557, draw:0.2898, away:0.3544, over25:0.4766, under25:0.5234, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Málaga||Deportivo La Coruña": {home:0.353, draw:0.3144, away:0.3326, over25:0.3696, under25:0.6304, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Osasuna||Levante UD": {home:0.5214, draw:0.2622, away:0.2164, over25:0.4735, under25:0.5265, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Elche||Barcelona": {home:0.107, draw:0.168, away:0.725, over25:0.6455, under25:0.3545, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Getafe||Racing Santander": {home:0.4456, draw:0.3237, away:0.2307, over25:0.3287, under25:0.6713, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Atlético Madrid||Villarreal": {home:0.509, draw:0.2544, away:0.2366, over25:0.5132, under25:0.4868, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Espanyol||Real Madrid": {home:0.1259, draw:0.213, away:0.6611, over25:0.554, under25:0.446, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Valencia||Celta Vigo": {home:0.4157, draw:0.2969, away:0.2874, over25:0.4247, under25:0.5753, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Athletic Club||Sevilla": {home:0.5571, draw:0.2613, away:0.1816, over25:0.4249, under25:0.5751, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Real Betis||Real Sociedad": {home:0.4664, draw:0.2763, away:0.2573, over25:0.4872, under25:0.5128, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Rayo Vallecano||Deportivo Alavés": {home:0.4173, draw:0.3181, away:0.2646, over25:0.3486, under25:0.6514, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Atlético Madrid||Málaga": {home:0.717, draw:0.1874, away:0.0955, over25:0.5395, under25:0.4605, extractedAt:"2026-08-19T02:02:31.557Z"},
+  // serie-a
+  "Roma||Fiorentina": {home:0.604, draw:0.2367, away:0.1593, over25:0.5017, under25:0.4983, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Bologna||Lazio": {home:0.4319, draw:0.295, away:0.273, over25:0.428, under25:0.572, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Torino||Milan": {home:0.2109, draw:0.2561, away:0.533, over25:0.4994, under25:0.5006, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Atalanta||Sassuolo": {home:0.6213, draw:0.2201, away:0.1586, over25:0.5657, under25:0.4343, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Frosinone||Juventus": {home:0.1271, draw:0.216, away:0.6569, over25:0.5273, under25:0.4727, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Venezia||Lecce": {home:0.422, draw:0.2978, away:0.2802, over25:0.4252, under25:0.5748, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Parma||Cagliari": {home:0.3743, draw:0.3131, away:0.3126, over25:0.3993, under25:0.6007, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Genoa||Napoli": {home:0.1983, draw:0.2821, away:0.5197, over25:0.4174, under25:0.5826, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Inter||Monza": {home:0.7883, draw:0.1426, away:0.0691, over25:0.581, under25:0.419, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Udinese||Como": {home:0.2078, draw:0.2691, away:0.5232, over25:0.4351, under25:0.5649, extractedAt:"2026-08-19T02:02:31.557Z"},
+  // bundesliga
+  "FC Augsburg||Schalke 04": {home:0.4407, draw:0.25, away:0.3093, over25:0.5918, under25:0.4082, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "1. FSV Mainz 05||SC Paderborn": {home:0.5583, draw:0.2387, away:0.2029, over25:0.5628, under25:0.4372, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "SC Freiburg||SV Werder Bremen": {home:0.4472, draw:0.2846, away:0.2683, over25:0.5487, under25:0.4513, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "1. FC Union Berlin||Eintracht Frankfurt": {home:0.3935, draw:0.2612, away:0.3453, over25:0.5693, under25:0.4307, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "RB Leipzig||Borussia M'gladbach": {home:0.6142, draw:0.2095, away:0.1764, over25:0.6522, under25:0.3478, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "1. FC Köln||TSG Hoffenheim": {home:0.3298, draw:0.2519, away:0.4183, over25:0.6168, under25:0.3832, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "SV Elversberg||Bayer 04 Leverkusen": {home:0.1878, draw:0.2044, away:0.6077, over25:0.6413, under25:0.3587, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "FC Bayern München||VfB Stuttgart": {home:0.7344, draw:0.1505, away:0.1151, over25:0.7696, under25:0.2304, extractedAt:"2026-08-19T02:02:31.557Z"},
+  // ligue-1
+  "Paris Saint-Germain||Stade Rennais": {home:0.6841, draw:0.1801, away:0.1359, over25:0.6894, under25:0.3106, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Le Havre||AS Monaco": {home:0.268, draw:0.2437, away:0.4883, over25:0.6035, under25:0.3965, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Angers||Lille": {home:0.1869, draw:0.2528, away:0.5603, over25:0.4819, under25:0.5181, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Troyes||Paris FC": {home:0.34, draw:0.2739, away:0.386, over25:0.5542, under25:0.4458, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Toulouse||Olympique Lyonnais": {home:0.3274, draw:0.2672, away:0.4054, over25:0.5421, under25:0.4579, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Nice||Lorient": {home:0.4458, draw:0.2655, away:0.2886, over25:0.529, under25:0.471, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Le Mans||Stade Brestois": {home:0.3882, draw:0.2712, away:0.3406, over25:0.5276, under25:0.4724, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "RC Lens||Auxerre": {home:0.5944, draw:0.2241, away:0.1815, over25:0.5869, under25:0.4131, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Olympique de Marseille||RC Strasbourg": {home:0.5521, draw:0.2303, away:0.2176, over25:0.6196, under25:0.3804, extractedAt:"2026-08-19T02:02:31.557Z"},
+
+};
+
+const ODDS_STALE_HOURS = 24; // más de esto sin refrescar = aviso explícito de "vieja"
+
+function oddsAgeInfo(extractedAt){
+  const ageMs = Date.now() - new Date(extractedAt).getTime();
+  const ageHours = ageMs / (1000*60*60);
+  return {
+    hours: ageHours,
+    stale: ageHours > ODDS_STALE_HOURS,
+    label: ageHours < 1 ? 'hace menos de 1 hora'
+         : ageHours < 24 ? `hace ${Math.round(ageHours)}h`
+         : `hace ${Math.round(ageHours/24)} día${Math.round(ageHours/24)===1?'':'s'}`,
+  };
+}
+
+// Compara el pronóstico del modelo contra la cuota de mercado (ya sin margen).
+// El "edge" es la diferencia: positivo = el modelo ve más probable ese
+// resultado que lo que paga el mercado. Un edge grande y sostenido en el
+// tiempo sería lo único que justificaría apostar -- una sola comparación
+// no alcanza, y esto NO es una recomendación, solo la métrica cruda.
+function compareToMarket(homeName, awayName, modelProbs){
+  const key = homeName + '||' + awayName;
+  const market = marketOddsDB[key];
+  if (!market) return null;
+
+  const age = oddsAgeInfo(market.extractedAt);
+  return {
+    market,
+    age,
+    edge: {
+      home: modelProbs.pHome - market.home,
+      draw: modelProbs.pDraw - market.draw,
+      away: modelProbs.pAway - market.away,
+    },
+  };
+}
+
+// ============================================================
+// COMPARACIÓN DE MERCADOS SECUNDARIOS (corners/tiros/tarjetas) CONTRA CUOTAS
+//
+// A diferencia de goles (línea fija 2.5), estos mercados usan la línea más
+// líquida que haya en marketOddsDB (puede ser 9.5, 10.5, cualquiera -- se
+// eligió al extraer, no acá). Para comparar, se convierte la predicción del
+// modelo (un número esperado, ej. 10.7 corners) a probabilidad de over/under
+// ESA MISMA línea, usando Poisson -- mismo mecanismo que usa el modelo para
+// sus propias líneas en pantalla (overUnderLines).
+// ============================================================
+function compareMarketsToOdds(homeName, awayName, forecast){
+  const key = homeName + '||' + awayName;
+  const market = marketOddsDB[key];
+  if (!market) return null;
+
+  const age = oddsAgeInfo(market.extractedAt);
+  const out = { age, corners: null, cards: null, sot: null };
+
+  function probOverLine(expected, line){
+    // P(over line) con Poisson, igual que overUnderLines() ya usa en pantalla
+    const kMax = Math.ceil(line);
+    let pUnderOrEqual = 0;
+    for (let k=0; k<=kMax; k++) pUnderOrEqual += poissonPMF(k, expected);
+    return 1 - pUnderOrEqual;
+  }
+
+  if (market.corners && typeof forecast.predCorners === 'number') {
+    const modelOver = probOverLine(forecast.predCorners, market.corners.line);
+    out.corners = {
+      line: market.corners.line,
+      modelOver, modelUnder: 1-modelOver,
+      marketOver: market.corners.over, marketUnder: market.corners.under,
+      edge: modelOver - market.corners.over,
+      bookmakers: market.corners.bookmakers,
+    };
+  }
+  if (market.cards && typeof forecast.predCards === 'number') {
+    const modelOver = probOverLine(forecast.predCards, market.cards.line);
+    out.cards = {
+      line: market.cards.line,
+      modelOver, modelUnder: 1-modelOver,
+      marketOver: market.cards.over, marketUnder: market.cards.under,
+      edge: modelOver - market.cards.over,
+      bookmakers: market.cards.bookmakers,
+    };
+  }
+  if (market.sot && typeof forecast.predSOT === 'number') {
+    const modelOver = probOverLine(forecast.predSOT, market.sot.line);
+    out.sot = {
+      line: market.sot.line,
+      modelOver, modelUnder: 1-modelOver,
+      marketOver: market.sot.over, marketUnder: market.sot.under,
+      edge: modelOver - market.sot.over,
+      bookmakers: market.sot.bookmakers,
+    };
+  }
+  return (out.corners || out.cards || out.sot) ? out : null;
+}
+
+function brierBand(brier){
+  if (brier < 0.20) return 'excellent';
+  if (brier < 0.35) return 'ok';
+  return 'poor';
+}
+function errBand(err, scale){
+  // scale = margen razonable para ese mercado (ej. 2 corners, 1.5 tiros, 1 tarjeta)
+  if (err <= scale) return 'excellent';
+  if (err <= scale*2) return 'ok';
+  return 'poor';
+}
+
+function sanitizeKey(name){
+  return name.replace(/[^a-zA-Z0-9]/g, '');
+}
+
+// ============================================================
+// GENERACIÓN EN LOTE
+// Calcula y guarda los pronósticos de TODOS los partidos de las próximas
+// jornadas, sin que haya que abrir cada partido a mano.
+//
+// Diseño deliberado: solo se generan los partidos dentro de una ventana corta
+// (BATCH_WINDOW_DAYS). Pre-generar toda la temporada sería peor, porque un
+// pronóstico hecho hoy para marzo no incorporaría nada de lo aprendido entre medio.
+// ============================================================
+const BATCH_WINDOW_DAYS = 12;
+
+// Calcula un pronóstico completo sin tocar el DOM (versión pura de render)
+// ============================================================
+// ÍNDICE DE CONFIABILIDAD POR PRONÓSTICO
+//
+// El modelo ya "sabe" internamente cuándo confiar menos en un número — pero
+// esa información se quedaba adentro. Esto la hace visible.
+//
+// Dos índices separados porque dependen de señales distintas:
+//  - goles: pasa por Dixon-Coles + Elo + aprendizaje bayesiano -> penaliza
+//    también si Poisson y Elo discrepan mucho entre sí.
+//  - mercados (corners/tiros/tarjetas): solo calidad de dato + calibración,
+//    no pasan por el ensemble ni por Dixon-Coles.
+// ============================================================
+function computeConfidenceIndex(homeName, awayName){
+  const h = L().teams[homeName], a = L().teams[awayName];
+  if (!h || !a) return null;
+
+  const reasons = [];               // motivos compartidos (goles + los 3 mercados)
+  const marketReasons = { corners: [], sot: [], cards: [] }; // motivos propios de cada mercado
+  let goalsScore = 100;
+  let cornersScore = 100, sotScore = 100, cardsScore = 100;
+  let validationCap = null; // si el modelo no probó ganarle al baseline, nada puede pasar de acá
+
+  const marketPenalty = (pts) => { cornersScore -= pts; sotScore -= pts; cardsScore -= pts; };
+
+  // 1. Calidad del dato base: equipo ascendido = prior estimado, no medido.
+  // Afecta a los 4 índices por igual: es un problema del EQUIPO, no de un mercado en particular.
+  const hPromoted = !!h.promoted, aPromoted = !!a.promoted;
+  if (hPromoted && aPromoted) {
+    goalsScore -= 40; marketPenalty(45);
+    reasons.push(`${homeName} y ${awayName} son ascendidos: ambos con prior estimado, no medido`);
+  } else if (hPromoted || aPromoted) {
+    goalsScore -= 20; marketPenalty(22);
+    reasons.push(`${hPromoted?homeName:awayName} es ascendido: usa prior estimado, no medido`);
+  }
+
+  // 2. Madurez del aprendizaje: sin partidos reales todavía, todo es el prior
+  const hLearn = learnedStrength[homeName], aLearn = learnedStrength[awayName];
+  const hN = hLearn ? hLearn.n : 0, aN = aLearn ? aLearn.n : 0;
+  const minN = Math.min(hN, aN);
+  if (minN === 0) {
+    goalsScore -= 10;
+    reasons.push('Todavía sin partidos reales de esta temporada: 100% dependiente del prior histórico');
+  } else if (minN < 5) {
+    goalsScore -= 5;
+    reasons.push(`Muestra chica de la 26-27 (${minN} partido${minN===1?'':'s'}): el aprendizaje recién empieza a pesar`);
+  }
+
+  // 3. Divergencia Poisson/Elo (solo afecta goles: los mercados no pasan por el ensemble)
+  if (lastEnsembleInfo && lastEnsembleInfo.divergence !== null) {
+    const dv = lastEnsembleInfo.divergence;
+    if (dv > 0.15) { goalsScore -= 15; reasons.push(`Poisson y Elo discrepan fuerte (${(dv*100).toFixed(0)}pp): hay incertidumbre real entre los dos modelos`); }
+    else if (dv > 0.08) { goalsScore -= 7; reasons.push(`Poisson y Elo discrepan moderado (${(dv*100).toFixed(0)}pp)`); }
+  }
+
+  // 4. Ajustes situacionales apilados, PONDERADOS por si tienen respaldo o no.
+  const homeCtx = ctxFor(homeName), awayCtx = ctxFor(awayName);
+  let unbackedCount = 0, backedCount = 0;
+  for (const ctx of [homeCtx, awayCtx]) {
+    if (ctx.injury && ctx.injury !== 'none') backedCount++;
+    if (ctx.fatigue && ctx.fatigue !== 'normal') backedCount++;
+    if (ctx.motivation && ctx.motivation !== 'normal') unbackedCount++;
+    if (ctx.financial && ctx.financial !== 'none') unbackedCount++;
+  }
+  if (h.transferNote || a.transferNote) unbackedCount++;
+
+  if (backedCount > 0) {
+    const pen = Math.min(10, backedCount * 3);
+    goalsScore -= pen; marketPenalty(pen);
+    reasons.push(`${backedCount} ajuste(s) situacional(es) con respaldo (bajas/fatiga) aplicados`);
+  }
+  if (unbackedCount > 0) {
+    const pen = Math.min(20, unbackedCount * 7);
+    goalsScore -= pen; marketPenalty(pen);
+    reasons.push(`${unbackedCount} ajuste(s) SIN respaldo científico apilado(s) (motivación/financiero/fichajes): estimación propia, no validada`);
+  }
+
+  // 5. Recalibración POR MERCADO. A diferencia de antes, cada mercado mira su
+  // PROPIO factor de corrección (calibration.detail.cRaw/sRaw/kRaw), no un
+  // número compartido. Un factor cerca de 1 = el modelo ya venía bien
+  // calibrado en ese mercado. Un factor lejos de 1 (o pegado al tope de
+  // ±25%) = había sesgo grande, y aunque ya se corrigió, señala que ese
+  // mercado específico es menos confiable que los otros dos.
+  if (!calibration.active) {
+    marketPenalty(8);
+    const msg = `Recalibración inactiva (${calibration.n}/${CAL_MIN_SAMPLE} partidos liquidados): sin corrección de sesgo propio`;
+    marketReasons.corners.push(msg); marketReasons.sot.push(msg); marketReasons.cards.push(msg);
+  } else if (calibration.detail) {
+    const evalMarket = (raw, label, scoreRef) => {
+      if (!raw || raw.n === 0) return scoreRef;
+      const dist = Math.abs(raw.factor - 1);
+      if (dist > 0.20) return { score: scoreRef.score - 15, reason: `${label}: se detectó un sesgo grande (${dist>0?'+':''}${(dist*100).toFixed(0)}%) sobre ${raw.n} partidos — ya corregido, pero indica que este mercado es menos predecible` };
+      if (dist > 0.10) return { score: scoreRef.score - 7, reason: `${label}: sesgo moderado detectado (${(dist*100).toFixed(0)}%) sobre ${raw.n} partidos` };
+      return scoreRef;
+    };
+    const rc = evalMarket(calibration.detail.cRaw, 'Corners', {score: cornersScore});
+    cornersScore = rc.score; if (rc.reason) marketReasons.corners.push(rc.reason);
+    const rs = evalMarket(calibration.detail.sRaw, 'Tiros a puerta', {score: sotScore});
+    sotScore = rs.score; if (rs.reason) marketReasons.sot.push(rs.reason);
+    const rk = evalMarket(calibration.detail.kRaw, 'Tarjetas', {score: cardsScore});
+    cardsScore = rk.score; if (rk.reason) marketReasons.cards.push(rk.reason);
+  }
+
+  // 6. TECHO POR VALIDACIÓN OUT-OF-SAMPLE. Aplica a los 4 índices por igual:
+  // si el modelo entero no le gana a un baseline trivial con partidos reales,
+  // ningún pronóstico individual (de ningún mercado) puede mostrar confianza alta.
+  if (lastValidation && lastValidation.valid) {
+    if (!lastValidation.beatsHistorical) {
+      validationCap = 45;
+      reasons.push(`⚠ El modelo NO le ganó al baseline histórico en la validación out-of-sample (${lastValidation.nTest} partidos de prueba): tratar todo pronóstico con cautela`);
+    } else if (lastValidation.skillVsHistorical < 0.05) {
+      validationCap = 65;
+      reasons.push(`Le gana al baseline por muy poco (+${(lastValidation.skillVsHistorical*100).toFixed(1)}%): margen de mejora chico y todavía no muy probado`);
+    }
+  } else {
+    reasons.push(`Modelo sin validar aún contra datos reales (hacen falta ${lastValidation ? lastValidation.needed : 20}+ partidos liquidados)`);
+  }
+
+  const clamp = (s) => Math.max(0, Math.min(100, s));
+  goalsScore = clamp(goalsScore);
+  cornersScore = clamp(cornersScore); sotScore = clamp(sotScore); cardsScore = clamp(cardsScore);
+  if (validationCap !== null) {
+    goalsScore = Math.min(goalsScore, validationCap);
+    cornersScore = Math.min(cornersScore, validationCap);
+    sotScore = Math.min(sotScore, validationCap);
+    cardsScore = Math.min(cardsScore, validationCap);
+  }
+
+  const toLevel = (s) => s >= 80 ? 'alta' : (s >= 55 ? 'media' : 'baja');
+
+  return {
+    goals:   { score: goalsScore,   level: toLevel(goalsScore) },
+    corners: { score: cornersScore, level: toLevel(cornersScore), reasons: marketReasons.corners },
+    sot:     { score: sotScore,     level: toLevel(sotScore),     reasons: marketReasons.sot },
+    cards:   { score: cardsScore,   level: toLevel(cardsScore),   reasons: marketReasons.cards },
+    reasons, // motivos compartidos (goles + comunes a los 3 mercados)
+    // Esto es deliberadamente NO parte del score: es un recordatorio fijo, no
+    // una señal que suba o baje. Confianza alta en el modelo no es lo mismo que
+    // tener ventaja contra la cuota del mercado — eso requiere comparar contra
+    // datos de cuotas, que hoy no están cargados.
+    bettingDisclaimer: 'Este índice mide qué tan confiable es el modelo, no si hay ventaja de apuesta. Eso depende de comparar la probabilidad del modelo contra la cuota del mercado, que todavía no está integrada.',
+  };
+}
+
+function computeForecast(homeName, awayName){
+  const h = L().teams[homeName], a = L().teams[awayName];
+  if (!h || !a) return null;
+  const homeCtx = ctxFor(homeName);
+  const awayCtx = ctxFor(awayName);
+
+  const homeFx = combinedFactors(homeCtx.injury, homeCtx.fatigue, homeCtx.motivation, homeCtx.financial);
+  const awayFx = combinedFactors(awayCtx.injury, awayCtx.fatigue, awayCtx.motivation, awayCtx.financial);
+  const homeMkt = combinedMarketFactors(homeCtx.injury, homeCtx.fatigue, homeCtx.motivation, homeCtx.financial);
+  const awayMkt = combinedMarketFactors(awayCtx.injury, awayCtx.fatigue, awayCtx.motivation, awayCtx.financial);
+
+  const hEff = effectiveStrength(homeName);
+  const aEff = effectiveStrength(awayName);
+  // NUEVO: fuerza efectiva de mercado (prior + aprendizaje por equipo), antes
+  // esto usaba el prior crudo (h.cornerAttack) sin aprendizaje -- inconsistente
+  // con cómo ya funcionaban los goles.
+  const hMktEff = effectiveMarketStrength(homeName);
+  const aMktEff = effectiveMarketStrength(awayName);
+
+  const homeXG = L().homeAvg * hEff.attack * homeFx.attack * aEff.defense * awayFx.defense;
+  const awayXG = L().awayAvg * aEff.attack * awayFx.attack * hEff.defense * homeFx.defense;
+
+  const matrix = computeMatrix(homeXG, awayXG, 7);
+  let pHome=0, pDraw=0, pAway=0;
+  for(let i=0;i<matrix.length;i++) for(let j=0;j<matrix[i].length;j++){
+    if(i>j) pHome+=matrix[i][j]; else if(i===j) pDraw+=matrix[i][j]; else pAway+=matrix[i][j];
+  }
+  const tot = pHome+pDraw+pAway;
+  pHome/=tot; pDraw/=tot; pAway/=tot;
+
+  // Ensemble con Elo
+  const eloP = eloProbabilities(homeName, awayName);
+  const bl = blendProbabilities({pHome,pDraw,pAway}, eloP, ENSEMBLE_WEIGHT);
+  pHome=bl.pHome; pDraw=bl.pDraw; pAway=bl.pAway;
+
+  // Recalibración
+  if (calibration.active && calibration.temp !== 1){
+    const cal = applyTemperature([pHome,pDraw,pAway], calibration.temp);
+    pHome=cal[0]; pDraw=cal[1]; pAway=cal[2];
+  }
+
+  // Desglose local/visitante calculado por separado (no solo el total) --
+  // necesario para que recomputeMarketStrengths tenga con qué aprender.
+  const predCornersHome = L().cornerHomeAvg*hMktEff.cornerAttack*homeMkt.corners*aMktEff.cornerDefense * calibration.corners;
+  const predCornersAway = L().cornerAwayAvg*aMktEff.cornerAttack*awayMkt.corners*hMktEff.cornerDefense * calibration.corners;
+  const predSOTHome = L().sotHomeAvg*hMktEff.sotAttack*homeMkt.sot*aMktEff.sotDefense * calibration.sot;
+  const predSOTAway = L().sotAwayAvg*aMktEff.sotAttack*awayMkt.sot*hMktEff.sotDefense * calibration.sot;
+  const cardsRivalForHome = 1 + OPPONENT_CARDS_INFLUENCE*(aMktEff.cardsRatio - 1);
+  const cardsRivalForAway = 1 + OPPONENT_CARDS_INFLUENCE*(hMktEff.cardsRatio - 1);
+  const predCardsHome = hMktEff.cards*0.95*homeMkt.cards*cardsRivalForHome * calibration.cards;
+  const predCardsAway = aMktEff.cards*1.05*awayMkt.cards*cardsRivalForAway * calibration.cards;
+
+  return { home:homeName, away:awayName, homeXG, awayXG, pHome, pDraw, pAway,
+           predCorners: predCornersHome+predCornersAway, predSOT: predSOTHome+predSOTAway, predCards: predCardsHome+predCardsAway,
+           predCornersHome, predCornersAway, predSOTHome, predSOTAway, predCardsHome, predCardsAway };
+}
+
+// Devuelve los partidos del calendario que caen dentro de la ventana
+function upcomingFixtures(){
+  const now = new Date();
+  const limit = new Date(now); limit.setDate(limit.getDate() + BATCH_WINDOW_DAYS);
+  return L().fixtures.filter(f => {
+    const d = new Date(f.date + "T12:00:00");
+    return d >= new Date(now.getFullYear(), now.getMonth(), now.getDate()) && d <= limit;
+  });
+}
+
+function fixtureKey(f){
+  // El prefijo de liga evita colisiones entre equipos homónimos de países
+  // distintos y permite filtrar el historial por liga.
+  return 'pred_' + L().code + '_' + sanitizeKey(f.home) + '_' + sanitizeKey(f.away);
+}
+
+// Genera y guarda en lote. Devuelve un resumen de lo que hizo.
+async function batchGenerate(){
+  if (!storageAvailable) return { ok:false, reason:'storage' };
+  const fixtures = upcomingFixtures();
+  let created = 0, existing = 0, failed = 0;
+
+  for (const f of fixtures){
+    const key = fixtureKey(f);
+    try {
+      let prev = null;
+      try { prev = await window.storage.get(key); } catch(e){ /* no existe aún */ }
+      if (prev){ existing++; continue; }
+
+      const fc = computeForecast(f.home, f.away);
+      if (!fc){ failed++; continue; }
+
+      const record = {
+        id: key,
+        date: new Date().toISOString(),      // cuándo se hizo el pronóstico
+        matchDate: f.date,                    // cuándo se juega
+        matchweek: f.mw,
+        ...fc,
+        status: 'pending', actual: null, brier: null,
+        cornersErr: null, sotErr: null, cardsErr: null
+      };
+      const res = await window.storage.set(key, JSON.stringify(record));
+      if (res) created++; else failed++;
+    } catch(e){
+      console.error('Error generando pronóstico en lote', f, e);
+      failed++;
+      storageAvailable = false;
+      return { ok:false, reason:'storage', created, existing, failed };
+    }
+  }
+  return { ok:true, created, existing, failed, total:fixtures.length };
+}
+
+async function autoSavePrediction(){
+  if (!lastResult) return;
+  const statusEl = document.getElementById('autosaveStatus');
+  if (!storageAvailable){
+    statusEl.textContent = '⚠️ Historial no disponible';
+    return;
+  }
+
+  // Solo se guardan partidos que EXISTEN en el calendario real. Navegar cruces
+  // hipotéticos (o de equipos descendidos) no debe contaminar el historial de
+  // aprendizaje: esos pronósticos nunca se liquidarían y quedarían pendientes
+  // para siempre, distorsionando las métricas.
+  const fixture = L().fixtures.find(f => f.home === lastResult.home && f.away === lastResult.away);
+  if (!fixture){
+    statusEl.textContent = '👁 Vista exploratoria — no se guarda (no es un partido del calendario)';
+    statusEl.classList.remove('new');
+    return;
+  }
+
+  const key = fixtureKey(fixture);
+  try {
+    let existing = null;
+    try { existing = await window.storage.get(key); } catch(e){ /* todavía no existe */ }
+    if (existing) {
+      statusEl.textContent = `✓ Jornada ${fixture.mw} · ya está en tu historial`;
+      statusEl.classList.remove('new');
+      return;
+    }
+    const record = {
+      id: key,
+      date: new Date().toISOString(),
+      matchDate: fixture.date,
+      matchweek: fixture.mw,
+      home: lastResult.home,
+      away: lastResult.away,
+      homeXG: lastResult.homeXG,
+      awayXG: lastResult.awayXG,
+      pHome: lastResult.pHome,
+      pDraw: lastResult.pDraw,
+      pAway: lastResult.pAway,
+      predCorners: lastResult.predCorners,
+      predSOT: lastResult.predSOT,
+      predCards: lastResult.predCards,
+      predCornersHome: lastResult.predCornersHome, predCornersAway: lastResult.predCornersAway,
+      predSOTHome: lastResult.predSOTHome, predSOTAway: lastResult.predSOTAway,
+      predCardsHome: lastResult.predCardsHome, predCardsAway: lastResult.predCardsAway,
+      status: 'pending',
+      actual: null, brier: null,
+      cornersErr: null, sotErr: null, cardsErr: null
+    };
+    const res = await window.storage.set(key, JSON.stringify(record));
+    if (res) {
+      statusEl.textContent = `🆕 Jornada ${fixture.mw} · guardado automáticamente`;
+      statusEl.classList.add('new');
+      await refreshHistory();
+    }
+  } catch(e){
+    console.error('Error auto-guardando pronóstico', e);
+    storageAvailable = false;
+    statusEl.textContent = '⚠️ Historial no disponible';
+  }
+}
+
+async function deletePrediction(id){
+  try {
+    await window.storage.delete(id);
+    await refreshHistory();
+  } catch(e){ console.error(e); }
+}
+
+function normalizeMatchKey(home, away){
+  return home.trim().toLowerCase() + '||' + away.trim().toLowerCase();
+}
+
+function settleAgainstDB(record){
+  const wantKey = normalizeMatchKey(record.home, record.away);
+  let actual = null;
+  for (const k in resultsDB){
+    const parts = k.split('||');
+    if (parts.length === 2 && normalizeMatchKey(parts[0], parts[1]) === wantKey){
+      actual = resultsDB[k];
+      break;
+    }
+  }
+  if (!actual) return record; // sigue pendiente, no hay dato todavía
+
+  let outcome;
+  if (actual.homeGoals > actual.awayGoals) outcome = [1,0,0];
+  else if (actual.homeGoals === actual.awayGoals) outcome = [0,1,0];
+  else outcome = [0,0,1];
+  const probs = [record.pHome, record.pDraw, record.pAway];
+  let brier = 0;
+  for (let i=0;i<3;i++) brier += Math.pow(probs[i]-outcome[i], 2);
+
+  // NUEVO ESQUEMA: resultsDB ahora guarda el desglose local/visitante
+  // (homeCorners/awayCorners, etc.) en vez de un total combinado -- necesario
+  // para el aprendizaje por equipo en estos mercados. Los totales se derivan
+  // acá para no romper el cálculo de error que ya existía.
+  const totalCorners = actual.homeCorners + actual.awayCorners;
+  const totalSOT = actual.homeSOT + actual.awaySOT;
+  const totalCards = actual.homeCards + actual.awayCards;
+
+  record.actual = actual;
+  record.brier = brier;
+  record.cornersErr = Math.abs(record.predCorners - totalCorners);
+  record.sotErr = Math.abs(record.predSOT - totalSOT);
+  record.cardsErr = Math.abs(record.predCards - totalCards);
+  record.status = 'settled';
+  return record;
+}
+
+async function refreshHistory(){
+  // La lista visual de pronósticos se quitó de la interfaz, pero esta función
+  // sigue siendo el motor del sistema: liquida resultados, recalcula fuerzas
+  // aprendidas, Elo, calibración y diagnósticos. No tocar.
+  if (!storageAvailable){
+    renderCalibrationPanel();
+    return;
+  }
+
+  let records = [];
+  let loadError = false;
+  try {
+    const listRes = await window.storage.list('pred_' + L().code + '_');
+    const keys = (listRes && listRes.keys) ? listRes.keys : [];
+    for (const k of keys){
+      try {
+        const r = await window.storage.get(k);
+        if (r) records.push(JSON.parse(r.value));
+      } catch(e){ /* clave individual corrupta, se ignora */ }
+    }
+  } catch(e){
+    console.error('Error cargando historial', e);
+    loadError = true;
+  }
+
+  if (loadError){
+    storageAvailable = false;
+    renderCalibrationPanel();
+    return;
+  }
+
+  // Auto-liquidación: cualquier pendiente que ya tenga resultado real cargado
+  // en resultsDB se resuelve solo, y se guarda el cambio.
+  for (let i=0; i<records.length; i++){
+    if (records[i].status === 'pending'){
+      const before = records[i].status;
+      records[i] = settleAgainstDB(records[i]);
+      if (records[i].status !== before){
+        try { await window.storage.set(records[i].id, JSON.stringify(records[i])); }
+        catch(e){ console.error('Error auto-liquidando', e); }
+      }
+    }
+  }
+
+  // ============================================================
+  // PODA DE REGISTROS VIEJOS (limpieza de storage)
+  //
+  // NO se puede borrar un liquidado "porque es viejo" sin más: el aprendizaje
+  // (recomputeTeamStrengths/recomputeCalibration) recalcula todo desde cero
+  // leyendo TODOS los registros guardados cada vez -- borrar de más sería
+  // perder evidencia real, no solo espacio.
+  //
+  // El umbral es matemático, no arbitrario, y se DERIVA de HALF_LIFE_DAYS en
+  // vez de hardcodearse -- así nunca queda desincronizado si la vida media
+  // cambia de nuevo (ya pasó una vez: al subir de 60 a 120 días tras el
+  // backtest, este umbral se movió solo de ~598 a ~1196 días sin que haga
+  // falta tocar este bloque). Un registro con peso <0.1% (0.5^(dias/HL)<0.001)
+  // no cambia el resultado de forma perceptible si se borra.
+  //
+  // Solo se podan LIQUIDADOS (settled). Un pendiente nunca se borra solo
+  // por antigüedad: si sigue pendiente después de mucho tiempo, es una señal
+  // de que algo no se liquidó bien, no una razón para taparlo borrándolo.
+  // ============================================================
+  const PRUNE_AFTER_DAYS = Math.round(HALF_LIFE_DAYS * Math.log2(1000)); // peso < 0.1%
+  const now = new Date();
+  const toPrune = records.filter(r => {
+    if (r.status !== 'settled') return false;
+    const ageDays = (now - new Date(r.date)) / (1000*60*60*24);
+    return ageDays > PRUNE_AFTER_DAYS;
+  });
+  if (toPrune.length > 0){
+    for (const r of toPrune){
+      try { await window.storage.delete(r.id); }
+      catch(e){ console.error('Error podando registro viejo', r.id, e); }
+    }
+    records = records.filter(r => !toPrune.includes(r));
+    console.log(`Poda de storage: ${toPrune.length} registro(s) de más de ${PRUNE_AFTER_DAYS} días eliminados (peso <0.1%, sin impacto en el aprendizaje)`);
+  }
+
+  records.sort((a,b)=> new Date(b.date) - new Date(a.date));
+
+  // Recalcular aprendizaje y calibración con todo lo liquidado hasta ahora
+  recomputeTeamStrengths(records);
+  recomputeMarketStrengths(records); // NUEVO: aprendizaje por equipo en corners/tiros/tarjetas
+  recomputeElo(records);
+  recomputeCalibration(records);
+  lastDiagnostics = diagnoseBySubgroup(records);
+  lastValidation = validateOutOfSample(records);
+
+  // Resumen numérico (sin lista de partidos)
+  const settled = records.filter(r=>r.status==='settled');
+  const pending = records.filter(r=>r.status==='pending');
+  historySummaryStats = {
+    total: records.length,
+    settled: settled.length,
+    pending: pending.length,
+    avgBrier: settled.length ? settled.reduce((s,r)=>s+r.brier,0)/settled.length : null
+  };
+
+  renderCalibrationPanel();
+}
+
+// ============================================================
+// SELECTOR DE LIGA
+// ============================================================
+const leagueSel = document.getElementById('leagueSelect');
+Object.keys(LEAGUES).forEach(k=>{
+  const lg = LEAGUES[k];
+  const o = document.createElement('option');
+  o.value = k;
+  o.textContent = `${lg.name} · ${lg.country}` + (leagueHasData(k) ? '' : '  (sin datos)');
+  o.disabled = !leagueHasData(k);
+  leagueSel.appendChild(o);
+});
+leagueSel.value = currentLeague;
+
+function populateTeamSelects(){
+  homeSel.innerHTML = ''; awaySel.innerHTML = '';
+  const names = L().active.slice().sort();
+  names.forEach(name=>{
+    const o1=document.createElement('option'); o1.value=name; o1.textContent=name;
+    const o2=document.createElement('option'); o2.value=name; o2.textContent=name;
+    homeSel.appendChild(o1); awaySel.appendChild(o2);
+  });
+  if (names.length >= 2){ homeSel.value = names[0]; awaySel.value = names[1]; }
+}
+
+const topConfidenceBtn = document.getElementById('topConfidenceBtn');
+const topConfidencePanelEl = document.getElementById('topConfidencePanel');
+topConfidenceBtn.addEventListener('click', () => {
+  const isShowing = topConfidencePanelEl.classList.contains('show');
+  if (isShowing) {
+    topConfidencePanelEl.classList.remove('show');
+    topConfidenceBtn.textContent = '🏆 Top 10 por confianza (todas las ligas)';
+  } else {
+    renderTopConfidencePanel();
+    topConfidencePanelEl.classList.add('show');
+    topConfidenceBtn.textContent = '🏆 Ocultar Top 10';
+  }
+});
+
+const topDiscrepanciesBtn = document.getElementById('topDiscrepanciesBtn');
+const topDiscrepanciesPanelEl = document.getElementById('topDiscrepanciesPanel');
+topDiscrepanciesBtn.addEventListener('click', () => {
+  const isShowing = topDiscrepanciesPanelEl.classList.contains('show');
+  if (isShowing) {
+    topDiscrepanciesPanelEl.classList.remove('show');
+    topDiscrepanciesBtn.textContent = '⚡ Top 10 discrepancia con el mercado';
+  } else {
+    renderTopDiscrepanciesPanel();
+    topDiscrepanciesPanelEl.classList.add('show');
+    topDiscrepanciesBtn.textContent = '⚡ Ocultar discrepancias';
+  }
+});
+
+leagueSel.addEventListener('change', async ()=>{
+  const newKey = leagueSel.value;
+  if (!leagueHasData(newKey)){
+    leagueSel.value = currentLeague;
+    return;
+  }
+  switchLeagueState(newKey);
+  document.querySelector('h1').textContent = L().name + ' ' + L().season;
+  populateTeamSelects();
+  render();
+  renderConfidencePanel();
+  await refreshHistory();
+  await renderBatchPanel();
+});
+
+// populate selects
+const homeSel = document.getElementById('homeTeam');
+const awaySel = document.getElementById('awayTeam');
+populateTeamSelects();
+homeSel.value = "Arsenal";
+awaySel.value = "Coventry City";
+
+homeSel.addEventListener('change', render);
+awaySel.addEventListener('change', render);
+
+render();
+renderConfidencePanel();
+refreshHistory().then(() => renderBatchPanel());
+</script>
+</body>
+</html>
