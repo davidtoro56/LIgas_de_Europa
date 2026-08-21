@@ -2575,68 +2575,78 @@ const resultsDB = {
 // NUEVO: corners/cards/sot opcionales -- cada uno es {line, over, under,
 // bookmakers} usando la línea más líquida disponible (no es fija como 2.5
 // en goles, varía según lo que ofrezcan las casas para ese partido).
+//
+// Actualizado con extraer_cuotas.js (2026-08-21T23:57Z), 49 partidos.
+// Nombres normalizados contra teams{} antes de pegar (mismo criterio que
+// resultsDB): "Newcastle United"->"Newcastle", "Brighton & Hove Albion"->
+// "Brighton", "Tottenham Hotspur"->"Tottenham", "Racing de Santander"->
+// "Racing Santander", "FC Schalke 04"->"Schalke 04", "SC Paderborn 07"->
+// "SC Paderborn", "SV 07 Elversberg"->"SV Elversberg".
+//
+// EXCLUIDO a propósito: Paris Saint-Germain vs Stade Rennais (23/08). La API
+// devolvió el mismo partido dos veces con local/visitante invertido pero
+// probabilidades de mercado casi idénticas en ambas (~0.17/0.20/0.62) -- si
+// fuera un dato correcto, el equipo etiquetado local en cada versión debería
+// tener probabilidad de local distinta. Es una inconsistencia de la fuente,
+// no algo que se pueda resolver adivinando cuál versión es la real -- se
+// deja afuera hasta la próxima corrida en vez de cargar un dato dudoso.
 // ============================================================
 const marketOddsDB = {
   // premier-league
-  "Fulham||Chelsea": {home:0.2529, draw:0.2522, away:0.4949, over25:0.5848, under25:0.4152, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Newcastle||Liverpool": {home:0.2588, draw:0.2437, away:0.4974, over25:0.6404, under25:0.3596, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Manchester City||Bournemouth": {home:0.6464, draw:0.1956, away:0.1581, over25:0.667, under25:0.333, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Brighton||Aston Villa": {home:0.4227, draw:0.2635, away:0.3138, over25:0.5734, under25:0.4266, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Brentford||Tottenham": {home:0.3924, draw:0.2627, away:0.3449, over25:0.5704, under25:0.4296, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Ipswich Town||Sunderland": {home:0.3477, draw:0.2944, away:0.3579, over25:0.4916, under25:0.5084, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Everton||Crystal Palace": {home:0.4389, draw:0.28, away:0.2812, over25:0.4968, under25:0.5032, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Nottingham Forest||Leeds United": {home:0.4127, draw:0.2807, away:0.3066, over25:0.498, under25:0.502, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Hull City||Manchester United": {home:0.1105, draw:0.1929, away:0.6966, over25:0.5748, under25:0.4252, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Arsenal||Coventry City": {home:0.8135, draw:0.1288, away:0.0576, over25:0.6099, under25:0.3901, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Fulham||Chelsea": {home:0.2467, draw:0.2456, away:0.5078, over25:0.5791, under25:0.4209, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:10.5, over:0.4372, under:0.5628, bookmakers:2}, cards:{line:4.5, over:0.5147, under:0.4853, bookmakers:1}},
+  "Newcastle||Liverpool": {home:0.2446, draw:0.2502, away:0.5052, over25:0.6375, under25:0.3625, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:10.5, over:0.5209, under:0.4791, bookmakers:2}, cards:{line:4.5, over:0.4614, under:0.5386, bookmakers:2}, sot:{line:8.5, over:0.5366, under:0.4634, bookmakers:1}},
+  "Manchester City||Bournemouth": {home:0.6411, draw:0.203, away:0.156, over25:0.6671, under25:0.3329, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:10.5, over:0.5073, under:0.4927, bookmakers:2}, cards:{line:3.5, over:0.5152, under:0.4848, bookmakers:2}},
+  "Brighton||Aston Villa": {home:0.4331, draw:0.2649, away:0.302, over25:0.5494, under25:0.4506, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:10, over:0.5, under:0.5, bookmakers:1}, cards:{line:4.5, over:0.3661, under:0.6339, bookmakers:1}, sot:{line:8.5, over:0.5, under:0.5, bookmakers:1}},
+  "Brentford||Tottenham": {home:0.4049, draw:0.2585, away:0.3366, over25:0.5731, under25:0.4269, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:10.5, over:0.4791, under:0.5209, bookmakers:2}, cards:{line:4.5, over:0.3972, under:0.6028, bookmakers:3}, sot:{line:7.5, over:0.5366, under:0.4634, bookmakers:1}},
+  "Ipswich Town||Sunderland": {home:0.3504, draw:0.2925, away:0.3571, over25:0.4685, under25:0.5315, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.5318, under:0.4682, bookmakers:2}, cards:{line:3.5, over:0.4743, under:0.5257, bookmakers:2}, sot:{line:8.5, over:0.4634, under:0.5366, bookmakers:1}},
+  "Everton||Crystal Palace": {home:0.4304, draw:0.2818, away:0.2878, over25:0.4882, under25:0.5118, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:10, over:0.4737, under:0.5263, bookmakers:1}, cards:{line:3.5, over:0.4961, under:0.5039, bookmakers:2}, sot:{line:8.5, over:0.4853, under:0.5147, bookmakers:1}},
+  "Nottingham Forest||Leeds United": {home:0.4071, draw:0.2852, away:0.3077, over25:0.4884, under25:0.5116, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.5315, under:0.4685, bookmakers:2}, cards:{line:3.5, over:0.485, under:0.515, bookmakers:2}, sot:{line:8.5, over:0.4634, under:0.5366, bookmakers:1}},
+  "Hull City||Manchester United": {home:0.1024, draw:0.1899, away:0.7077, over25:0.5895, under25:0.4105, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:10.5, over:0.4318, under:0.5682, bookmakers:2}, cards:{line:4.5, over:0.425, under:0.575, bookmakers:2}, sot:{line:8.5, over:0.5366, under:0.4634, bookmakers:1}},
   // la-liga
-  "Barcelona||Athletic Club": {home:0.684, draw:0.1863, away:0.1297, over25:0.6274, under25:0.3726, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Celta Vigo||Osasuna": {home:0.4778, draw:0.2749, away:0.2473, over25:0.4475, under25:0.5525, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Real Madrid||Real Sociedad": {home:0.683, draw:0.1846, away:0.1324, over25:0.6258, under25:0.3742, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Valencia||Real Betis": {home:0.3557, draw:0.2898, away:0.3544, over25:0.4766, under25:0.5234, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Málaga||Deportivo La Coruña": {home:0.353, draw:0.3144, away:0.3326, over25:0.3696, under25:0.6304, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Osasuna||Levante UD": {home:0.5214, draw:0.2622, away:0.2164, over25:0.4735, under25:0.5265, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Elche||Barcelona": {home:0.107, draw:0.168, away:0.725, over25:0.6455, under25:0.3545, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Getafe||Racing Santander": {home:0.4456, draw:0.3237, away:0.2307, over25:0.3287, under25:0.6713, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Atlético Madrid||Villarreal": {home:0.509, draw:0.2544, away:0.2366, over25:0.5132, under25:0.4868, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Espanyol||Real Madrid": {home:0.1259, draw:0.213, away:0.6611, over25:0.554, under25:0.446, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Valencia||Celta Vigo": {home:0.4157, draw:0.2969, away:0.2874, over25:0.4247, under25:0.5753, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Athletic Club||Sevilla": {home:0.5571, draw:0.2613, away:0.1816, over25:0.4249, under25:0.5751, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Real Betis||Real Sociedad": {home:0.4664, draw:0.2763, away:0.2573, over25:0.4872, under25:0.5128, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Rayo Vallecano||Deportivo Alavés": {home:0.4173, draw:0.3181, away:0.2646, over25:0.3486, under25:0.6514, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Atlético Madrid||Málaga": {home:0.717, draw:0.1874, away:0.0955, over25:0.5395, under25:0.4605, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Barcelona||Athletic Club": {home:0.6832, draw:0.188, away:0.1289, over25:0.6288, under25:0.3712, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:10.5, over:0.4868, under:0.5132, bookmakers:1}},
+  "Celta Vigo||Osasuna": {home:0.467, draw:0.2755, away:0.2575, over25:0.4481, under25:0.5519, extractedAt:"2026-08-21T23:57:41.533Z"},
+  "Real Madrid||Real Sociedad": {home:0.6825, draw:0.185, away:0.1326, over25:0.6288, under25:0.3712, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:10, over:0.5132, under:0.4868, bookmakers:1}},
+  "Valencia||Real Betis": {home:0.3564, draw:0.2885, away:0.3551, over25:0.4803, under25:0.5197, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.5132, under:0.4868, bookmakers:1}},
+  "Málaga||Deportivo La Coruña": {home:0.3842, draw:0.3144, away:0.3015, over25:0.3824, under25:0.6176, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9, over:0.4737, under:0.5263, bookmakers:1}, sot:{line:7.5, over:0.5366, under:0.4634, bookmakers:1}},
+  "Osasuna||Levante UD": {home:0.5301, draw:0.2612, away:0.2087, over25:0.4722, under25:0.5278, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.4578, under:0.5422, bookmakers:2}},
+  "Elche||Barcelona": {home:0.1053, draw:0.1659, away:0.7289, over25:0.6645, under25:0.3355, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.5299, under:0.4701, bookmakers:2}, sot:{line:9.5, over:0.4853, under:0.5147, bookmakers:1}},
+  "Getafe||Racing Santander": {home:0.4351, draw:0.3256, away:0.2393, over25:0.3384, under25:0.6616, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:8.5, over:0.5197, under:0.4803, bookmakers:1}, sot:{line:6.5, over:0.4853, under:0.5147, bookmakers:1}},
+  "Atlético Madrid||Villarreal": {home:0.5124, draw:0.2594, away:0.2282, over25:0.5191, under25:0.4809, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:10.5, over:0.4413, under:0.5587, bookmakers:2}},
+  "Espanyol||Real Madrid": {home:0.1286, draw:0.21, away:0.6615, over25:0.5558, under25:0.4442, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.5183, under:0.4817, bookmakers:2}, cards:{line:4.5, over:0.4665, under:0.5335, bookmakers:2}},
+  "Valencia||Celta Vigo": {home:0.3854, draw:0.3004, away:0.3142, over25:0.4226, under25:0.5774, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:8.5, over:0.5556, under:0.4444, bookmakers:2}, cards:{line:4.5, over:0.5147, under:0.4853, bookmakers:1}, sot:{line:7.5, over:0.5366, under:0.4634, bookmakers:1}},
+  "Athletic Club||Sevilla": {home:0.5571, draw:0.2613, away:0.1816, over25:0.4249, under25:0.5751, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.5, under:0.5, bookmakers:1}},
   // serie-a
-  "Roma||Fiorentina": {home:0.604, draw:0.2367, away:0.1593, over25:0.5017, under25:0.4983, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Bologna||Lazio": {home:0.4319, draw:0.295, away:0.273, over25:0.428, under25:0.572, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Torino||Milan": {home:0.2109, draw:0.2561, away:0.533, over25:0.4994, under25:0.5006, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Atalanta||Sassuolo": {home:0.6213, draw:0.2201, away:0.1586, over25:0.5657, under25:0.4343, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Frosinone||Juventus": {home:0.1271, draw:0.216, away:0.6569, over25:0.5273, under25:0.4727, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Venezia||Lecce": {home:0.422, draw:0.2978, away:0.2802, over25:0.4252, under25:0.5748, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Parma||Cagliari": {home:0.3743, draw:0.3131, away:0.3126, over25:0.3993, under25:0.6007, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Genoa||Napoli": {home:0.1983, draw:0.2821, away:0.5197, over25:0.4174, under25:0.5826, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Inter||Monza": {home:0.7883, draw:0.1426, away:0.0691, over25:0.581, under25:0.419, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Udinese||Como": {home:0.2078, draw:0.2691, away:0.5232, over25:0.4351, under25:0.5649, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "Lazio||Genoa": {home:0.5253, draw:0.2704, away:0.2043, over25:0.4111, under25:0.5889, extractedAt:"2026-08-21T23:57:41.533Z"},
+  "Napoli||Como": {home:0.4211, draw:0.2895, away:0.2895, over25:0.4211, under25:0.5789, extractedAt:"2026-08-21T23:57:41.533Z"},
+  "Juventus||Parma": {home:0.7149, draw:0.169, away:0.1162, over25:0.5889, under25:0.4111, extractedAt:"2026-08-21T23:57:41.533Z"},
+  "Roma||Fiorentina": {home:0.5898, draw:0.2396, away:0.1706, over25:0.5, under25:0.5, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9, over:0.4737, under:0.5263, bookmakers:1}},
+  "Bologna||Lazio": {home:0.439, draw:0.2933, away:0.2677, over25:0.4248, under25:0.5752, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:8.5, over:0.4853, under:0.5147, bookmakers:1}, cards:{line:4.5, over:0.5366, under:0.4634, bookmakers:1}},
+  "Torino||Milan": {home:0.2071, draw:0.2606, away:0.5323, over25:0.5, under25:0.5, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:8.5, over:0.4868, under:0.5132, bookmakers:1}, sot:{line:8.5, over:0.5, under:0.5, bookmakers:1}},
+  "Atalanta||Sassuolo": {home:0.6198, draw:0.227, away:0.1532, over25:0.5647, under25:0.4353, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.4634, under:0.5366, bookmakers:2}, cards:{line:3.5, over:0.4425, under:0.5575, bookmakers:1}},
+  "Frosinone||Juventus": {home:0.1258, draw:0.2152, away:0.6591, over25:0.5208, under25:0.4792, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.5073, under:0.4927, bookmakers:2}, cards:{line:4.5, over:0.5, under:0.5, bookmakers:1}},
+  "Venezia||Lecce": {home:0.4241, draw:0.3096, away:0.2663, over25:0.4151, under25:0.5849, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9, over:0.5197, under:0.4803, bookmakers:1}},
+  "Parma||Cagliari": {home:0.3848, draw:0.3165, away:0.2987, over25:0.3712, under25:0.6288, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.4144, under:0.5856, bookmakers:2}, cards:{line:3.5, over:0.5982, under:0.4018, bookmakers:2}, sot:{line:7.5, over:0.4853, under:0.5147, bookmakers:1}},
+  "Genoa||Napoli": {home:0.2036, draw:0.2971, away:0.4992, over25:0.4079, under25:0.5921, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:8.5, over:0.4709, under:0.5291, bookmakers:2}, cards:{line:3.5, over:0.451, under:0.549, bookmakers:2}},
+  "Inter||Monza": {home:0.8007, draw:0.1347, away:0.0646, over25:0.5997, under25:0.4003, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.5, under:0.5, bookmakers:2}, cards:{line:2.5, over:0.5332, under:0.4668, bookmakers:2}},
+  "Udinese||Como": {home:0.2041, draw:0.2752, away:0.5207, over25:0.4393, under25:0.5607, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:12.5, over:0.145, under:0.855, bookmakers:2}, cards:{line:4.5, over:0.4171, under:0.5829, bookmakers:3}},
   // bundesliga
-  "FC Augsburg||Schalke 04": {home:0.4407, draw:0.25, away:0.3093, over25:0.5918, under25:0.4082, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "1. FSV Mainz 05||SC Paderborn": {home:0.5583, draw:0.2387, away:0.2029, over25:0.5628, under25:0.4372, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "SC Freiburg||SV Werder Bremen": {home:0.4472, draw:0.2846, away:0.2683, over25:0.5487, under25:0.4513, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "1. FC Union Berlin||Eintracht Frankfurt": {home:0.3935, draw:0.2612, away:0.3453, over25:0.5693, under25:0.4307, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "RB Leipzig||Borussia M'gladbach": {home:0.6142, draw:0.2095, away:0.1764, over25:0.6522, under25:0.3478, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "1. FC Köln||TSG Hoffenheim": {home:0.3298, draw:0.2519, away:0.4183, over25:0.6168, under25:0.3832, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "SV Elversberg||Bayer 04 Leverkusen": {home:0.1878, draw:0.2044, away:0.6077, over25:0.6413, under25:0.3587, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "FC Bayern München||VfB Stuttgart": {home:0.7344, draw:0.1505, away:0.1151, over25:0.7696, under25:0.2304, extractedAt:"2026-08-19T02:02:31.557Z"},
+  "FC Augsburg||Schalke 04": {home:0.4407, draw:0.2501, away:0.3091, over25:0.5889, under25:0.4111, extractedAt:"2026-08-21T23:57:41.533Z"},
+  "1. FSV Mainz 05||SC Paderborn": {home:0.5561, draw:0.24, away:0.2039, over25:0.5624, under25:0.4376, extractedAt:"2026-08-21T23:57:41.533Z"},
+  "SC Freiburg||SV Werder Bremen": {home:0.4472, draw:0.2846, away:0.2683, over25:0.5487, under25:0.4513, extractedAt:"2026-08-21T23:57:41.533Z"},
+  "1. FC Union Berlin||Eintracht Frankfurt": {home:0.3861, draw:0.2632, away:0.3506, over25:0.5635, under25:0.4365, extractedAt:"2026-08-21T23:57:41.533Z"},
+  "RB Leipzig||Borussia M'gladbach": {home:0.6115, draw:0.2111, away:0.1774, over25:0.6627, under25:0.3373, extractedAt:"2026-08-21T23:57:41.533Z"},
+  "1. FC Köln||TSG Hoffenheim": {home:0.3298, draw:0.2518, away:0.4184, over25:0.6154, under25:0.3846, extractedAt:"2026-08-21T23:57:41.533Z"},
+  "SV Elversberg||Bayer 04 Leverkusen": {home:0.1902, draw:0.2036, away:0.6062, over25:0.6397, under25:0.3603, extractedAt:"2026-08-21T23:57:41.533Z"},
+  "FC Bayern München||VfB Stuttgart": {home:0.7312, draw:0.152, away:0.1167, over25:0.7656, under25:0.2344, extractedAt:"2026-08-21T23:57:41.533Z"},
   // ligue-1
-  "Paris Saint-Germain||Stade Rennais": {home:0.6841, draw:0.1801, away:0.1359, over25:0.6894, under25:0.3106, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Le Havre||AS Monaco": {home:0.268, draw:0.2437, away:0.4883, over25:0.6035, under25:0.3965, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Angers||Lille": {home:0.1869, draw:0.2528, away:0.5603, over25:0.4819, under25:0.5181, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Troyes||Paris FC": {home:0.34, draw:0.2739, away:0.386, over25:0.5542, under25:0.4458, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Toulouse||Olympique Lyonnais": {home:0.3274, draw:0.2672, away:0.4054, over25:0.5421, under25:0.4579, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Nice||Lorient": {home:0.4458, draw:0.2655, away:0.2886, over25:0.529, under25:0.471, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Le Mans||Stade Brestois": {home:0.3882, draw:0.2712, away:0.3406, over25:0.5276, under25:0.4724, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "RC Lens||Auxerre": {home:0.5944, draw:0.2241, away:0.1815, over25:0.5869, under25:0.4131, extractedAt:"2026-08-19T02:02:31.557Z"},
-  "Olympique de Marseille||RC Strasbourg": {home:0.5521, draw:0.2303, away:0.2176, over25:0.6196, under25:0.3804, extractedAt:"2026-08-19T02:02:31.557Z"},
-
+  "Le Havre||AS Monaco": {home:0.2544, draw:0.2429, away:0.5027, over25:0.5909, under25:0.4091, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.4803, under:0.5197, bookmakers:1}},
+  "Angers||Lille": {home:0.189, draw:0.252, away:0.559, over25:0.4813, under25:0.5187, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.4425, under:0.5575, bookmakers:1}, cards:{line:4.5, over:0.4634, under:0.5366, bookmakers:1}},
+  "Troyes||Paris FC": {home:0.3006, draw:0.2773, away:0.4221, over25:0.5421, under25:0.4579, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.4425, under:0.5575, bookmakers:1}, cards:{line:3.5, over:0.5575, under:0.4425, bookmakers:1}},
+  "Toulouse||Olympique Lyonnais": {home:0.3493, draw:0.2827, away:0.368, over25:0.4992, under25:0.5008, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:10.5, over:0.4425, under:0.5575, bookmakers:1}, cards:{line:4.5, over:0.5, under:0.5, bookmakers:1}},
+  "Nice||Lorient": {home:0.4479, draw:0.2741, away:0.2779, over25:0.5043, under25:0.4957, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.4853, under:0.5147, bookmakers:1}, cards:{line:3.5, over:0.5767, under:0.4233, bookmakers:1}},
+  "Le Mans||Stade Brestois": {home:0.3727, draw:0.2805, away:0.3468, over25:0.5028, under25:0.4972, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:9.5, over:0.4425, under:0.5575, bookmakers:1}, cards:{line:3.5, over:0.5767, under:0.4233, bookmakers:1}},
+  "RC Lens||Auxerre": {home:0.6148, draw:0.2204, away:0.1648, over25:0.5746, under25:0.4254, extractedAt:"2026-08-21T23:57:41.533Z", corners:{line:10.5, over:0.4425, under:0.5575, bookmakers:1}, cards:{line:4.5, over:0.5147, under:0.4853, bookmakers:1}},
 };
-
 const ODDS_STALE_HOURS = 24; // más de esto sin refrescar = aviso explícito de "vieja"
 
 function oddsAgeInfo(extractedAt){
