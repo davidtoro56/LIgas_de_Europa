@@ -326,3 +326,14 @@ tiene), vale la pena correr `verificar_proyecto.js` Y revisar manualmente
 las constantes clave documentadas en este archivo antes de seguir editando
 encima -- no asumir que "es el archivo real" significa "tiene todos los
 cambios".
+
+## MEJORA: el selector de calendario ya no muestra partidos jugados
+
+`populateFixtureSelect()` ahora filtra con DOS criterios (uno solo no
+alcanza): la fecha del fixture ya pasó, O ya existe un resultado real
+cargado en `resultsDB` para ese cruce (cubre partidos pospuestos/
+adelantados donde la fecha programada no coincide exacto con la jugada).
+Si no queda ningún partido pendiente en una liga, el selector lo indica
+explícitamente en vez de quedar vacío sin explicación.
+
+Test de regresión: `test_fixture_filter.js`.

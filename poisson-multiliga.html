@@ -3333,7 +3333,27 @@ function populateFixtureSelect(){
   const fixSel = document.getElementById('fixtureSelect');
   if (!fixSel) return;
   fixSel.innerHTML = '<option value="">-- Selección manual abajo --</option>';
-  const fixtures = (L().fixtures || []).slice().sort((a,b) => new Date(a.date) - new Date(b.date));
+
+  // Filtrar los ya jugados con DOS criterios (uno solo no alcanza):
+  // 1) fecha del fixture ya pasada -- cubre la mayoría de los casos
+  // 2) ya existe un resultado real cargado en resultsDB para ese cruce --
+  //    cubre el caso de que la fecha programada no coincida exacto con la
+  //    fecha real jugada (partido pospuesto, adelantado, etc.)
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const resultKeys = new Set(Object.keys(resultsDB).map(k => {
+    const [h,a] = k.split('||');
+    return normalizeMatchKey(h,a);
+  }));
+
+  const fixtures = (L().fixtures || [])
+    .filter(f => {
+      const fechaFixture = new Date(f.date + 'T00:00:00');
+      const yaFecha = fechaFixture < hoy;
+      const yaResultado = resultKeys.has(normalizeMatchKey(f.home, f.away));
+      return !yaFecha && !yaResultado;
+    })
+    .sort((a,b) => new Date(a.date) - new Date(b.date));
+
   fixtures.forEach((f, i) => {
     const o = document.createElement('option');
     o.value = i;
@@ -3343,6 +3363,13 @@ function populateFixtureSelect(){
     fixSel.appendChild(o);
   });
   fixSel._fixtures = fixtures; // guardado para el listener, sin recalcular
+
+  if (fixtures.length === 0) {
+    const o = document.createElement('option');
+    o.value = ''; o.disabled = true;
+    o.textContent = '(sin partidos pendientes en el calendario cargado)';
+    fixSel.appendChild(o);
+  }
 }
 
 // Exclusión mutua: nunca debe poder elegirse el mismo equipo en los dos
