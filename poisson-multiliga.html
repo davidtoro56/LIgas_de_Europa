@@ -448,6 +448,25 @@
   .sm-conf.baja{ background:rgba(232,138,138,0.15); color:#E88A8A; }
   .sm-warning{ font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#E88A8A; margin-top:6px; line-height:1.5; }
   .sm-note{ font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--steel); margin-top:6px; line-height:1.5; }
+
+  .fixture-picker{ margin-bottom:10px; }
+  .fixture-picker label{
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;
+    color:var(--chalk-dim);
+    margin-bottom:4px;
+  }
+  .fixture-picker select{
+    width:100%;
+    background:var(--surface);
+    color:var(--chalk);
+    border:1px solid var(--gold);
+    border-radius:4px;
+    padding:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+  }
   .tc-button-alt{ background:var(--surface2); color:var(--gold); border:1px solid var(--gold); }
   .tc-breakdown{ width:100%; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--steel); margin-top:2px; }
   .tc-edge-big{ font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--gold); flex:1; }
@@ -509,6 +528,11 @@
 
   <button id="topDiscrepanciesBtn" class="tc-button tc-button-alt">⚡ Top 10 discrepancia con el mercado</button>
   <div class="tc-panel" id="topDiscrepanciesPanel"></div>
+
+  <div class="fixture-picker">
+    <label for="fixtureSelect">📅 Elegí un partido del calendario:</label>
+    <select id="fixtureSelect"><option value="">-- Selección manual abajo --</option></select>
+  </div>
 
   <div class="selectors">
     <div>
@@ -945,15 +969,24 @@ const TRANSFER_FX = {
 const PROMOTED_SHRINKAGE = 0.5; // priors de equipos ascendidos (estimados, no medidos)
 const UNBACKED_SHRINKAGE = 0.5; // fichajes, motivación, estrés financiero (sin respaldo científico)
 
-// Cuánto influye la "combatividad" del RIVAL en las tarjetas propias. A
-// diferencia de corners/tiros (ataque propio × defensa rival, con respaldo
-// directo: generás más si el rival defiende peor), tarjetas no tiene ese
-// mecanismo causal simple -- no existe "defensa de tarjetas". Lo que sí está
-// documentado en análisis de fútbol es el efecto de partido caliente: dos
-// equipos con tendencia a la falta se contagian entre sí. Peso moderado
-// (0.4, no 1.0 como corners/tiros) porque el mecanismo es más indirecto y
-// esto es criterio propio, no algo con el mismo respaldo que Dixon-Coles.
-const OPPONENT_CARDS_INFLUENCE = 0.4;
+// PAUSADO (0, no 0.4) tras backtesting con datos reales de la 25-26 completa
+// (972 partidos evaluables, split train/test 70/30). El mecanismo de "partido
+// caliente" -- dos equipos combativos se contagian entre sí -- tenía lógica
+// razonable pero SIN evidencia real: en train, cuanto más peso se le daba al
+// rival, peor predecía (monótono, 0 fue el mejor). En test, la diferencia
+// entre 0 y 0.4 fue de apenas 0.02% y hasta cambió de signo respecto a train
+// -- señal clara de ruido, no de un efecto real en ninguna dirección.
+//
+// Se deja en 0 (mecanismo sigue en el código, solo desactivado) hasta tener
+// más partidos reales de la 26-27 para reevaluar -- no se descarta la idea,
+// se pausa por falta de evidencia. Si en algún momento se reactiva, hay que
+// re-correr el mismo backtest antes, no simplemente volver a poner 0.4 por
+// intuición otra vez.
+//
+// NOTA: este valor se revirtió sin querer a 0.4 en algún punto del ida y
+// vuelta de archivos durante la migración a GitHub -- si vuelve a aparecer
+// en 0.4, revisar CLAUDE.md antes de asumir que es un cambio intencional.
+const OPPONENT_CARDS_INFLUENCE = 0;
 
 function computeLeagueDerived(leagueKey){
   const lg = LEAGUES[leagueKey];
@@ -1589,6 +1622,17 @@ function renderLineBoxes(containerId, lines){
 function render(){
   const homeName = document.getElementById('homeTeam').value;
   const awayName = document.getElementById('awayTeam').value;
+
+  // Salvaguarda: nunca calcular un partido de un equipo contra sí mismo.
+  // No debería ser posible llegar acá con la mutua exclusión de los
+  // selectores (ver populateTeamSelects), pero esto protege igual --
+  // por si alguna vez se llama render() desde otro lugar sin pasar por ahí.
+  if (homeName === awayName) {
+    const el = document.getElementById('probBar');
+    if (el) el.innerHTML = '<div class="market-empty">Elegí dos equipos distintos para ver un pronóstico.</div>';
+    return;
+  }
+
   const h = L().teams[homeName], a = L().teams[awayName];
   const homeCtx = ctxFor(homeName);
   const awayCtx = ctxFor(awayName);
@@ -2668,19 +2712,23 @@ function safestMarketForMatch(homeName, awayName){
     detail: `${best1x2.label} ${(best1x2.prob*100).toFixed(0)}%`,
   };
 
-  // --- Corners: evaluar varias líneas candidatas, quedarse con la más extrema ---
-  function bestLinePick(predicted, lines){
-    let best = null;
-    for (const line of lines) {
-      const pOver = probOverLine(predicted, line);
-      const dist = Math.abs(pOver - 0.5);
-      const pick = pOver >= 0.5 ? 'Over' : 'Under';
-      const prob = pOver >= 0.5 ? pOver : 1-pOver;
-      if (!best || dist > best.dist) best = { line, pick, prob, dist };
-    }
-    return best;
+  // --- Corners y tarjetas: UNA línea de referencia fija por mercado, no
+  // varias candidatas. Probamos antes con varias líneas y quedarnos con la
+  // "más extrema" -- eso resultó estar SESGADO: con promedios de tarjetas
+  // rondando 3-5, la probabilidad de superar la línea más alta testeada
+  // (5.5) casi siempre es baja, así que "Under 5.5" ganaba casi siempre,
+  // sin importar el partido -- no era señal real, era un artefacto de
+  // comparar contra un set de líneas asimétrico respecto a la media típica.
+  // Con una sola línea de referencia (la misma que usa el resto de la UI:
+  // 9.5 corners, 3.5 tarjetas), la probabilidad varía genuinamente partido
+  // a partido según la predicción real, sin ese sesgo estructural.
+  function fixedLinePick(predicted, line){
+    const pOver = probOverLine(predicted, line);
+    const pick = pOver >= 0.5 ? 'Over' : 'Under';
+    const prob = pOver >= 0.5 ? pOver : 1-pOver;
+    return { line, pick, prob };
   }
-  const cornerPick = bestLinePick(fc.predCorners, [7.5,8.5,9.5,10.5,11.5]);
+  const cornerPick = fixedLinePick(fc.predCorners, 9.5);
   const corners = {
     market: 'Corners', pick: `${cornerPick.pick} ${cornerPick.line}`, prob: cornerPick.prob,
     confScore: conf.corners.score, confLevel: conf.corners.level,
@@ -2688,7 +2736,7 @@ function safestMarketForMatch(homeName, awayName){
   };
 
   // --- Tarjetas: mismo criterio ---
-  const cardPick = bestLinePick(fc.predCards, [2.5,3.5,4.5,5.5]);
+  const cardPick = fixedLinePick(fc.predCards, 3.5);
   const cards = {
     market: 'Tarjetas', pick: `${cardPick.pick} ${cardPick.line}`, prob: cardPick.prob,
     confScore: conf.cards.score, confLevel: conf.cards.level,
@@ -3272,6 +3320,39 @@ function populateTeamSelects(){
     homeSel.appendChild(o1); awaySel.appendChild(o2);
   });
   if (names.length >= 2){ homeSel.value = names[0]; awaySel.value = names[1]; }
+  syncTeamExclusion();
+  populateFixtureSelect();
+}
+
+// Selector de calendario: partidos REALES programados, no combinaciones
+// libres de equipos. Al elegir uno, setea Local/Visitante automáticamente
+// -- resuelve de paso el problema de poder armar enfrentamientos que nunca
+// van a jugarse (ej. un equipo contra sí mismo, o dos que no se cruzan
+// en el calendario real).
+function populateFixtureSelect(){
+  const fixSel = document.getElementById('fixtureSelect');
+  if (!fixSel) return;
+  fixSel.innerHTML = '<option value="">-- Selección manual abajo --</option>';
+  const fixtures = (L().fixtures || []).slice().sort((a,b) => new Date(a.date) - new Date(b.date));
+  fixtures.forEach((f, i) => {
+    const o = document.createElement('option');
+    o.value = i;
+    const d = new Date(f.date + 'T12:00:00');
+    const ds = d.toLocaleDateString('es-AR', {day:'2-digit', month:'short'});
+    o.textContent = `J${f.mw} · ${ds} · ${f.home} vs ${f.away}`;
+    fixSel.appendChild(o);
+  });
+  fixSel._fixtures = fixtures; // guardado para el listener, sin recalcular
+}
+
+// Exclusión mutua: nunca debe poder elegirse el mismo equipo en los dos
+// selectores. En vez de solo detectar el error después (aunque eso también
+// existe, como salvaguarda en render()), esto lo hace IMPOSIBLE de elegir
+// desde el principio -- se deshabilita en cada selector la opción que ya
+// está elegida en el otro.
+function syncTeamExclusion(){
+  for (const opt of homeSel.options) opt.disabled = (opt.value === awaySel.value);
+  for (const opt of awaySel.options) opt.disabled = (opt.value === homeSel.value);
 }
 
 const topConfidenceBtn = document.getElementById('topConfidenceBtn');
@@ -3323,9 +3404,30 @@ const awaySel = document.getElementById('awayTeam');
 populateTeamSelects();
 homeSel.value = "Arsenal";
 awaySel.value = "Coventry City";
+syncTeamExclusion(); // los valores hardcodeados de arriba pueden dejar desactualizado
+                      // el estado de exclusión que populateTeamSelects ya había calculado
 
-homeSel.addEventListener('change', render);
-awaySel.addEventListener('change', render);
+homeSel.addEventListener('change', () => {
+  syncTeamExclusion();
+  if (fixtureSel) fixtureSel.value = ''; // se cambió a mano, ya no coincide con el fixture elegido
+  render();
+});
+awaySel.addEventListener('change', () => {
+  syncTeamExclusion();
+  if (fixtureSel) fixtureSel.value = '';
+  render();
+});
+
+const fixtureSel = document.getElementById('fixtureSelect');
+fixtureSel.addEventListener('change', () => {
+  if (fixtureSel.value === '') return; // "selección manual", no hacer nada
+  const f = fixtureSel._fixtures[parseInt(fixtureSel.value, 10)];
+  if (!f) return;
+  homeSel.value = f.home;
+  awaySel.value = f.away;
+  syncTeamExclusion();
+  render();
+});
 
 render();
 renderConfidencePanel();

@@ -263,3 +263,66 @@ botón de descarga del archivo fuente si existe, o verificar que los
 `<select>` estén vacíos en el HTML crudo antes de asumir que el archivo
 está "limpio" -- esto es lo que pasó acá: se usó sin darse cuenta una copia
 ya contaminada como base para varios cambios posteriores.
+
+## BUG CORREGIDO: "Combinación más segura" siempre daba "Tarjetas Under 5.5"
+
+`safestMarketForMatch` comparaba varias líneas candidatas (2.5/3.5/4.5/5.5
+para tarjetas, 7.5-11.5 para corners) y elegía la de probabilidad más
+extrema. Esto estaba SESGADO: con promedios de tarjetas rondando 3-5, la
+probabilidad de superar la línea más alta testeada (5.5) casi siempre era
+baja, así que "Under 5.5" ganaba en casi todos los partidos -- no era una
+señal real del partido, era un artefacto de comparar contra un set de
+líneas asimétrico respecto a la media típica.
+
+**Corregido usando UNA sola línea de referencia fija por mercado** (9.5
+corners, 3.5 tarjetas -- las mismas que ya usa el resto de la UI), no
+varias candidatas. Verificado con 6 partidos distintos que el pick ahora
+varía genuinamente (antes: siempre "Under 5.5"; ahora: mezcla real de
+Over/Under 3.5 según el partido). Test de regresión específico:
+`test_safest_market.js`, bloque H.
+
+**Lección para el futuro:** cualquier función que "elija la línea más
+extrema entre varias candidatas" corre este mismo riesgo de sesgo si el
+set de líneas no es simétrico respecto a los valores típicos que puede
+tomar la predicción. Preferir una línea fija de referencia salvo que haya
+una razón real para escanear varias.
+
+## BUG CORREGIDO: no se podía elegir el mismo equipo en Local y Visitante
+
+`render()` no validaba que Local ≠ Visitante -- se podía elegir "Arsenal vs
+Arsenal" y el motor calculaba algo sin sentido en vez de avisar. Corregido
+en dos niveles:
+1. `render()` corta al principio si son el mismo equipo, muestra un aviso
+2. `syncTeamExclusion()` (nueva función): hace IMPOSIBLE elegirlo desde el
+   selector -- cada vez que se elige un equipo en Local, se deshabilita esa
+   opción en Visitante, y viceversa. Se llama en cada `change` de ambos
+   selectores y al repoblar tras cambiar de liga.
+
+## NUEVA FUNCIONALIDAD: selector de calendario real
+
+Dropdown nuevo (`fixtureSelect`) arriba de los selectores manuales, con los
+partidos REALES programados de `L().fixtures`, ordenados por fecha. Al
+elegir uno, setea Local/Visitante automáticamente -- resuelve de paso el
+problema de armar enfrentamientos que nunca van a jugarse. Los selectores
+manuales siguen disponibles debajo por si se quiere explorar una
+combinación hipotética; si se tocan a mano, el selector de calendario
+vuelve a "Selección manual" para no mostrar un partido que ya no coincide.
+
+## REGRESIÓN ENCONTRADA Y CORREGIDA: OPPONENT_CARDS_INFLUENCE había vuelto a 0.4
+
+Durante la migración a GitHub, en algún punto del ida y vuelta de archivos
+(probablemente al usar como base un archivo bajado con "Guardar como" de
+un momento anterior a esta decisión), `OPPONENT_CARDS_INFLUENCE` volvió a
+0.4 -- perdiendo la pausa que habíamos decidido tras el backtest real con
+972 partidos. Ya restaurado a 0, con la documentación completa de vuelta.
+
+**Se auditaron las demás constantes documentadas** (HALF_LIFE_DAYS,
+XG_WEIGHT, DC_RHO, PRIOR_STRENGTH, STACKING_W/B, datos de Premier League)
+y ninguna otra sufrió el mismo problema -- fue puntual a esta constante.
+
+**Lección para el futuro:** cuando se use como base un archivo bajado de
+la URL pública o subido por el usuario (en vez de la copia que ya se
+tiene), vale la pena correr `verificar_proyecto.js` Y revisar manualmente
+las constantes clave documentadas en este archivo antes de seguir editando
+encima -- no asumir que "es el archivo real" significa "tiene todos los
+cambios".

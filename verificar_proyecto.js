@@ -66,7 +66,7 @@ const sandbox = {
     delete: async (k) => { delete store[k]; return {}; },
   }},
   document: {
-    getElementById: (id) => { if(!els[id]) els[id]={innerHTML:'',textContent:'',classList:{add(){},remove(){},toggle(){}},value:'x',addEventListener(){},appendChild(){}}; return els[id]; },
+    getElementById: (id) => { if(!els[id]) els[id]={innerHTML:'',textContent:'',classList:{add(){},remove(){},toggle(){}},value:'x',addEventListener(){},options:[],appendChild(o){this.options.push(o);}}; return els[id]; },
     createElement: () => ({}),
     querySelector: () => ({textContent:''}),
   },
