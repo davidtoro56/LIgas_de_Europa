@@ -1,7 +1,18 @@
 {
-  "extracted_at": "2026-08-20T02:10:43.515Z",
+  "extracted_at": "2026-08-21T03:28:29.288Z",
   "leagues": {
     "la-liga": {
+      "Rayo Vallecano||Deportivo Alavés": {
+        "homeGoals": 1,
+        "awayGoals": 1,
+        "homeCorners": 9,
+        "awayCorners": 7,
+        "homeSOT": 3,
+        "awaySOT": 3,
+        "homeCards": 1,
+        "awayCards": 2,
+        "date": "2026-08-20T19:00:00.000Z"
+      },
       "Atlético Madrid||Málaga": {
         "homeGoals": 2,
         "awayGoals": 0,
