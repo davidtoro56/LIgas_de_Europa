@@ -423,6 +423,31 @@
   .tc-edge.edge-pos{ color:#8FD19E; }
   .tc-edge.edge-neg{ color:#E88A8A; }
   .tc-noedge{ font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--steel); font-style:italic; }
+
+  .safest-market-panel{
+    background:var(--surface);
+    border:1px solid var(--gold);
+    border-radius:6px;
+    padding:10px 12px;
+    margin-bottom:14px;
+  }
+  .sm-title{ font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--gold); margin-bottom:6px; }
+  .sm-row{
+    display:flex; align-items:center; gap:8px;
+    font-size:11px;
+    padding:5px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .sm-row:last-of-type{ border-bottom:none; }
+  .sm-row.sm-winner{ background:rgba(212,175,55,0.08); border-radius:4px; padding:5px 6px; }
+  .sm-market{ min-width:65px; color:var(--chalk-dim); }
+  .sm-pick{ flex:1; font-family:'JetBrains Mono',monospace; color:var(--gold); }
+  .sm-conf{ font-family:'JetBrains Mono',monospace; font-size:9.5px; padding:2px 6px; border-radius:3px; }
+  .sm-conf.alta{ background:rgba(143,209,158,0.15); color:#8FD19E; }
+  .sm-conf.media{ background:rgba(212,175,55,0.15); color:var(--gold); }
+  .sm-conf.baja{ background:rgba(232,138,138,0.15); color:#E88A8A; }
+  .sm-warning{ font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#E88A8A; margin-top:6px; line-height:1.5; }
+  .sm-note{ font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--steel); margin-top:6px; line-height:1.5; }
   .tc-button-alt{ background:var(--surface2); color:var(--gold); border:1px solid var(--gold); }
   .tc-breakdown{ width:100%; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--steel); margin-top:2px; }
   .tc-edge-big{ font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--gold); flex:1; }
@@ -506,6 +531,7 @@
     <div class="prob-bar" id="probBar"></div>
     <div class="conf-badge" id="confBadgeGoals"></div>
     <div class="conf-disclaimer" id="confDisclaimer"></div>
+    <div class="safest-market-panel" id="safestMarketPanel"></div>
     <div class="market-panel" id="marketPanel"></div>
   </div>
 
@@ -1700,6 +1726,7 @@ function render(){
   const marketComp = compareToMarket(homeName, awayName, {pHome, pDraw, pAway});
   const marketsComp = compareMarketsToOdds(homeName, awayName, {predCorners: totalCorners, predCards: totalCards, predSOT: totalSOT});
   renderMarketPanel(marketComp, marketsComp);
+  renderSafestMarketPanel(homeName, awayName);
 
   // Guardar automáticamente (al final, ya con todas las variables calculadas)
   lastResult = { home: homeName, away: awayName, homeXG, awayXG, pHome, pDraw, pAway,
@@ -1709,6 +1736,35 @@ function render(){
                  predCardsHome: homeCards, predCardsAway: awayCards };
   document.getElementById('autosaveStatus').textContent = 'Guardando...';
   autoSavePrediction();
+}
+
+function renderSafestMarketPanel(homeName, awayName){
+  const el = document.getElementById('safestMarketPanel');
+  if (!el) return;
+  const s = safestMarketForMatch(homeName, awayName);
+  if (!s) { el.innerHTML = ''; return; }
+
+  const row = (c, esElMasSeguro) => {
+    const levelClass = c.confLevel === 'alta' ? 'alta' : (c.confLevel === 'media' ? 'media' : 'baja');
+    return `<div class="sm-row ${esElMasSeguro ? 'sm-winner' : ''}">
+      <span class="sm-market">${esElMasSeguro ? '👉 ' : ''}${c.market}</span>
+      <span class="sm-pick">${c.detail}</span>
+      <span class="sm-conf ${levelClass}">confianza ${c.confLevel}</span>
+    </div>`;
+  };
+
+  const warningHTML = s.ningunoConfiable
+    ? `<div class="sm-warning">⚠ Ninguno de los 3 mercados tiene confianza sólida en este partido específico -- lo que sigue es el "menos malo" de los tres, no algo en lo que apoyarse.</div>`
+    : '';
+
+  el.innerHTML = `
+    <div class="sm-title">🎯 Combinación más segura de este partido</div>
+    ${row(s.result, s.safest.market===s.result.market)}
+    ${row(s.corners, s.safest.market===s.corners.market)}
+    ${row(s.cards, s.safest.market===s.cards.market)}
+    ${warningHTML}
+    <div class="sm-note">Esto es información, no una recomendación de apuesta. "Más segura" significa: la probabilidad más alejada de un resultado parejo, entre los mercados con confianza aceptable. No mide ventaja contra el mercado (para eso, ver el edge más abajo).</div>
+  `;
 }
 
 function renderMarketPanel(comp, marketsComp){
@@ -2570,6 +2626,90 @@ function compareToMarket(homeName, awayName, modelProbs){
 // ESA MISMA línea, usando Poisson -- mismo mecanismo que usa el modelo para
 // sus propias líneas en pantalla (overUnderLines).
 // ============================================================
+// Función global (antes vivía anidada solo adentro de compareMarketsToOdds,
+// ahora también la usa safestMarketForMatch)
+function probOverLine(expected, line){
+  // P(over line) con Poisson, igual que overUnderLines() ya usa en pantalla
+  const kMax = Math.ceil(line);
+  let pUnderOrEqual = 0;
+  for (let k=0; k<=kMax; k++) pUnderOrEqual += poissonPMF(k, expected);
+  return 1 - pUnderOrEqual;
+}
+
+// ============================================================
+// COMBINACIÓN MÁS SEGURA DE UN PARTIDO ESPECÍFICO — 1X2, corners, tarjetas
+//
+// NO es una recomendación de apuesta. Es información: de los 3 mercados,
+// cuál tiene el pronóstico más "alejado del punto medio" (más lejos de un
+// 33% parejo en 1X2, o de 50/50 en over/under), CONSIDERANDO SOLO los que
+// tienen confianza razonable (se descartan los de confianza "baja" antes
+// de comparar -- una probabilidad extrema sacada de un dato poco confiable
+// no es "segura", es solo ruido con apariencia de seguridad).
+//
+// Devuelve los 3 mercados evaluados + cuál es "el más sólido" entre ellos,
+// para mostrar mientras se mira un partido puntual.
+// ============================================================
+function safestMarketForMatch(homeName, awayName){
+  const fc = computeForecast(homeName, awayName);
+  if (!fc) return null;
+  const conf = computeConfidenceIndex(homeName, awayName);
+  if (!conf) return null;
+
+  // --- 1X2 ---
+  const x12 = [
+    { label: 'Local', prob: fc.pHome },
+    { label: 'Empate', prob: fc.pDraw },
+    { label: 'Visita', prob: fc.pAway },
+  ];
+  const best1x2 = x12.reduce((a,b) => a.prob >= b.prob ? a : b);
+  const result = {
+    market: '1X2', pick: best1x2.label, prob: best1x2.prob,
+    confScore: conf.goals.score, confLevel: conf.goals.level,
+    detail: `${best1x2.label} ${(best1x2.prob*100).toFixed(0)}%`,
+  };
+
+  // --- Corners: evaluar varias líneas candidatas, quedarse con la más extrema ---
+  function bestLinePick(predicted, lines){
+    let best = null;
+    for (const line of lines) {
+      const pOver = probOverLine(predicted, line);
+      const dist = Math.abs(pOver - 0.5);
+      const pick = pOver >= 0.5 ? 'Over' : 'Under';
+      const prob = pOver >= 0.5 ? pOver : 1-pOver;
+      if (!best || dist > best.dist) best = { line, pick, prob, dist };
+    }
+    return best;
+  }
+  const cornerPick = bestLinePick(fc.predCorners, [7.5,8.5,9.5,10.5,11.5]);
+  const corners = {
+    market: 'Corners', pick: `${cornerPick.pick} ${cornerPick.line}`, prob: cornerPick.prob,
+    confScore: conf.corners.score, confLevel: conf.corners.level,
+    detail: `${cornerPick.pick} ${cornerPick.line} (${(cornerPick.prob*100).toFixed(0)}%)`,
+  };
+
+  // --- Tarjetas: mismo criterio ---
+  const cardPick = bestLinePick(fc.predCards, [2.5,3.5,4.5,5.5]);
+  const cards = {
+    market: 'Tarjetas', pick: `${cardPick.pick} ${cardPick.line}`, prob: cardPick.prob,
+    confScore: conf.cards.score, confLevel: conf.cards.level,
+    detail: `${cardPick.pick} ${cardPick.line} (${(cardPick.prob*100).toFixed(0)}%)`,
+  };
+
+  const candidates = [result, corners, cards];
+
+  // Filtrar los de confianza baja ANTES de comparar probabilidades -- una
+  // probabilidad extrema con datos poco confiables no es "más segura".
+  const confiables = candidates.filter(c => c.confLevel !== 'baja');
+  const pool = confiables.length > 0 ? confiables : candidates; // si los 3 son bajos, mostrar igual pero avisado abajo
+  const safest = pool.reduce((a,b) => a.prob >= b.prob ? a : b);
+
+  return {
+    result, corners, cards,
+    safest,
+    ningunoConfiable: confiables.length === 0,
+  };
+}
+
 function compareMarketsToOdds(homeName, awayName, forecast){
   const key = homeName + '||' + awayName;
   const market = marketOddsDB[key];
@@ -2577,14 +2717,6 @@ function compareMarketsToOdds(homeName, awayName, forecast){
 
   const age = oddsAgeInfo(market.extractedAt);
   const out = { age, corners: null, cards: null, sot: null };
-
-  function probOverLine(expected, line){
-    // P(over line) con Poisson, igual que overUnderLines() ya usa en pantalla
-    const kMax = Math.ceil(line);
-    let pUnderOrEqual = 0;
-    for (let k=0; k<=kMax; k++) pUnderOrEqual += poissonPMF(k, expected);
-    return 1 - pUnderOrEqual;
-  }
 
   if (market.corners && typeof forecast.predCorners === 'number') {
     const modelOver = probOverLine(forecast.predCorners, market.corners.line);
@@ -3117,6 +3249,10 @@ async function refreshHistory(){
 // SELECTOR DE LIGA
 // ============================================================
 const leagueSel = document.getElementById('leagueSelect');
+leagueSel.innerHTML = ''; // defensa: si el HTML ya trae opciones escritas (por ejemplo,
+// si el archivo se guardó desde el navegador DESPUÉS de que este script ya corrió una
+// vez, lo cual graba el estado ya poblado del <select> como HTML estático), esto evita
+// que se dupliquen al correr de nuevo. Sin esto, cada opción termina apareciendo 2 veces.
 Object.keys(LEAGUES).forEach(k=>{
   const lg = LEAGUES[k];
   const o = document.createElement('option');

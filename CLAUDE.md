@@ -212,3 +212,54 @@ aproximadamente):**
 constantes ya validadas con backtesting -- esas siguen siendo válidas
 temporada tras temporada, no están atadas a los datos de una temporada
 específica.
+
+## Nueva funcionalidad: "Combinación más segura de este partido"
+
+Panel nuevo, visible siempre (no oculto como batchPanel/calibrationPanel),
+justo debajo del índice de confianza de goles. Compara 1X2, corners y
+tarjetas del partido actualmente seleccionado, y señala cuál de los 3 tiene
+el pronóstico más alejado de un resultado parejo.
+
+**Regla central, no tocar sin pensarlo dos veces:** filtra los mercados de
+confianza "baja" ANTES de comparar probabilidades. Una probabilidad extrema
+sacada de datos poco confiables (por ejemplo, un ascendido sin historial)
+NO debe ganarle a una probabilidad más moderada pero con datos sólidos. Si
+los 3 mercados tienen confianza baja, lo dice explícitamente en vez de
+elegir uno igual sin avisar.
+
+`probOverLine` se sacó de adentro de `compareMarketsToOdds` a función
+global, porque ahora también la usa `safestMarketForMatch` -- si se toca
+una, revisar que la otra siga funcionando (hay test compartido:
+`test_safest_market.js`).
+
+Es información, no una recomendación de apuesta -- el disclaimer viaja
+siempre con el panel, igual que en el resto de las funciones de mercado.
+
+## BUG CORREGIDO: duplicación de opciones en selectores
+
+`leagueSel` (el selector de liga) le faltaba `innerHTML = ''` antes de
+poblarse con `appendChild` en un `forEach`. Esto no daba problema mientras
+el archivo se distribuyera "limpio" (con `<select id="leagueSelect"></select>`
+vacío) -- pero si alguna vez el archivo se guarda desde el navegador
+DESPUÉS de que el JS ya corrió (por ejemplo, "Guardar como" en vez de
+descargar el archivo fuente), el HTML guardado incluye las opciones que el
+JS ya había insertado. Al volver a abrir ese archivo, el JS corre de nuevo
+y las duplica -- cada liga aparecía 2 veces en el desplegable.
+
+**Ya corregido con una limpieza defensiva antes del forEach** (ver el
+comentario en el propio código, cerca de `const leagueSel`).
+`populateTeamSelects()` ya tenía esta protección desde antes -- por eso
+los selectores de equipo nunca mostraron el mismo problema.
+
+**Lección para evitar que esto se repita:** si en algún momento alguien
+reporta datos "duplicados" o "el doble de lo esperado" en la interfaz,
+revisar primero si hay algún `appendChild` en un loop sin `innerHTML = ''`
+antes -- es un patrón de bug fácil de reintroducir sin querer al copiar
+código similar en otro lado.
+
+**Aviso práctico:** al bajar el archivo publicado en GitHub Pages para
+usarlo como base de edición (en vez de pedirlo directo acá), preferir el
+botón de descarga del archivo fuente si existe, o verificar que los
+`<select>` estén vacíos en el HTML crudo antes de asumir que el archivo
+está "limpio" -- esto es lo que pasó acá: se usó sin darse cuenta una copia
+ya contaminada como base para varios cambios posteriores.
