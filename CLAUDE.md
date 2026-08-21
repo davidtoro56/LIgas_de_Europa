@@ -143,3 +143,72 @@ que ya se hacía para 1X2. Se muestra en el mismo panel de mercado.
 la documentación de la API -- por eso `cards` no tiene desglose local/
 visitante como sí lo tienen `corners` y `sot` en la respuesta de la API (que
 por ahora no se está usando, solo el total del partido, para simplicidad).
+
+## ACTUALIZACIÓN: OPPONENT_CARDS_INFLUENCE pausado en 0 (era 0.4)
+
+Backtesteado con 972 partidos reales de tarjetas (desglose local/visitante,
+temporada 25-26 completa vía historico_completo_25_26.json). El mecanismo de
+"partido caliente" entre rivales combativos NO mostró soporte empírico: en
+train, más peso al rival predecía sistemáticamente peor (patrón monótono);
+en test, la diferencia entre 0 y 0.4 fue de 0.02% y cambió de signo -- ruido,
+no señal.
+
+Se pausó en 0, NO se borró el mecanismo (`cardsRatio`, la lógica de
+`rivalFactorForHome/Away` siguen intactas en el código). Reactivar solo si
+se re-corre el mismo backtest con más datos de la 26-27 y muestra soporte
+real -- no volver a 0.4 por intuición sin evidencia nueva.
+
+**IMPORTANTE:** hay un bug ya corregido en `extraer_historico_completo.js`
+que vale la pena conocer si se vuelve a usar ese script: la primera corrida
+guardó los partidos SIN ordenar cronológicamente (el bug: faltaba el
+`.sort()` que sí tenía `extraer_historico_25_26.js`). Ya está arreglado en
+el script, pero si alguna vez aparece un archivo de histórico completo
+nuevo, verificar el orden de fechas antes de usarlo para backtesting --
+un histórico desordenado invalida cualquier walk-forward.
+
+## PENDIENTE PARA CUANDO ARRANQUE LA 27-28: reconstruir el prior
+
+Hoy el prior fijo (`teams{}`, usado por `computeLeagueDerived`) está construido
+SOLO con la temporada 25-26 completa. Esto NO se actualiza solo -- a
+diferencia del aprendizaje in-season (que decae solo con `HALF_LIFE_DAYS`),
+el prior queda congelado hasta que alguien lo reconstruya a mano.
+
+**Decisión ya tomada, no hace falta volver a discutirla cuando llegue el
+momento:** el prior de la 27-28 va a ser el **promedio simple** de las
+temporadas 25-26 y 26-27 completas (peso 50/50, no ponderado por
+recencia). Se descartó deliberadamente un esquema más sofisticado
+(ponderación decreciente por temporada, tipo ClubElo) por complejidad --
+si en el futuro se quiere revisar esa decisión, habría que backtestear
+igual que hicimos con HALF_LIFE_DAYS/XG_WEIGHT antes de cambiarla, no
+adoptarla por intuición.
+
+**Pasos para ejecutar esto cuando corresponda (mayo/junio 2027,
+aproximadamente):**
+
+1. Extraer la temporada 26-27 completa de TheStatsAPI, mismo patrón que
+   `extraer_stats_v5.js` usó para la 25-26 (gf/ga/xg/xga/cf/ca/sf/sa/cards
+   por equipo, temporada completa)
+2. Para cada equipo presente en AMBAS temporadas (25-26 y 26-27): promediar
+   sus stats crudas de las dos temporadas antes de normalizar contra el
+   promedio de liga (no promediar los `attack`/`defense` ya normalizados,
+   promediar gf/ga/xg/xga/etc. primero, período por período, como en el
+   armado original)
+3. Para un equipo presente en SOLO UNA de las dos temporadas (recién
+   ascendido a la 26-27, o que jugó 25-26 pero se fue de la liga): usar
+   directamente los datos de la única temporada que tenga, sin promediar
+   con nada -- no inventar un promedio con datos que no existen
+4. Actualizar `active[]`/ascensos-descensos de la 27-28 (mismo proceso
+   manual que se hizo al arrancar la 26-27: 3 nuevos ascendidos con prior
+   estimado por liga, sacar los 3 descendidos de `active`)
+5. Revisar `TRANSFER_FX` de cero -- los fichajes relevantes van a ser
+   completamente distintos, investigación puntual nueva
+6. Una vez reconstruido el prior, correr TODA la batería de tests de
+   nuevo (sintaxis, nombres, los ~30 suites) antes de publicar -- es un
+   cambio que toca el corazón del modelo, mismo cuidado que cualquier
+   cambio de esa magnitud documentado en este archivo
+
+**Lo que NO hace falta tocar manualmente:** `HALF_LIFE_DAYS`, `XG_WEIGHT`,
+`DC_RHO`, `PRIOR_STRENGTH`, el modelo de stacking, y el resto de las
+constantes ya validadas con backtesting -- esas siguen siendo válidas
+temporada tras temporada, no están atadas a los datos de una temporada
+específica.
