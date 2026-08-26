@@ -668,38 +668,65 @@ const LEAGUES = {
   "Brentford","Bournemouth","Aston Villa","Brighton","Tottenham","Newcastle","Fulham",
   "Leeds United","Sunderland","Crystal Palace","Everton","Nottingham Forest",
   "Coventry City","Hull City","Ipswich Town"],
+    // Calendario verificado contra TheStatsAPI el 25/08/2026 (extraer_calendario.js).
+    // Reemplaza el calendario original: varias fechas de jornada 2 y 3 habían
+    // quedado desactualizadas (ver auditoría en la conversación de esa fecha).
     fixtures: [
   // Jornada 1
   {mw:1, date:"2026-08-21", home:"Arsenal", away:"Coventry City"},
   {mw:1, date:"2026-08-22", home:"Hull City", away:"Manchester United"},
-  {mw:1, date:"2026-08-22", home:"Everton", away:"Crystal Palace"},
   {mw:1, date:"2026-08-22", home:"Ipswich Town", away:"Sunderland"},
+  {mw:1, date:"2026-08-22", home:"Everton", away:"Crystal Palace"},
   {mw:1, date:"2026-08-22", home:"Nottingham Forest", away:"Leeds United"},
   {mw:1, date:"2026-08-22", home:"Brentford", away:"Tottenham"},
-  {mw:1, date:"2026-08-23", home:"Brighton", away:"Aston Villa"},
   {mw:1, date:"2026-08-23", home:"Manchester City", away:"Bournemouth"},
+  {mw:1, date:"2026-08-23", home:"Brighton", away:"Aston Villa"},
   {mw:1, date:"2026-08-23", home:"Newcastle", away:"Liverpool"},
   {mw:1, date:"2026-08-24", home:"Fulham", away:"Chelsea"},
   // Jornada 2
   {mw:2, date:"2026-08-28", home:"Crystal Palace", away:"Manchester City"},
   {mw:2, date:"2026-08-29", home:"Liverpool", away:"Nottingham Forest"},
-  {mw:2, date:"2026-08-29", home:"Bournemouth", away:"Everton"},
   {mw:2, date:"2026-08-29", home:"Coventry City", away:"Hull City"},
+  {mw:2, date:"2026-08-29", home:"Bournemouth", away:"Everton"},
   {mw:2, date:"2026-08-29", home:"Tottenham", away:"Newcastle"},
-  {mw:2, date:"2026-08-29", home:"Aston Villa", away:"Arsenal"},
-  {mw:2, date:"2026-08-29", home:"Manchester United", away:"Ipswich Town"},
-  {mw:2, date:"2026-08-29", home:"Sunderland", away:"Fulham"},
-  {mw:2, date:"2026-08-30", home:"Chelsea", away:"Brighton"},
   {mw:2, date:"2026-08-30", home:"Leeds United", away:"Brentford"},
+  {mw:2, date:"2026-08-30", home:"Sunderland", away:"Fulham"},
+  {mw:2, date:"2026-08-30", home:"Chelsea", away:"Brighton"},
+  {mw:2, date:"2026-08-30", home:"Manchester United", away:"Ipswich Town"},
+  {mw:2, date:"2026-08-31", home:"Aston Villa", away:"Arsenal"},
   // Jornada 3
-  {mw:3, date:"2026-09-05", home:"Arsenal", away:"Chelsea"},
+  {mw:3, date:"2026-09-04", home:"Ipswich Town", away:"Liverpool"},
+  {mw:3, date:"2026-09-05", home:"Newcastle", away:"Bournemouth"},
+  {mw:3, date:"2026-09-05", home:"Nottingham Forest", away:"Tottenham"},
+  {mw:3, date:"2026-09-05", home:"Fulham", away:"Crystal Palace"},
+  {mw:3, date:"2026-09-05", home:"Manchester City", away:"Coventry City"},
   {mw:3, date:"2026-09-05", home:"Brentford", away:"Sunderland"},
   {mw:3, date:"2026-09-05", home:"Brighton", away:"Leeds United"},
-  {mw:3, date:"2026-09-05", home:"Everton", away:"Manchester United"},
-  {mw:3, date:"2026-09-05", home:"Fulham", away:"Crystal Palace"},
   {mw:3, date:"2026-09-05", home:"Hull City", away:"Aston Villa"},
-  {mw:3, date:"2026-09-05", home:"Ipswich Town", away:"Liverpool"},
-  {mw:3, date:"2026-09-05", home:"Manchester City", away:"Coventry City"},
+  {mw:3, date:"2026-09-06", home:"Everton", away:"Manchester United"},
+  {mw:3, date:"2026-09-06", home:"Arsenal", away:"Chelsea"},
+  // Jornada 4
+  {mw:4, date:"2026-09-12", home:"Crystal Palace", away:"Ipswich Town"},
+  {mw:4, date:"2026-09-12", home:"Chelsea", away:"Hull City"},
+  {mw:4, date:"2026-09-12", home:"Bournemouth", away:"Brentford"},
+  {mw:4, date:"2026-09-12", home:"Aston Villa", away:"Nottingham Forest"},
+  {mw:4, date:"2026-09-12", home:"Liverpool", away:"Fulham"},
+  {mw:4, date:"2026-09-12", home:"Tottenham", away:"Everton"},
+  {mw:4, date:"2026-09-12", home:"Sunderland", away:"Arsenal"},
+  {mw:4, date:"2026-09-13", home:"Coventry City", away:"Brighton"},
+  {mw:4, date:"2026-09-13", home:"Manchester United", away:"Manchester City"},
+  {mw:4, date:"2026-09-14", home:"Leeds United", away:"Newcastle"},
+  // Jornada 5
+  {mw:5, date:"2026-09-18", home:"Brentford", away:"Chelsea"},
+  {mw:5, date:"2026-09-19", home:"Tottenham", away:"Aston Villa"},
+  {mw:5, date:"2026-09-19", home:"Newcastle", away:"Hull City"},
+  {mw:5, date:"2026-09-19", home:"Manchester City", away:"Sunderland"},
+  {mw:5, date:"2026-09-19", home:"Leeds United", away:"Crystal Palace"},
+  {mw:5, date:"2026-09-19", home:"Everton", away:"Ipswich Town"},
+  {mw:5, date:"2026-09-19", home:"Brighton", away:"Arsenal"},
+  {mw:5, date:"2026-09-19", home:"Nottingham Forest", away:"Coventry City"},
+  {mw:5, date:"2026-09-20", home:"Bournemouth", away:"Liverpool"},
+  {mw:5, date:"2026-09-20", home:"Fulham", away:"Manchester United"},
 ],
   },
 
@@ -737,20 +764,88 @@ const LEAGUES = {
       "Málaga": {gf:41.0, ga:64.0, xg:38.9, xga:60.8, pj:38, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
     },
     active: ["Villarreal", "Atlético Madrid", "Elche", "Valencia", "Barcelona", "Real Madrid", "Athletic Club", "Getafe", "Osasuna", "Espanyol", "Real Sociedad", "Celta Vigo", "Sevilla", "Real Betis", "Levante UD", "Deportivo Alavés", "Rayo Vallecano", "Racing Santander", "Deportivo La Coruña", "Málaga"],
+        // Calendario verificado y ampliado contra TheStatsAPI el 25/08/2026
+        // (extraer_calendario.js) -- las fechas de jornada 1 coincidieron
+        // exactamente con lo ya cargado, se agregaron jornadas 2-7.
         fixtures: [
-      // Jornada 1 — COMPLETA (10/10). Escalonada por el Mundial: los primeros
-      // partidos ya se jugaron (marcados abajo), el resto llega hasta el 27/08.
-      {mw:1, date:"2026-08-15", home:"Deportivo Alavés", away:"Getafe"},           // ya jugado: 3-0
-      {mw:1, date:"2026-08-15", home:"Sevilla", away:"Rayo Vallecano"},            // ya jugado: 2-1
-      {mw:1, date:"2026-08-16", home:"Racing Santander", away:"Villarreal"},       // ya jugado: 2-2
-      {mw:1, date:"2026-08-16", home:"Espanyol", away:"Levante UD"},               // ya jugado: 3-0
-      {mw:1, date:"2026-08-17", home:"Deportivo La Coruña", away:"Elche"},         // ya jugado: 1-1
+      // Jornada 1
+      {mw:1, date:"2026-08-15", home:"Deportivo Alavés", away:"Getafe"},
+      {mw:1, date:"2026-08-15", home:"Sevilla", away:"Rayo Vallecano"},
+      {mw:1, date:"2026-08-16", home:"Racing Santander", away:"Villarreal"},
+      {mw:1, date:"2026-08-16", home:"Espanyol", away:"Levante UD"},
+      {mw:1, date:"2026-08-17", home:"Deportivo La Coruña", away:"Elche"},
       {mw:1, date:"2026-08-19", home:"Atlético Madrid", away:"Málaga"},
       {mw:1, date:"2026-08-25", home:"Valencia", away:"Real Betis"},
       {mw:1, date:"2026-08-26", home:"Real Madrid", away:"Real Sociedad"},
       {mw:1, date:"2026-08-27", home:"Celta Vigo", away:"Osasuna"},
       {mw:1, date:"2026-08-27", home:"Barcelona", away:"Athletic Club"},
-    ], // pendiente: calendario de arranque 26-27
+      // Jornada 2
+      {mw:2, date:"2026-08-20", home:"Rayo Vallecano", away:"Deportivo Alavés"},
+      {mw:2, date:"2026-08-21", home:"Real Betis", away:"Real Sociedad"},
+      {mw:2, date:"2026-08-22", home:"Athletic Club", away:"Sevilla"},
+      {mw:2, date:"2026-08-22", home:"Valencia", away:"Celta Vigo"},
+      {mw:2, date:"2026-08-22", home:"Espanyol", away:"Real Madrid"},
+      {mw:2, date:"2026-08-23", home:"Atlético Madrid", away:"Villarreal"},
+      {mw:2, date:"2026-08-23", home:"Getafe", away:"Racing Santander"},
+      {mw:2, date:"2026-08-23", home:"Elche", away:"Barcelona"},
+      {mw:2, date:"2026-08-24", home:"Osasuna", away:"Levante UD"},
+      {mw:2, date:"2026-08-24", home:"Málaga", away:"Deportivo La Coruña"},
+      // Jornada 3
+      {mw:3, date:"2026-08-28", home:"Racing Santander", away:"Elche"},
+      {mw:3, date:"2026-08-28", home:"Deportivo Alavés", away:"Villarreal"},
+      {mw:3, date:"2026-08-29", home:"Levante UD", away:"Real Betis"},
+      {mw:3, date:"2026-08-29", home:"Real Sociedad", away:"Espanyol"},
+      {mw:3, date:"2026-08-29", home:"Sevilla", away:"Atlético Madrid"},
+      {mw:3, date:"2026-08-30", home:"Real Madrid", away:"Málaga"},
+      {mw:3, date:"2026-08-30", home:"Deportivo La Coruña", away:"Valencia"},
+      {mw:3, date:"2026-08-30", home:"Celta Vigo", away:"Athletic Club"},
+      {mw:3, date:"2026-08-31", home:"Osasuna", away:"Getafe"},
+      {mw:3, date:"2026-08-31", home:"Barcelona", away:"Rayo Vallecano"},
+      // Jornada 4
+      {mw:4, date:"2026-09-04", home:"Real Betis", away:"Real Madrid"},
+      {mw:4, date:"2026-09-05", home:"Athletic Club", away:"Atlético Madrid"},
+      {mw:4, date:"2026-09-05", home:"Rayo Vallecano", away:"Racing Santander"},
+      {mw:4, date:"2026-09-05", home:"Villarreal", away:"Deportivo La Coruña"},
+      {mw:4, date:"2026-09-06", home:"Valencia", away:"Barcelona"},
+      {mw:4, date:"2026-09-06", home:"Málaga", away:"Levante UD"},
+      {mw:4, date:"2026-09-06", home:"Deportivo Alavés", away:"Osasuna"},
+      {mw:4, date:"2026-09-06", home:"Espanyol", away:"Sevilla"},
+      {mw:4, date:"2026-09-07", home:"Getafe", away:"Celta Vigo"},
+      {mw:4, date:"2026-09-07", home:"Elche", away:"Real Sociedad"},
+      // Jornada 5
+      {mw:5, date:"2026-09-13", home:"Celta Vigo", away:"Málaga"},
+      {mw:5, date:"2026-09-13", home:"Villarreal", away:"Real Betis"},
+      {mw:5, date:"2026-09-13", home:"Real Sociedad", away:"Atlético Madrid"},
+      {mw:5, date:"2026-09-13", home:"Real Madrid", away:"Rayo Vallecano"},
+      {mw:5, date:"2026-09-13", home:"Sevilla", away:"Valencia"},
+      {mw:5, date:"2026-09-13", home:"Levante UD", away:"Barcelona"},
+      {mw:5, date:"2026-09-13", home:"Racing Santander", away:"Deportivo Alavés"},
+      {mw:5, date:"2026-09-13", home:"Osasuna", away:"Espanyol"},
+      {mw:5, date:"2026-09-13", home:"Getafe", away:"Deportivo La Coruña"},
+      {mw:5, date:"2026-09-13", home:"Athletic Club", away:"Elche"},
+      // Jornada 6
+      {mw:6, date:"2026-09-16", home:"Barcelona", away:"Racing Santander"},
+      {mw:6, date:"2026-09-16", home:"Rayo Vallecano", away:"Espanyol"},
+      {mw:6, date:"2026-09-16", home:"Deportivo La Coruña", away:"Sevilla"},
+      {mw:6, date:"2026-09-16", home:"Elche", away:"Real Madrid"},
+      {mw:6, date:"2026-09-16", home:"Levante UD", away:"Athletic Club"},
+      {mw:6, date:"2026-09-16", home:"Real Sociedad", away:"Celta Vigo"},
+      {mw:6, date:"2026-09-16", home:"Málaga", away:"Villarreal"},
+      {mw:6, date:"2026-09-16", home:"Real Betis", away:"Getafe"},
+      {mw:6, date:"2026-09-16", home:"Atlético Madrid", away:"Osasuna"},
+      {mw:6, date:"2026-09-16", home:"Deportivo Alavés", away:"Valencia"},
+      // Jornada 7
+      {mw:7, date:"2026-09-20", home:"Sevilla", away:"Barcelona"},
+      {mw:7, date:"2026-09-20", home:"Celta Vigo", away:"Racing Santander"},
+      {mw:7, date:"2026-09-20", home:"Atlético Madrid", away:"Real Madrid"},
+      {mw:7, date:"2026-09-20", home:"Athletic Club", away:"Deportivo Alavés"},
+      {mw:7, date:"2026-09-20", home:"Deportivo La Coruña", away:"Real Betis"},
+      {mw:7, date:"2026-09-20", home:"Osasuna", away:"Rayo Vallecano"},
+      {mw:7, date:"2026-09-20", home:"Getafe", away:"Málaga"},
+      {mw:7, date:"2026-09-20", home:"Espanyol", away:"Elche"},
+      {mw:7, date:"2026-09-20", home:"Valencia", away:"Real Sociedad"},
+      {mw:7, date:"2026-09-20", home:"Villarreal", away:"Levante UD"},
+    ],
   },
   'serie-a': {
     name: 'Serie A', country: 'Italia', code: 'ITA', season: '2026-27',
@@ -783,19 +878,67 @@ const LEAGUES = {
       "Monza": {gf:36.9, ga:57.6, xg:35.1, xga:54.7, pj:38, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
     },
     active: ["Torino", "Juventus", "Milan", "Cagliari", "Como", "Lecce", "Genoa", "Roma", "Napoli", "Udinese", "Parma", "Sassuolo", "Lazio", "Bologna", "Inter", "Fiorentina", "Atalanta", "Venezia", "Frosinone", "Monza"],
+        // Calendario verificado y ampliado contra TheStatsAPI el 25/08/2026
+        // (extraer_calendario.js) -- 5 de los 10 partidos de jornada 1 tenían
+        // fecha desactualizada en +/-1 día, corregidos acá; se agregaron
+        // jornadas 2-5.
         fixtures: [
-      // Jornada 1 (22-23 agosto 2026) — CONFIRMADA COMPLETA
-      {mw:1, date:"2026-08-22", home:"Atalanta", away:"Sassuolo"},
-      {mw:1, date:"2026-08-22", home:"Bologna", away:"Lazio"},
-      {mw:1, date:"2026-08-22", home:"Frosinone", away:"Juventus"},
-      {mw:1, date:"2026-08-22", home:"Genoa", away:"Napoli"},
+      // Jornada 1
       {mw:1, date:"2026-08-22", home:"Inter", away:"Monza"},
+      {mw:1, date:"2026-08-22", home:"Udinese", away:"Como"},
       {mw:1, date:"2026-08-22", home:"Parma", away:"Cagliari"},
-      {mw:1, date:"2026-08-23", home:"Roma", away:"Fiorentina"},
-      {mw:1, date:"2026-08-23", home:"Torino", away:"Milan"},
-      {mw:1, date:"2026-08-23", home:"Udinese", away:"Como"},
+      {mw:1, date:"2026-08-22", home:"Genoa", away:"Napoli"},
+      {mw:1, date:"2026-08-23", home:"Frosinone", away:"Juventus"},
       {mw:1, date:"2026-08-23", home:"Venezia", away:"Lecce"},
-    ], // pendiente: calendario de arranque 26-27
+      {mw:1, date:"2026-08-23", home:"Torino", away:"Milan"},
+      {mw:1, date:"2026-08-23", home:"Atalanta", away:"Sassuolo"},
+      {mw:1, date:"2026-08-24", home:"Bologna", away:"Lazio"},
+      {mw:1, date:"2026-08-24", home:"Roma", away:"Fiorentina"},
+      // Jornada 2
+      {mw:2, date:"2026-08-28", home:"Milan", away:"Venezia"},
+      {mw:2, date:"2026-08-29", home:"Monza", away:"Udinese"},
+      {mw:2, date:"2026-08-29", home:"Sassuolo", away:"Torino"},
+      {mw:2, date:"2026-08-29", home:"Fiorentina", away:"Frosinone"},
+      {mw:2, date:"2026-08-29", home:"Juventus", away:"Parma"},
+      {mw:2, date:"2026-08-30", home:"Napoli", away:"Como"},
+      {mw:2, date:"2026-08-30", home:"Cagliari", away:"Inter"},
+      {mw:2, date:"2026-08-30", home:"Lazio", away:"Genoa"},
+      {mw:2, date:"2026-08-31", home:"Lecce", away:"Roma"},
+      {mw:2, date:"2026-08-31", home:"Atalanta", away:"Bologna"},
+      // Jornada 3
+      {mw:3, date:"2026-09-04", home:"Genoa", away:"Como"},
+      {mw:3, date:"2026-09-05", home:"Fiorentina", away:"Torino"},
+      {mw:3, date:"2026-09-05", home:"Inter", away:"Napoli"},
+      {mw:3, date:"2026-09-05", home:"Roma", away:"Atalanta"},
+      {mw:3, date:"2026-09-06", home:"Parma", away:"Monza"},
+      {mw:3, date:"2026-09-06", home:"Frosinone", away:"Venezia"},
+      {mw:3, date:"2026-09-06", home:"Bologna", away:"Sassuolo"},
+      {mw:3, date:"2026-09-06", home:"Juventus", away:"Milan"},
+      {mw:3, date:"2026-09-07", home:"Cagliari", away:"Lecce"},
+      {mw:3, date:"2026-09-07", home:"Udinese", away:"Lazio"},
+      // Jornada 4
+      {mw:4, date:"2026-09-11", home:"Venezia", away:"Fiorentina"},
+      {mw:4, date:"2026-09-12", home:"Genoa", away:"Frosinone"},
+      {mw:4, date:"2026-09-12", home:"Sassuolo", away:"Juventus"},
+      {mw:4, date:"2026-09-12", home:"Atalanta", away:"Cagliari"},
+      {mw:4, date:"2026-09-13", home:"Torino", away:"Roma"},
+      {mw:4, date:"2026-09-13", home:"Lecce", away:"Monza"},
+      {mw:4, date:"2026-09-13", home:"Como", away:"Parma"},
+      {mw:4, date:"2026-09-13", home:"Napoli", away:"Bologna"},
+      {mw:4, date:"2026-09-13", home:"Lazio", away:"Milan"},
+      {mw:4, date:"2026-09-14", home:"Inter", away:"Udinese"},
+      // Jornada 5
+      {mw:5, date:"2026-09-18", home:"Monza", away:"Sassuolo"},
+      {mw:5, date:"2026-09-19", home:"Udinese", away:"Cagliari"},
+      {mw:5, date:"2026-09-19", home:"Bologna", away:"Torino"},
+      {mw:5, date:"2026-09-19", home:"Roma", away:"Inter"},
+      {mw:5, date:"2026-09-19", home:"Venezia", away:"Lazio"},
+      {mw:5, date:"2026-09-20", home:"Fiorentina", away:"Napoli"},
+      {mw:5, date:"2026-09-20", home:"Parma", away:"Genoa"},
+      {mw:5, date:"2026-09-20", home:"Frosinone", away:"Como"},
+      {mw:5, date:"2026-09-20", home:"Juventus", away:"Atalanta"},
+      {mw:5, date:"2026-09-20", home:"Milan", away:"Lecce"},
+    ],
   },
   'bundesliga': {
     name: 'Bundesliga', country: 'Alemania', code: 'GER', season: '2026-27',
@@ -826,28 +969,52 @@ const LEAGUES = {
       "SC Paderborn": {gf:44.0, ga:68.8, xg:41.8, xga:65.4, pj:34, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
     },
     active: ["1. FSV Mainz 05", "SV Werder Bremen", "Borussia Dortmund", "Eintracht Frankfurt", "VfB Stuttgart", "Borussia M'gladbach", "TSG Hoffenheim", "1. FC Union Berlin", "FC Augsburg", "Bayer 04 Leverkusen", "Hamburger SV", "FC Bayern München", "1. FC Köln", "SC Freiburg", "RB Leipzig", "Schalke 04", "SV Elversberg", "SC Paderborn"],
+        // Calendario verificado y ampliado contra TheStatsAPI el 25/08/2026
+        // (extraer_calendario.js) -- el partido inferido de jornada 2
+        // (1.FC Köln-VfB Stuttgart) en realidad es el 04/09, no el 06/09;
+        // corregido acá. Se agregaron jornadas 3-4.
         fixtures: [
-      // Jornada 1 (28-30 agosto 2026) — CONFIRMADA COMPLETA
+      // Jornada 1
       {mw:1, date:"2026-08-28", home:"FC Bayern München", away:"VfB Stuttgart"},
-      {mw:1, date:"2026-08-29", home:"SV Elversberg", away:"Bayer 04 Leverkusen"},
-      {mw:1, date:"2026-08-29", home:"1. FC Köln", away:"TSG Hoffenheim"},
-      {mw:1, date:"2026-08-29", home:"1. FC Union Berlin", away:"Eintracht Frankfurt"},
       {mw:1, date:"2026-08-29", home:"1. FSV Mainz 05", away:"SC Paderborn"},
+      {mw:1, date:"2026-08-29", home:"1. FC Union Berlin", away:"Eintracht Frankfurt"},
       {mw:1, date:"2026-08-29", home:"RB Leipzig", away:"Borussia M'gladbach"},
+      {mw:1, date:"2026-08-29", home:"1. FC Köln", away:"TSG Hoffenheim"},
+      {mw:1, date:"2026-08-29", home:"SV Elversberg", away:"Bayer 04 Leverkusen"},
       {mw:1, date:"2026-08-29", home:"Borussia Dortmund", away:"Hamburger SV"},
       {mw:1, date:"2026-08-30", home:"SC Freiburg", away:"SV Werder Bremen"},
       {mw:1, date:"2026-08-30", home:"FC Augsburg", away:"Schalke 04"},
-      // Jornada 2 (5-6 septiembre 2026) — CONFIRMADA COMPLETA
-      {mw:2, date:"2026-09-05", home:"TSG Hoffenheim", away:"Borussia Dortmund"},
+      // Jornada 2
+      {mw:2, date:"2026-09-04", home:"VfB Stuttgart", away:"1. FC Köln"},
+      {mw:2, date:"2026-09-05", home:"SV Werder Bremen", away:"RB Leipzig"},
       {mw:2, date:"2026-09-05", home:"Bayer 04 Leverkusen", away:"1. FC Union Berlin"},
       {mw:2, date:"2026-09-05", home:"Borussia M'gladbach", away:"SV Elversberg"},
-      {mw:2, date:"2026-09-05", home:"SV Werder Bremen", away:"RB Leipzig"},
       {mw:2, date:"2026-09-05", home:"SC Paderborn", away:"SC Freiburg"},
+      {mw:2, date:"2026-09-05", home:"TSG Hoffenheim", away:"Borussia Dortmund"},
       {mw:2, date:"2026-09-05", home:"Schalke 04", away:"FC Bayern München"},
       {mw:2, date:"2026-09-06", home:"Hamburger SV", away:"1. FSV Mainz 05"},
       {mw:2, date:"2026-09-06", home:"Eintracht Frankfurt", away:"FC Augsburg"},
-      {mw:2, date:"2026-09-06", home:"1. FC Köln", away:"VfB Stuttgart"}, // inferido: únicos 2 sin emparejar en MD2
-    ], // pendiente: calendario de arranque 26-27
+      // Jornada 3
+      {mw:3, date:"2026-09-11", home:"1. FC Union Berlin", away:"Schalke 04"},
+      {mw:3, date:"2026-09-12", home:"SC Freiburg", away:"Borussia M'gladbach"},
+      {mw:3, date:"2026-09-12", home:"Borussia Dortmund", away:"SC Paderborn"},
+      {mw:3, date:"2026-09-12", home:"TSG Hoffenheim", away:"VfB Stuttgart"},
+      {mw:3, date:"2026-09-12", home:"FC Augsburg", away:"Bayer 04 Leverkusen"},
+      {mw:3, date:"2026-09-12", home:"1. FSV Mainz 05", away:"Eintracht Frankfurt"},
+      {mw:3, date:"2026-09-12", home:"1. FC Köln", away:"SV Werder Bremen"},
+      {mw:3, date:"2026-09-13", home:"RB Leipzig", away:"Hamburger SV"},
+      {mw:3, date:"2026-09-13", home:"SV Elversberg", away:"FC Bayern München"},
+      // Jornada 4
+      {mw:4, date:"2026-09-18", home:"FC Bayern München", away:"1. FC Union Berlin"},
+      {mw:4, date:"2026-09-19", home:"SV Werder Bremen", away:"FC Augsburg"},
+      {mw:4, date:"2026-09-19", home:"Hamburger SV", away:"1. FC Köln"},
+      {mw:4, date:"2026-09-19", home:"Borussia M'gladbach", away:"1. FSV Mainz 05"},
+      {mw:4, date:"2026-09-19", home:"Eintracht Frankfurt", away:"SC Freiburg"},
+      {mw:4, date:"2026-09-19", home:"VfB Stuttgart", away:"Borussia Dortmund"},
+      {mw:4, date:"2026-09-20", home:"Bayer 04 Leverkusen", away:"RB Leipzig"},
+      {mw:4, date:"2026-09-20", home:"Schalke 04", away:"SV Elversberg"},
+      {mw:4, date:"2026-09-20", home:"SC Paderborn", away:"TSG Hoffenheim"},
+    ],
   },
   'ligue-1': {
     name: 'Ligue 1', country: 'Francia', code: 'FRA', season: '2026-27',
@@ -877,19 +1044,66 @@ const LEAGUES = {
       "Le Mans": {gf:43.0, ga:67.2, xg:40.9, xga:63.8, pj:38, cf:4.0, ca:5.3, sf:3.6, sa:4.6, cards:2.0, promoted:true},
     },
     active: ["Olympique Lyonnais", "RC Lens", "Paris FC", "Paris Saint-Germain", "Nice", "Stade Brestois", "Angers", "Olympique de Marseille", "Stade Rennais", "Lille", "Auxerre", "RC Strasbourg", "AS Monaco", "Lorient", "Le Havre", "Toulouse", "Troyes", "Le Mans"],
+        // Calendario verificado y ampliado contra TheStatsAPI el 25/08/2026
+        // (extraer_calendario.js) -- confirma que Stade Brestois-Le Mans se
+        // jugó invertido (Le Mans de local); 6 de los 9 partidos de jornada 1
+        // tenían fecha desactualizada, corregidos acá. PSG-Stade Rennais quedó
+        // como Stade Rennais-PSG el 23/08 (la API trae una segunda entrada del
+        // mismo cruce marcada "postponed" con local/visitante invertido -- se
+        // descartó por ser aparente duplicado/artefacto de la API). Se
+        // agregaron jornadas 2-5.
         fixtures: [
-      // Jornada 1 (22-23 agosto 2026) — 8 confirmados, 1 inferido (Brestois-Le Mans:
-      // únicos 2 equipos sin aparecer en ninguna fuente consultada para esta fecha)
-      {mw:1, date:"2026-08-22", home:"Angers", away:"Lille"},
-      {mw:1, date:"2026-08-22", home:"Le Havre", away:"AS Monaco"},
+      // Jornada 1
+      {mw:1, date:"2026-08-21", home:"Olympique de Marseille", away:"RC Strasbourg"},
       {mw:1, date:"2026-08-22", home:"RC Lens", away:"Auxerre"},
-      {mw:1, date:"2026-08-22", home:"Olympique de Marseille", away:"RC Strasbourg"},
+      {mw:1, date:"2026-08-22", home:"Troyes", away:"Paris FC"},
+      {mw:1, date:"2026-08-22", home:"Toulouse", away:"Olympique Lyonnais"},
       {mw:1, date:"2026-08-22", home:"Nice", away:"Lorient"},
-      {mw:1, date:"2026-08-22", home:"Paris Saint-Germain", away:"Stade Rennais"},
-      {mw:1, date:"2026-08-23", home:"Toulouse", away:"Olympique Lyonnais"},
-      {mw:1, date:"2026-08-23", home:"Troyes", away:"Paris FC"},
-      {mw:1, date:"2026-08-23", home:"Stade Brestois", away:"Le Mans"}, // inferido
-    ], // pendiente: calendario de arranque 26-27
+      {mw:1, date:"2026-08-22", home:"Le Mans", away:"Stade Brestois"},
+      {mw:1, date:"2026-08-23", home:"Angers", away:"Lille"},
+      {mw:1, date:"2026-08-23", home:"Le Havre", away:"AS Monaco"},
+      {mw:1, date:"2026-08-23", home:"Stade Rennais", away:"Paris Saint-Germain"},
+      // Jornada 2
+      {mw:2, date:"2026-08-28", home:"Lille", away:"Paris Saint-Germain"},
+      {mw:2, date:"2026-08-29", home:"RC Strasbourg", away:"RC Lens"},
+      {mw:2, date:"2026-08-29", home:"Olympique Lyonnais", away:"Le Havre"},
+      {mw:2, date:"2026-08-29", home:"Lorient", away:"Troyes"},
+      {mw:2, date:"2026-08-29", home:"Stade Brestois", away:"Toulouse"},
+      {mw:2, date:"2026-08-29", home:"Auxerre", away:"Angers"},
+      {mw:2, date:"2026-08-30", home:"Paris FC", away:"Nice"},
+      {mw:2, date:"2026-08-30", home:"Stade Rennais", away:"Le Mans"},
+      {mw:2, date:"2026-08-30", home:"AS Monaco", away:"Olympique de Marseille"},
+      // Jornada 3
+      {mw:3, date:"2026-09-04", home:"Paris Saint-Germain", away:"AS Monaco"},
+      {mw:3, date:"2026-09-05", home:"RC Lens", away:"Lorient"},
+      {mw:3, date:"2026-09-05", home:"Nice", away:"Le Mans"},
+      {mw:3, date:"2026-09-05", home:"Le Havre", away:"Stade Brestois"},
+      {mw:3, date:"2026-09-05", home:"Toulouse", away:"Lille"},
+      {mw:3, date:"2026-09-05", home:"Olympique Lyonnais", away:"Auxerre"},
+      {mw:3, date:"2026-09-06", home:"Troyes", away:"RC Strasbourg"},
+      {mw:3, date:"2026-09-06", home:"Angers", away:"Stade Rennais"},
+      {mw:3, date:"2026-09-06", home:"Olympique de Marseille", away:"Paris FC"},
+      // Jornada 4
+      {mw:4, date:"2026-09-11", home:"Stade Rennais", away:"Olympique de Marseille"},
+      {mw:4, date:"2026-09-12", home:"RC Strasbourg", away:"AS Monaco"},
+      {mw:4, date:"2026-09-12", home:"Paris FC", away:"Olympique Lyonnais"},
+      {mw:4, date:"2026-09-12", home:"Lorient", away:"Toulouse"},
+      {mw:4, date:"2026-09-12", home:"Le Havre", away:"Angers"},
+      {mw:4, date:"2026-09-12", home:"Auxerre", away:"Nice"},
+      {mw:4, date:"2026-09-13", home:"Lille", away:"Troyes"},
+      {mw:4, date:"2026-09-13", home:"Le Mans", away:"RC Lens"},
+      {mw:4, date:"2026-09-13", home:"Stade Brestois", away:"Paris Saint-Germain"},
+      // Jornada 5
+      {mw:5, date:"2026-09-19", home:"Toulouse", away:"Le Havre"},
+      {mw:5, date:"2026-09-19", home:"Paris FC", away:"RC Strasbourg"},
+      {mw:5, date:"2026-09-19", home:"Nice", away:"Lille"},
+      {mw:5, date:"2026-09-19", home:"AS Monaco", away:"RC Lens"},
+      {mw:5, date:"2026-09-19", home:"Olympique Lyonnais", away:"Stade Rennais"},
+      {mw:5, date:"2026-09-19", home:"Le Mans", away:"Lorient"},
+      {mw:5, date:"2026-09-19", home:"Auxerre", away:"Stade Brestois"},
+      {mw:5, date:"2026-09-19", home:"Angers", away:"Troyes"},
+      {mw:5, date:"2026-09-20", home:"Olympique de Marseille", away:"Paris Saint-Germain"},
+    ],
   },
 };
 
