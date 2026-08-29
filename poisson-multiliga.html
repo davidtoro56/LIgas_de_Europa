@@ -523,6 +523,11 @@
     <span>Todas las ligas (desmarcar = solo la liga seleccionada arriba)</span>
   </label>
 
+  <label class="tc-scope-toggle">
+    <span style="margin-right:6px;">📅 Filtrar por fecha exacta (opcional, deja vacío para "próximos días"):</span>
+    <input type="date" id="dateFilterInput" style="background:var(--surface); color:var(--chalk); border:1px solid var(--gold); border-radius:4px; padding:4px 6px; font-family:'JetBrains Mono',monospace; font-size:11px;">
+  </label>
+
   <button id="topConfidenceBtn" class="tc-button">🏆 Top 10 por confianza (todas las ligas)</button>
   <div class="tc-panel" id="topConfidencePanel"></div>
 
@@ -1489,7 +1494,7 @@ function overUnderLines(lambda, lines){
 // número -- NO es lo mismo que "dónde hay ventaja de apuesta" (eso depende
 // de comparar contra el mercado, ver compareToMarket / el disclaimer fijo).
 // ============================================================
-function topConfidenceFixtures(topN = 10, onlyLeague = null){
+function topConfidenceFixtures(topN = 10, onlyLeague = null, onlyDate = null){
   const results = [];
   const savedLeague = currentLeague; // restaurar al final, no dejar "pegado"
 
@@ -1497,7 +1502,12 @@ function topConfidenceFixtures(topN = 10, onlyLeague = null){
   for (const lgKey of leaguesToScan) {
     if (!leagueHasData(lgKey)) continue;
     switchLeagueState(lgKey);
-    const fixtures = upcomingFixtures();
+    // Con fecha específica: NO usar upcomingFixtures() (limitado a los
+    // próximos BATCH_WINDOW_DAYS=12 días) -- se recorre L().fixtures
+    // completo, así una fecha más lejana en el calendario también funciona.
+    const fixtures = onlyDate
+      ? (L().fixtures || []).filter(f => f.date === onlyDate)
+      : upcomingFixtures();
     for (const f of fixtures) {
       const fc = computeForecast(f.home, f.away);
       if (!fc) continue;
@@ -1524,7 +1534,7 @@ function topConfidenceFixtures(topN = 10, onlyLeague = null){
 
   switchLeagueState(savedLeague); // volver a como estaba antes de recorrer todo
   results.sort((a,b) => b.confCombined - a.confCombined);
-  return results.slice(0, topN);
+  return onlyDate ? results : results.slice(0, topN); // con fecha específica: TODOS los partidos de ese día, no solo el top N
 }
 
 // ============================================================
@@ -1534,7 +1544,7 @@ function topConfidenceFixtures(topN = 10, onlyLeague = null){
 // sin nada raro que mirar). Por eso es una lista aparte, no un filtro sobre
 // la de arriba. Solo incluye partidos con cuota REALMENTE cargada.
 // ============================================================
-function topMarketDiscrepancies(topN = 10, onlyLeague = null){
+function topMarketDiscrepancies(topN = 10, onlyLeague = null, onlyDate = null){
   const results = [];
   const savedLeague = currentLeague;
 
@@ -1542,7 +1552,9 @@ function topMarketDiscrepancies(topN = 10, onlyLeague = null){
   for (const lgKey of leaguesToScan) {
     if (!leagueHasData(lgKey)) continue;
     switchLeagueState(lgKey);
-    const fixtures = upcomingFixtures();
+    const fixtures = onlyDate
+      ? (L().fixtures || []).filter(f => f.date === onlyDate)
+      : upcomingFixtures();
     for (const f of fixtures) {
       const fc = computeForecast(f.home, f.away);
       if (!fc) continue;
@@ -1565,18 +1577,20 @@ function topMarketDiscrepancies(topN = 10, onlyLeague = null){
 
   switchLeagueState(savedLeague);
   results.sort((a,b) => b.maxAbsEdge - a.maxAbsEdge);
-  return results.slice(0, topN);
+  return onlyDate ? results : results.slice(0, topN);
 }
 
 function renderTopConfidencePanel(){
   const el = document.getElementById('topConfidencePanel');
   if (!el) return;
   const allLeagues = document.getElementById('allLeaguesToggle')?.checked !== false;
-  const top = topConfidenceFixtures(10, allLeagues ? null : currentLeague);
+  const dateFilter = document.getElementById('dateFilterInput')?.value || null;
+  const top = topConfidenceFixtures(10, allLeagues ? null : currentLeague, dateFilter);
 
   if (top.length === 0){
     const scopeMsg = allLeagues ? 'en ninguna liga' : `en ${L().name}`;
-    el.innerHTML = `<div class="market-empty">No hay partidos programados en la ventana de próximos días ${scopeMsg}.</div>`;
+    const whenMsg = dateFilter ? `el ${dateFilter}` : 'en la ventana de próximos días';
+    el.innerHTML = `<div class="market-empty">No hay partidos programados ${whenMsg} ${scopeMsg}.</div>`;
     return;
   }
 
@@ -1607,18 +1621,21 @@ function renderTopConfidencePanel(){
     </div>`;
   }).join('');
 
-  el.innerHTML = `<div class="tc-note">⚠ Confianza alta = el modelo confía en su propio número, NO es lo mismo que ventaja de apuesta. "Ⓒ" es el promedio de los 4 mercados (Goles·Corners·Tiros·Tarjetas, detalle abajo de cada fila). Ver "edge" para comparación de mercado, y aun así, no es una recomendación.</div>${rows}`;
+  const countNote = dateFilter ? `<div class="tc-note">${top.length} partido${top.length===1?'':'s'} programado${top.length===1?'':'s'} el ${dateFilter}.</div>` : '';
+  el.innerHTML = `${countNote}<div class="tc-note">⚠ Confianza alta = el modelo confía en su propio número, NO es lo mismo que ventaja de apuesta. "Ⓒ" es el promedio de los 4 mercados (Goles·Corners·Tiros·Tarjetas, detalle abajo de cada fila). Ver "edge" para comparación de mercado, y aun así, no es una recomendación.</div>${rows}`;
 }
 
 function renderTopDiscrepanciesPanel(){
   const el = document.getElementById('topDiscrepanciesPanel');
   if (!el) return;
   const allLeagues = document.getElementById('allLeaguesToggle')?.checked !== false;
-  const top = topMarketDiscrepancies(10, allLeagues ? null : currentLeague);
+  const dateFilter = document.getElementById('dateFilterInput')?.value || null;
+  const top = topMarketDiscrepancies(10, allLeagues ? null : currentLeague, dateFilter);
 
   if (top.length === 0){
-    const scopeMsg = allLeagues ? 'en la ventana de próximos días' : `en ${L().name} en la ventana de próximos días`;
-    el.innerHTML = `<div class="market-empty">No hay partidos con cuota de mercado cargada ${scopeMsg}. Corré extraer_cuotas.js para tener con qué comparar.</div>`;
+    const scopeMsg = allLeagues ? '' : ` en ${L().name}`;
+    const whenMsg = dateFilter ? `el ${dateFilter}` : 'en la ventana de próximos días';
+    el.innerHTML = `<div class="market-empty">No hay partidos con cuota de mercado cargada ${whenMsg}${scopeMsg}. Corré extraer_cuotas.js para tener con qué comparar.</div>`;
     return;
   }
 
@@ -1641,7 +1658,8 @@ function renderTopDiscrepanciesPanel(){
     </div>`;
   }).join('');
 
-  el.innerHTML = `<div class="tc-note">⚠ Discrepancia grande no significa que el modelo tenga razón y el mercado esté equivocado (o viceversa) -- puede ser al revés. Es una señal para MIRAR el partido con más atención, no una recomendación de apuesta.</div>${rows}`;
+  const countNote = dateFilter ? `<div class="tc-note">${top.length} partido${top.length===1?'':'s'} con cuota cargada el ${dateFilter}.</div>` : '';
+  el.innerHTML = `${countNote}<div class="tc-note">⚠ Discrepancia grande no significa que el modelo tenga razón y el mercado esté equivocado (o viceversa) -- puede ser al revés. Es una señal para MIRAR el partido con más atención, no una recomendación de apuesta.</div>${rows}`;
 }
 
 async function renderBatchPanel(){
@@ -3815,6 +3833,14 @@ topDiscrepanciesBtn.addEventListener('click', () => {
     topDiscrepanciesPanelEl.classList.add('show');
     topDiscrepanciesBtn.textContent = '⚡ Ocultar discrepancias';
   }
+});
+
+const dateFilterInput = document.getElementById('dateFilterInput');
+dateFilterInput.addEventListener('change', () => {
+  // Si alguno de los dos paneles ya está visible, refrescarlo con el nuevo
+  // filtro de fecha sin que haga falta cerrarlo y volver a abrirlo
+  if (topConfidencePanelEl.classList.contains('show')) renderTopConfidencePanel();
+  if (topDiscrepanciesPanelEl.classList.contains('show')) renderTopDiscrepanciesPanel();
 });
 
 leagueSel.addEventListener('change', async ()=>{

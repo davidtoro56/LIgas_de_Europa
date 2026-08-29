@@ -337,3 +337,19 @@ Si no queda ningún partido pendiente en una liga, el selector lo indica
 explícitamente en vez de quedar vacío sin explicación.
 
 Test de regresión: `test_fixture_filter.js`.
+
+## Nueva funcionalidad: filtrar Top 10 por fecha exacta
+
+Input de fecha (`dateFilterInput`) nuevo, arriba de los botones de Top 10.
+Ambas funciones (`topConfidenceFixtures`, `topMarketDiscrepancies`) ahora
+aceptan un tercer parámetro opcional `onlyDate`. Sin fecha: comportamiento
+de siempre (ventana de `BATCH_WINDOW_DAYS`=12 días, top 10). Con fecha
+específica: **ignora esa ventana** (usa `L().fixtures` completo, no
+`upcomingFixtures()`) y devuelve TODOS los partidos de ese día, no solo
+los primeros 10 -- así una fecha lejana en el calendario también funciona,
+no solo los próximos días.
+
+Si alguno de los dos paneles ya está abierto, cambiar la fecha lo refresca
+solo (sin tener que cerrar y volver a abrir).
+
+Test de regresión: `test_date_filter.js`.
