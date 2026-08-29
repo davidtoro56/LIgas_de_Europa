@@ -1,7 +1,18 @@
 {
-  "extracted_at": "2026-08-26T04:04:28.160Z",
+  "extracted_at": "2026-08-29T03:35:39.831Z",
   "leagues": {
     "premier-league": {
+      "Crystal Palace||Manchester City": {
+        "homeGoals": 1,
+        "awayGoals": 4,
+        "homeCorners": 2,
+        "awayCorners": 6,
+        "homeSOT": 1,
+        "awaySOT": 9,
+        "homeCards": 1,
+        "awayCards": 2,
+        "date": "2026-08-28T19:00:00.000Z"
+      },
       "Fulham||Chelsea": {
         "homeGoals": 2,
         "awayGoals": 3,
@@ -114,6 +125,61 @@
       }
     },
     "la-liga": {
+      "Deportivo Alavés||Villarreal": {
+        "homeGoals": 1,
+        "awayGoals": 0,
+        "homeCorners": 5,
+        "awayCorners": 9,
+        "homeSOT": 2,
+        "awaySOT": 6,
+        "homeCards": 3,
+        "awayCards": 2,
+        "date": "2026-08-28T19:30:00.000Z"
+      },
+      "Racing de Santander||Elche": {
+        "homeGoals": 3,
+        "awayGoals": 2,
+        "homeCorners": 5,
+        "awayCorners": 10,
+        "homeSOT": 6,
+        "awaySOT": 7,
+        "homeCards": 2,
+        "awayCards": 1,
+        "date": "2026-08-28T17:00:00.000Z"
+      },
+      "Barcelona||Athletic Club": {
+        "homeGoals": 2,
+        "awayGoals": 0,
+        "homeCorners": 12,
+        "awayCorners": 5,
+        "homeSOT": 10,
+        "awaySOT": 0,
+        "homeCards": 1,
+        "awayCards": 2,
+        "date": "2026-08-27T19:00:00.000Z"
+      },
+      "Celta Vigo||Osasuna": {
+        "homeGoals": 1,
+        "awayGoals": 2,
+        "homeCorners": 5,
+        "awayCorners": 3,
+        "homeSOT": 2,
+        "awaySOT": 5,
+        "homeCards": 1,
+        "awayCards": 1,
+        "date": "2026-08-27T18:30:00.000Z"
+      },
+      "Real Madrid||Real Sociedad": {
+        "homeGoals": 4,
+        "awayGoals": 1,
+        "homeCorners": 4,
+        "awayCorners": 7,
+        "homeSOT": 11,
+        "awaySOT": 3,
+        "homeCards": 3,
+        "awayCards": 3,
+        "date": "2026-08-26T19:00:00.000Z"
+      },
       "Valencia||Real Betis": {
         "homeGoals": 0,
         "awayGoals": 1,
@@ -245,42 +311,20 @@
         "homeCards": 2,
         "awayCards": 3,
         "date": "2026-08-19T19:00:00.000Z"
-      },
-      "Deportivo La Coruña||Elche": {
-        "homeGoals": 1,
-        "awayGoals": 1,
-        "homeCorners": 2,
-        "awayCorners": 6,
-        "homeSOT": 3,
-        "awaySOT": 6,
-        "homeCards": 2,
-        "awayCards": 2,
-        "date": "2026-08-17T19:00:00.000Z"
-      },
-      "Espanyol||Levante UD": {
-        "homeGoals": 3,
-        "awayGoals": 0,
-        "homeCorners": 0,
-        "awayCorners": 1,
-        "homeSOT": 6,
-        "awaySOT": 0,
-        "homeCards": 3,
-        "awayCards": 0,
-        "date": "2026-08-16T17:00:00.000Z"
-      },
-      "Racing de Santander||Villarreal": {
-        "homeGoals": 2,
-        "awayGoals": 2,
-        "homeCorners": 6,
-        "awayCorners": 10,
-        "homeSOT": 3,
-        "awaySOT": 7,
-        "homeCards": 2,
-        "awayCards": 4,
-        "date": "2026-08-16T15:00:00.000Z"
       }
     },
     "serie-a": {
+      "Milan||Venezia": {
+        "homeGoals": 2,
+        "awayGoals": 0,
+        "homeCorners": 2,
+        "awayCorners": 3,
+        "homeSOT": 5,
+        "awaySOT": 2,
+        "homeCards": 1,
+        "awayCards": 3,
+        "date": "2026-08-28T18:45:00.000Z"
+      },
       "Roma||Fiorentina": {
         "homeGoals": 4,
         "awayGoals": 0,
@@ -392,7 +436,31 @@
         "date": "2026-08-22T16:30:00.000Z"
       }
     },
+    "bundesliga": {
+      "FC Bayern München||VfB Stuttgart": {
+        "homeGoals": 5,
+        "awayGoals": 1,
+        "homeCorners": 9,
+        "awayCorners": 3,
+        "homeSOT": 9,
+        "awaySOT": 4,
+        "homeCards": 1,
+        "awayCards": 3,
+        "date": "2026-08-28T18:30:00.000Z"
+      }
+    },
     "ligue-1": {
+      "Lille||Paris Saint-Germain": {
+        "homeGoals": 2,
+        "awayGoals": 2,
+        "homeCorners": 0,
+        "awayCorners": 5,
+        "homeSOT": 4,
+        "awaySOT": 4,
+        "homeCards": 2,
+        "awayCards": 1,
+        "date": "2026-08-28T19:00:00.000Z"
+      },
       "Stade Rennais||Paris Saint-Germain": {
         "homeGoals": 2,
         "awayGoals": 2,
