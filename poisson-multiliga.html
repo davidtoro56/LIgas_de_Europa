@@ -2165,11 +2165,19 @@ function clampAdjustment(value){
 
 // Calcula el sesgo (bias) medio con signo para un mercado continuo.
 // Devuelve el factor multiplicativo que corregiría ese sesgo.
-function computeBiasFactor(settled, predKey, actualKey){
-  const valid = settled.filter(r => r.actual && typeof r.actual[actualKey] === 'number' && r[predKey] > 0);
+function computeBiasFactor(settled, predKey, homeActualKey, awayActualKey){
+  // CORREGIDO: antes buscaba r.actual['corners'] (un campo total único que
+  // ya no existe desde la migración de esquema a desglose local/visitante
+  // -- resultsDB solo tiene homeCorners/awayCorners, nunca un 'corners'
+  // combinado). Esto hacía que la calibración de corners/tiros/tarjetas
+  // SIEMPRE diera N=0, aunque `active` se pusiera en true correctamente:
+  // nunca encontraba ningún registro válido para calcular el factor real.
+  const valid = settled.filter(r =>
+    r.actual && typeof r.actual[homeActualKey] === 'number' && typeof r.actual[awayActualKey] === 'number' && r[predKey] > 0
+  );
   if (valid.length === 0) return { factor: 1, n: 0, meanPred: null, meanActual: null };
   let sumPred = 0, sumActual = 0;
-  for (const r of valid){ sumPred += r[predKey]; sumActual += r.actual[actualKey]; }
+  for (const r of valid){ sumPred += r[predKey]; sumActual += (r.actual[homeActualKey] + r.actual[awayActualKey]); }
   const meanPred = sumPred / valid.length;
   const meanActual = sumActual / valid.length;
   const raw = meanPred > 0 ? (meanActual / meanPred) : 1;
@@ -2715,9 +2723,9 @@ function recomputeCalibration(allRecords){
   // es neutro (1). Cuando sumemos más ligas, acá se promedian sus factores.
   const globalPrior = { corners: 1, sot: 1, cards: 1 };
 
-  const cRaw = computeBiasFactor(settled, 'predCorners', 'corners');
-  const sRaw = computeBiasFactor(settled, 'predSOT', 'sot');
-  const kRaw = computeBiasFactor(settled, 'predCards', 'cards');
+  const cRaw = computeBiasFactor(settled, 'predCorners', 'homeCorners', 'awayCorners');
+  const sRaw = computeBiasFactor(settled, 'predSOT', 'homeSOT', 'awaySOT');
+  const kRaw = computeBiasFactor(settled, 'predCards', 'homeCards', 'awayCards');
   const conf = computeConfidenceFactor(settled);
 
   const active = n >= CAL_MIN_SAMPLE;
