@@ -368,6 +368,18 @@
   }
   .fx-row:last-child{border-bottom:none;}
   .fx-teams{flex:1;}
+  .draw-risk{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    text-align:center;
+    padding:6px 8px;
+    border-radius:4px;
+    margin:6px 0 10px 0;
+  }
+  .draw-risk.bajo{ color: var(--steel); }
+  .draw-risk.normal{ color: var(--chalk-dim); }
+  .draw-risk.alto{ background:rgba(212,175,55,0.1); color: var(--gold); border:1px solid rgba(212,175,55,0.3); }
+  .draw-risk.muy_alto{ background:rgba(232,138,138,0.12); color: #E88A8A; border:1px solid rgba(232,138,138,0.35); }
 
   .tc-button{
     width:100%;
@@ -469,6 +481,9 @@
   }
   .tc-button-alt{ background:var(--surface2); color:var(--gold); border:1px solid var(--gold); }
   .tc-breakdown{ width:100%; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--steel); margin-top:2px; }
+  .tc-drawrisk{ width:100%; font-family:'JetBrains Mono',monospace; font-size:9px; margin-top:2px; display:block; }
+  .tc-drawrisk.alto{ color: var(--gold); }
+  .tc-drawrisk.muy_alto{ color: #E88A8A; }
   .tc-edge-big{ font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--gold); flex:1; }
   .tc-scope-toggle{
     display:flex; align-items:center; gap:6px;
@@ -558,6 +573,7 @@
       <span id="awayName">—</span>
     </div>
     <div class="prob-bar" id="probBar"></div>
+    <div class="draw-risk" id="drawRiskIndicator"></div>
     <div class="conf-badge" id="confBadgeGoals"></div>
     <div class="conf-disclaimer" id="confDisclaimer"></div>
     <div class="safest-market-panel" id="safestMarketPanel"></div>
@@ -1527,6 +1543,7 @@ function topConfidenceFixtures(topN = 10, onlyLeague = null, onlyDate = null){
         confSOT: conf.sot.score, confCards: conf.cards.score,
         confCombined,
         confReasons: conf.reasons,
+        drawRisk: drawRiskLevel(fc.pDraw), // informativo, no cambia el ranking ni la predicción
         market, // null si no hay cuota cargada para este partido
       });
     }
@@ -1609,6 +1626,11 @@ function renderTopConfidencePanel(){
       edgeHTML = `<span class="tc-edge ${cls}">edge ${favoredEdge>=0?'+':''}${(favoredEdge*100).toFixed(1)}pp${staleTag}</span>`;
     }
     const combLevel = r.confCombined>=80?'alta':(r.confCombined>=55?'media':'baja');
+    // Solo mostrar el aviso cuando el riesgo es alto/muy alto -- en la
+    // mayoría de los partidos (riesgo normal/bajo) no aporta nada extra,
+    // saturaría la lista con avisos irrelevantes.
+    const drawRiskHTML = (r.drawRisk.level==='alto'||r.drawRisk.level==='muy_alto')
+      ? `<span class="tc-drawrisk ${r.drawRisk.level}">${r.drawRisk.label} (${(r.pDraw*100).toFixed(0)}%)</span>` : '';
     return `<div class="tc-row">
       <span class="tc-rank">${i+1}</span>
       <span class="tc-league">${r.league}</span>
@@ -1618,6 +1640,7 @@ function renderTopConfidencePanel(){
       <span class="tc-conf ${combLevel}">Ⓒ${r.confCombined.toFixed(0)}/100</span>
       ${edgeHTML}
       <span class="tc-breakdown">G${r.confGoals} · C${r.confCorners} · T${r.confSOT} · Tj${r.confCards}</span>
+      ${drawRiskHTML}
     </div>`;
   }).join('');
 
@@ -1887,17 +1910,25 @@ function render(){
   const homeXG = L().homeAvg * hEff.attack * homeFx.attack * aEff.defense * awayFx.defense;
   const awayXG = L().awayAvg * aEff.attack * awayFx.attack * hEff.defense * homeFx.defense;
 
+  // NUEVO: corrección de calibración sobre el NIVEL de goles esperados (no
+  // solo la forma del 1X2, que ya corregía calibration.temp). Se aplica
+  // ANTES de mostrar/calcular, igual criterio que corners/tiros/tarjetas --
+  // multiplicación directa (no raíz cuadrada: factor*(a+b) = factor*a +
+  // factor*b, así el TOTAL escala exactamente por calibration.goals).
+  const homeXGCal = homeXG * (calibration.active ? calibration.goals : 1);
+  const awayXGCal = awayXG * (calibration.active ? calibration.goals : 1);
+
   document.getElementById('homeName').textContent = homeName;
   document.getElementById('awayName').textContent = awayName;
-  document.getElementById('homeXG').textContent = homeXG.toFixed(2);
-  document.getElementById('awayXG').textContent = awayXG.toFixed(2);
+  document.getElementById('homeXG').textContent = homeXGCal.toFixed(2);
+  document.getElementById('awayXG').textContent = awayXGCal.toFixed(2);
 
-  const deltaHome = ((homeXG-homeXGBase)/homeXGBase*100);
-  const deltaAway = ((awayXG-awayXGBase)/awayXGBase*100);
+  const deltaHome = ((homeXGCal-homeXGBase)/homeXGBase*100);
+  const deltaAway = ((awayXGCal-awayXGBase)/awayXGBase*100);
   const fmtDelta = (d) => (d>=0?'+':'') + d.toFixed(0) + '%';
   const hasAdjustments = (deltaHome!==0 || deltaAway!==0);
 
-  const matrix = computeMatrix(homeXG, awayXG, 7);
+  const matrix = computeMatrix(homeXGCal, awayXGCal, 7);
   let pHome=0, pDraw=0, pAway=0, over25=0, bttsYes=0;
   for(let hh=0; hh<matrix.length; hh++){
     for(let aa=0; aa<matrix[hh].length; aa++){
@@ -2003,6 +2034,7 @@ function render(){
   const marketsComp = compareMarketsToOdds(homeName, awayName, {predCorners: totalCorners, predCards: totalCards, predSOT: totalSOT});
   renderMarketPanel(marketComp, marketsComp);
   renderSafestMarketPanel(homeName, awayName);
+  renderDrawRisk(pDraw);
 
   // Guardar automáticamente (al final, ya con todas las variables calculadas)
   lastResult = { home: homeName, away: awayName, homeXG, awayXG, pHome, pDraw, pAway,
@@ -2012,6 +2044,14 @@ function render(){
                  predCardsHome: homeCards, predCardsAway: awayCards };
   document.getElementById('autosaveStatus').textContent = 'Guardando...';
   autoSavePrediction();
+}
+
+function renderDrawRisk(pDraw){
+  const el = document.getElementById('drawRiskIndicator');
+  if (!el) return;
+  const risk = drawRiskLevel(pDraw);
+  el.className = `draw-risk ${risk.level}`;
+  el.textContent = `${risk.label} (${(pDraw*100).toFixed(0)}%)`;
 }
 
 function renderSafestMarketPanel(homeName, awayName){
@@ -2306,12 +2346,17 @@ function switchLeagueState(newKey){
   learningByLeague[currentLeague] = learnedStrength;
   eloByLeague[currentLeague] = eloRatings;
   calibrationByLeague[currentLeague] = calibration;
+  marketLearningByLeague[currentLeague] = learnedMarketStrength; // FIX: faltaba -- sin esto,
+  // el primer render() inmediato después de cambiar de liga (antes de que
+  // refreshHistory() termine, asíncrono) usaba el aprendizaje de mercados
+  // (corners/tiros/tarjetas) de la liga ANTERIOR, no de la nueva.
   currentLeague = newKey;
   learnedStrength = learningByLeague[newKey] || {};
   eloRatings = eloByLeague[newKey] || {};
   calibration = calibrationByLeague[newKey] || {
-    active:false, n:0, corners:1, sot:1, cards:1, temp:1, detail:null
+    active:false, n:0, corners:1, sot:1, cards:1, goals:1, temp:1, detail:null
   };
+  learnedMarketStrength = marketLearningByLeague[newKey] || {}; // FIX: idem, restaurar la nueva liga
 }
 
 function recomputeTeamStrengths(allRecords){
@@ -2721,11 +2766,21 @@ function recomputeCalibration(allRecords){
 
   // Prior global: por ahora una sola liga en el sistema, así que el prior
   // es neutro (1). Cuando sumemos más ligas, acá se promedian sus factores.
-  const globalPrior = { corners: 1, sot: 1, cards: 1 };
+  const globalPrior = { corners: 1, sot: 1, cards: 1, goals: 1 };
 
   const cRaw = computeBiasFactor(settled, 'predCorners', 'homeCorners', 'awayCorners');
   const sRaw = computeBiasFactor(settled, 'predSOT', 'homeSOT', 'awaySOT');
   const kRaw = computeBiasFactor(settled, 'predCards', 'homeCards', 'awayCards');
+  // NUEVO: bias de goles totales. A diferencia de corners/tiros/tarjetas, no
+  // hay un campo predGoalsTotal guardado directo -- se deriva de homeXG+awayXG,
+  // que sí se guarda en cada registro desde siempre. Corrige el sesgo que
+  // encontramos con datos reales: el modelo subestimaba el total de goles en
+  // ~7pp respecto a la frecuencia real de over 2.5 en la 26-27. Esto NO
+  // reemplaza a calibration.temp (que corrige la FORMA del 1X2) -- corrige el
+  // NIVEL de goles esperados, que antes no pasaba por ningún mecanismo de
+  // recalibración.
+  const settledConGoalsTotal = settled.map(r => ({...r, predGoalsTotal: (r.homeXG||0) + (r.awayXG||0)}));
+  const gRaw = computeBiasFactor(settledConGoalsTotal, 'predGoalsTotal', 'homeGoals', 'awayGoals');
   const conf = computeConfidenceFactor(settled);
 
   const active = n >= CAL_MIN_SAMPLE;
@@ -2736,8 +2791,9 @@ function recomputeCalibration(allRecords){
     corners: active ? clampAdjustment(shrinkToPrior(cRaw.factor, cRaw.n, globalPrior.corners)) : 1,
     sot:     active ? clampAdjustment(shrinkToPrior(sRaw.factor, sRaw.n, globalPrior.sot)) : 1,
     cards:   active ? clampAdjustment(shrinkToPrior(kRaw.factor, kRaw.n, globalPrior.cards)) : 1,
+    goals:   active ? clampAdjustment(shrinkToPrior(gRaw.factor, gRaw.n, globalPrior.goals)) : 1,
     temp:    active ? Math.max(0.5, Math.min(2.0, conf.temp)) : 1,
-    detail: { cRaw, sRaw, kRaw, conf, league: currentLeague }
+    detail: { cRaw, sRaw, kRaw, gRaw, conf, league: currentLeague }
   };
   calibrationByLeague[currentLeague] = calibration;
   return calibration;
@@ -3605,6 +3661,28 @@ const BATCH_WINDOW_DAYS = 12;
 //  - mercados (corners/tiros/tarjetas): solo calidad de dato + calibración,
 //    no pasan por el ensemble ni por Dixon-Coles.
 // ============================================================
+// ============================================================
+// RIESGO DE EMPATE — indicador informativo, NO toca ningún cálculo del
+// modelo. Confirmado con 146 partidos reales que pDraw está bien calibrado
+// (predicho 24.6% vs. real 24.7%) -- el problema nunca fue la probabilidad
+// en sí, es que el empate casi nunca es la opción de MAYOR probabilidad de
+// las 3 (0/146 casos), aunque esté bien estimada. Forzar que "gane" más
+// seguido rompería la calibración real para mejorar una métrica que no
+// importa. Esto en cambio solo AVISA cuándo un partido específico tiene
+// más empate de lo normal, sin cambiar ningún número del pronóstico.
+//
+// Umbrales basados en los datos reales medidos (no arbitrarios): el
+// promedio real de pDraw es ~24.6%, y el rango 25-30% mostró una tasa de
+// acierto real de 29% (bien calibrado) -- por encima de eso empieza a ser
+// una señal de partido genuinamente más parejo de lo típico.
+// ============================================================
+function drawRiskLevel(pDraw){
+  if (pDraw < 0.20) return { level: 'bajo', label: 'Bajo riesgo de empate' };
+  if (pDraw < 0.27) return { level: 'normal', label: 'Riesgo de empate normal' };
+  if (pDraw < 0.32) return { level: 'alto', label: '⚠ Riesgo de empate alto' };
+  return { level: 'muy_alto', label: '⚠⚠ Riesgo de empate MUY alto' };
+}
+
 function computeConfidenceIndex(homeName, awayName){
   const h = L().teams[homeName], a = L().teams[awayName];
   if (!h || !a) return null;
@@ -3758,7 +3836,14 @@ function computeForecast(homeName, awayName){
   const homeXG = L().homeAvg * hEff.attack * homeFx.attack * aEff.defense * awayFx.defense;
   const awayXG = L().awayAvg * aEff.attack * awayFx.attack * hEff.defense * homeFx.defense;
 
-  const matrix = computeMatrix(homeXG, awayXG, 7);
+  // NUEVO: misma corrección que en render() -- multiplicación directa
+  // (no raíz cuadrada), consistente con cómo ya se corrige corners/
+  // tiros/tarjetas. De acá en más, TODO lo que sigue (matriz, over/under,
+  // lo que se devuelve) usa los valores YA calibrados.
+  const homeXGCal = homeXG * (calibration.active ? calibration.goals : 1);
+  const awayXGCal = awayXG * (calibration.active ? calibration.goals : 1);
+
+  const matrix = computeMatrix(homeXGCal, awayXGCal, 7);
   let pHome=0, pDraw=0, pAway=0;
   for(let i=0;i<matrix.length;i++) for(let j=0;j<matrix[i].length;j++){
     if(i>j) pHome+=matrix[i][j]; else if(i===j) pDraw+=matrix[i][j]; else pAway+=matrix[i][j];
@@ -3792,9 +3877,9 @@ function computeForecast(homeName, awayName){
   // simple) -- expuesto acá para que cualquier análisis futuro lo use
   // directo, sin tener que recrear el cálculo por fuera con el método
   // equivocado (ver el comentario largo junto a goalsOverUnder()).
-  const goalsOU = goalsOverUnder(homeXG, awayXG, [1.5, 2.5, 3.5]);
+  const goalsOU = goalsOverUnder(homeXGCal, awayXGCal, [1.5, 2.5, 3.5]);
 
-  return { home:homeName, away:awayName, homeXG, awayXG, pHome, pDraw, pAway,
+  return { home:homeName, away:awayName, homeXG:homeXGCal, awayXG:awayXGCal, pHome, pDraw, pAway,
            predCorners: predCornersHome+predCornersAway, predSOT: predSOTHome+predSOTAway, predCards: predCardsHome+predCardsAway,
            predCornersHome, predCornersAway, predSOTHome, predSOTAway, predCardsHome, predCardsAway,
            over15: goalsOU[1.5], over25: goalsOU[2.5], over35: goalsOU[3.5] };
