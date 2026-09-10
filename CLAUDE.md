@@ -28,3 +28,29 @@ tocan directamente en el cambio -- este bug estuvo invisible durante
 semanas porque `active` se ponía en `true` correctamente (esa parte sí
 usaba el campo correcto, `settled.length`), dando una falsa sensación de
 que todo funcionaba.
+
+## MEJORA PREVENTIVA: goalsOverUnder() expuesto globalmente
+
+No era un bug de producción -- el código real (`render()`) siempre calculó
+over/under de goles correctamente, sumando las celdas de la matriz de
+Dixon-Coles donde `local+visitante > línea`. Pero ese cálculo vivía
+escondido adentro de `render()`, sin ser reutilizable. Al armar un análisis
+de "asertividad" por fuera del artifact, se usó por comodidad la
+aproximación de Poisson simple (`probOverLine`, correcta para corners/
+tiros/tarjetas, que no tienen matriz conjunta) -- y esa aproximación da
+resultados MAL sesgados para goles específicamente (el modelo "decía
+Over 2.5" en ~1% de los casos, en vez del ~55% real).
+
+**Se agregó `goalsOverUnder(homeXG, awayXG, lines)`** como función global,
+con el método correcto (matriz real, no aproximación). `computeForecast()`
+ahora expone `over15`/`over25`/`over35` directamente en su resultado, para
+que cualquier análisis futuro (acá o en un script nuevo) use el método
+correcto por defecto, sin tener que acordarse de la diferencia.
+
+**Regla para recordar, documentada acá para no repetir el error:**
+`probOverLine()` (Poisson simple) es válida SOLO para corners/tiros/
+tarjetas (no tienen matriz conjunta calculada). Para GOLES, siempre usar
+`goalsOverUnder()` (o el campo `over25`/etc. ya expuesto en
+`computeForecast()`) -- nunca `probOverLine(homeXG+awayXG, línea)`.
+
+Test de regresión: `test_goals_ou.js`.
