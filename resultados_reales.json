@@ -1,5 +1,5 @@
 {
-  "extracted_at": "2026-09-16T14:08:50.694Z",
+  "extracted_at": "2026-09-17T13:58:37.484Z",
   "leagues": {
     "premier-league": {
       "Leeds United||Newcastle United": {
@@ -111,20 +111,42 @@
         "homeCards": 0,
         "awayCards": 1,
         "date": "2026-09-12T14:00:00.000Z"
-      },
-      "Arsenal||Chelsea": {
-        "homeGoals": 2,
-        "awayGoals": 1,
-        "homeCorners": 5,
-        "awayCorners": 3,
-        "homeSOT": 9,
-        "awaySOT": 5,
-        "homeCards": 2,
-        "awayCards": 4,
-        "date": "2026-09-06T15:30:00.000Z"
       }
     },
     "la-liga": {
+      "Barcelona||Racing de Santander": {
+        "homeGoals": 7,
+        "awayGoals": 2,
+        "homeCorners": 18,
+        "awayCorners": 0,
+        "homeSOT": 9,
+        "awaySOT": 3,
+        "homeCards": 3,
+        "awayCards": 2,
+        "date": "2026-09-16T19:30:00.000Z"
+      },
+      "Deportivo La Coruña||Sevilla": {
+        "homeGoals": 0,
+        "awayGoals": 1,
+        "homeCorners": 4,
+        "awayCorners": 4,
+        "homeSOT": 3,
+        "awaySOT": 6,
+        "homeCards": 1,
+        "awayCards": 4,
+        "date": "2026-09-16T17:00:00.000Z"
+      },
+      "Atlético Madrid||Osasuna": {
+        "homeGoals": 4,
+        "awayGoals": 0,
+        "homeCorners": 8,
+        "awayCorners": 0,
+        "homeSOT": 11,
+        "awaySOT": 1,
+        "homeCards": 1,
+        "awayCards": 2,
+        "date": "2026-09-16T17:00:00.000Z"
+      },
       "Elche||Real Madrid": {
         "homeGoals": 2,
         "awayGoals": 3,
@@ -289,50 +311,6 @@
         "homeCards": 4,
         "awayCards": 2,
         "date": "2026-09-07T17:00:00.000Z"
-      },
-      "Espanyol||Sevilla": {
-        "homeGoals": 1,
-        "awayGoals": 1,
-        "homeCorners": 0,
-        "awayCorners": 4,
-        "homeSOT": 3,
-        "awaySOT": 3,
-        "homeCards": 2,
-        "awayCards": 3,
-        "date": "2026-09-06T19:00:00.000Z"
-      },
-      "Málaga||Levante UD": {
-        "homeGoals": 0,
-        "awayGoals": 0,
-        "homeCorners": 6,
-        "awayCorners": 4,
-        "homeSOT": 3,
-        "awaySOT": 3,
-        "homeCards": 4,
-        "awayCards": 2,
-        "date": "2026-09-06T16:30:00.000Z"
-      },
-      "Deportivo Alavés||Osasuna": {
-        "homeGoals": 5,
-        "awayGoals": 2,
-        "homeCorners": 4,
-        "awayCorners": 1,
-        "homeSOT": 7,
-        "awaySOT": 5,
-        "homeCards": 1,
-        "awayCards": 2,
-        "date": "2026-09-06T16:30:00.000Z"
-      },
-      "Valencia||Barcelona": {
-        "homeGoals": 0,
-        "awayGoals": 5,
-        "homeCorners": 1,
-        "awayCorners": 4,
-        "homeSOT": 2,
-        "awaySOT": 10,
-        "homeCards": 1,
-        "awayCards": 3,
-        "date": "2026-09-06T14:15:00.000Z"
       }
     },
     "serie-a": {
@@ -467,28 +445,6 @@
         "homeCards": 1,
         "awayCards": 3,
         "date": "2026-09-07T16:30:00.000Z"
-      },
-      "Juventus||Milan": {
-        "homeGoals": 1,
-        "awayGoals": 1,
-        "homeCorners": 7,
-        "awayCorners": 1,
-        "homeSOT": 5,
-        "awaySOT": 1,
-        "homeCards": 1,
-        "awayCards": 3,
-        "date": "2026-09-06T18:45:00.000Z"
-      },
-      "Bologna||Sassuolo": {
-        "homeGoals": 2,
-        "awayGoals": 2,
-        "homeCorners": 10,
-        "awayCorners": 7,
-        "homeSOT": 5,
-        "awaySOT": 6,
-        "homeCards": 3,
-        "awayCards": 1,
-        "date": "2026-09-06T16:00:00.000Z"
       }
     },
     "bundesliga": {
@@ -590,17 +546,6 @@
         "homeCards": 3,
         "awayCards": 1,
         "date": "2026-09-11T18:30:00.000Z"
-      },
-      "Eintracht Frankfurt||FC Augsburg": {
-        "homeGoals": 1,
-        "awayGoals": 4,
-        "homeCorners": 9,
-        "awayCorners": 4,
-        "homeSOT": 8,
-        "awaySOT": 7,
-        "homeCards": 1,
-        "awayCards": 1,
-        "date": "2026-09-06T15:30:00.000Z"
       }
     },
     "ligue-1": {
@@ -702,28 +647,6 @@
         "homeCards": 1,
         "awayCards": 4,
         "date": "2026-09-11T18:45:00.000Z"
-      },
-      "Olympique de Marseille||Paris FC": {
-        "homeGoals": 2,
-        "awayGoals": 3,
-        "homeCorners": 5,
-        "awayCorners": 4,
-        "homeSOT": 5,
-        "awaySOT": 7,
-        "homeCards": 0,
-        "awayCards": 2,
-        "date": "2026-09-06T18:45:00.000Z"
-      },
-      "Angers||Stade Rennais": {
-        "homeGoals": 1,
-        "awayGoals": 2,
-        "homeCorners": 12,
-        "awayCorners": 6,
-        "homeSOT": 3,
-        "awaySOT": 5,
-        "homeCards": 1,
-        "awayCards": 1,
-        "date": "2026-09-06T15:15:00.000Z"
       }
     }
   }

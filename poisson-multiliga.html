@@ -3326,7 +3326,7 @@ const resultsDB = {
     homeCorners:5, awayCorners:4, homeSOT:5, awaySOT:7,
     homeCards:0, awayCards:2, date:"2026-09-06" },
 
-  // Premier League -- extraídos con extraer_resultados.js (2026-09-16).
+  // Premier League -- extraídos con extraer_resultados.js (2026-09-17).
   "Leeds United||Newcastle": { homeGoals:4, awayGoals:1,
     homeCorners:5, awayCorners:5, homeSOT:6, awaySOT:5,
     homeCards:1, awayCards:2, date:"2026-09-14" },
@@ -3358,9 +3358,18 @@ const resultsDB = {
     homeCorners:5, awayCorners:8, homeSOT:3, awaySOT:4,
     homeCards:0, awayCards:1, date:"2026-09-12" },
 
-  // La Liga -- extraídos con extraer_resultados.js (2026-09-16). Nota: la API
+  // La Liga -- extraídos con extraer_resultados.js (2026-09-17). Nota: la API
   // devuelve "Racing de Santander", en teams{} de la-liga es "Racing Santander"
   // -- normalizado acá para que coincida.
+  "Barcelona||Racing Santander": { homeGoals:7, awayGoals:2,
+    homeCorners:18, awayCorners:0, homeSOT:9, awaySOT:3,
+    homeCards:3, awayCards:2, date:"2026-09-16" },
+  "Deportivo La Coruña||Sevilla": { homeGoals:0, awayGoals:1,
+    homeCorners:4, awayCorners:4, homeSOT:3, awaySOT:6,
+    homeCards:1, awayCards:4, date:"2026-09-16" },
+  "Atlético Madrid||Osasuna": { homeGoals:4, awayGoals:0,
+    homeCorners:8, awayCorners:0, homeSOT:11, awaySOT:1,
+    homeCards:1, awayCards:2, date:"2026-09-16" },
   "Elche||Real Madrid": { homeGoals:2, awayGoals:3,
     homeCorners:2, awayCorners:5, homeSOT:3, awaySOT:4,
     homeCards:4, awayCards:2, date:"2026-09-15" },
@@ -3401,7 +3410,7 @@ const resultsDB = {
     homeCorners:6, awayCorners:4, homeSOT:4, awaySOT:0,
     homeCards:1, awayCards:2, date:"2026-09-11" },
 
-  // Serie A -- extraídos con extraer_resultados.js (2026-09-16).
+  // Serie A -- extraídos con extraer_resultados.js (2026-09-17).
   "Inter||Udinese": { homeGoals:5, awayGoals:3,
     homeCorners:10, awayCorners:1, homeSOT:12, awaySOT:5,
     homeCards:1, awayCards:1, date:"2026-09-14" },
@@ -3433,10 +3442,10 @@ const resultsDB = {
     homeCorners:2, awayCorners:4, homeSOT:3, awaySOT:10,
     homeCards:2, awayCards:1, date:"2026-09-11" },
 
-  // Bundesliga -- extraídos con extraer_resultados.js (2026-09-16). Nota: la
-  // API devuelve nombres con sufijos/numerales distintos a teams{} de
-  // bundesliga ("SV 07 Elversberg"->"SV Elversberg", "SC Paderborn 07"->
-  // "SC Paderborn", "FC Schalke 04"->"Schalke 04") -- normalizado acá.
+  // Bundesliga -- extraídos con extraer_resultados.js (2026-09-17). Nota: la API
+  // devuelve variantes de nombre ("SV 07 Elversberg", "SC Paderborn 07", "FC
+  // Schalke 04") -- normalizadas acá contra teams{} (SV Elversberg, SC
+  // Paderborn, Schalke 04).
   "SV Elversberg||FC Bayern München": { homeGoals:1, awayGoals:2,
     homeCorners:3, awayCorners:9, homeSOT:1, awaySOT:6,
     homeCards:2, awayCards:0, date:"2026-09-13" },
@@ -3465,7 +3474,7 @@ const resultsDB = {
     homeCorners:4, awayCorners:5, homeSOT:8, awaySOT:10,
     homeCards:3, awayCards:1, date:"2026-09-11" },
 
-  // Ligue 1 -- extraídos con extraer_resultados.js (2026-09-16).
+  // Ligue 1 -- extraídos con extraer_resultados.js (2026-09-17).
   "Stade Brestois||Paris Saint-Germain": { homeGoals:0, awayGoals:1,
     homeCorners:3, awayCorners:2, homeSOT:4, awaySOT:7,
     homeCards:1, awayCards:2, date:"2026-09-13" },
