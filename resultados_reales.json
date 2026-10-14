@@ -1,652 +1,531 @@
 {
-  "extracted_at": "2026-09-17T13:58:37.484Z",
+  "extracted_at": "2026-10-14T14:21:15.767Z",
   "leagues": {
     "premier-league": {
-      "Leeds United||Newcastle United": {
+      "Coventry City||Newcastle United": {
         "homeGoals": 4,
         "awayGoals": 1,
-        "homeCorners": 5,
-        "awayCorners": 5,
-        "homeSOT": 6,
-        "awaySOT": 5,
-        "homeCards": 1,
-        "awayCards": 2,
-        "date": "2026-09-14T19:00:00.000Z"
-      },
-      "Manchester United||Manchester City": {
-        "homeGoals": 0,
-        "awayGoals": 1,
-        "homeCorners": 6,
-        "awayCorners": 7,
-        "homeSOT": 3,
-        "awaySOT": 2,
-        "homeCards": 1,
-        "awayCards": 2,
-        "date": "2026-09-13T15:30:00.000Z"
-      },
-      "Coventry City||Brighton & Hove Albion": {
-        "homeGoals": 0,
-        "awayGoals": 5,
-        "homeCorners": 5,
-        "awayCorners": 3,
-        "homeSOT": 6,
-        "awaySOT": 7,
-        "homeCards": null,
-        "awayCards": null,
-        "date": "2026-09-13T13:00:00.000Z"
-      },
-      "Sunderland||Arsenal": {
-        "homeGoals": 0,
-        "awayGoals": 2,
-        "homeCorners": 4,
-        "awayCorners": 2,
-        "homeSOT": 3,
-        "awaySOT": 5,
-        "homeCards": 6,
-        "awayCards": 2,
-        "date": "2026-09-12T19:00:00.000Z"
-      },
-      "Tottenham Hotspur||Everton": {
-        "homeGoals": 0,
-        "awayGoals": 0,
-        "homeCorners": 5,
+        "homeCorners": 2,
         "awayCorners": 6,
-        "homeSOT": 2,
-        "awaySOT": 3,
-        "homeCards": 0,
-        "awayCards": 2,
-        "date": "2026-09-12T16:30:00.000Z"
-      },
-      "Crystal Palace||Ipswich Town": {
-        "homeGoals": 2,
-        "awayGoals": 3,
-        "homeCorners": 6,
-        "awayCorners": 3,
-        "homeSOT": 4,
+        "homeSOT": 6,
         "awaySOT": 6,
         "homeCards": 1,
-        "awayCards": 3,
-        "date": "2026-09-12T14:00:00.000Z"
-      },
-      "Chelsea||Hull City": {
-        "homeGoals": 2,
-        "awayGoals": 2,
-        "homeCorners": 10,
-        "awayCorners": 4,
-        "homeSOT": 7,
-        "awaySOT": 5,
-        "homeCards": 1,
-        "awayCards": 5,
-        "date": "2026-09-12T14:00:00.000Z"
-      },
-      "Bournemouth||Brentford": {
-        "homeGoals": 2,
-        "awayGoals": 2,
-        "homeCorners": 2,
-        "awayCorners": 1,
-        "homeSOT": 10,
-        "awaySOT": 2,
-        "homeCards": 5,
         "awayCards": 1,
-        "date": "2026-09-12T14:00:00.000Z"
+        "date": "2026-10-12T19:00:00.000Z"
       },
-      "Aston Villa||Nottingham Forest": {
-        "homeGoals": 1,
+      "Liverpool||Manchester City": {
+        "homeGoals": 0,
+        "awayGoals": 3,
+        "homeCorners": 5,
+        "awayCorners": 6,
+        "homeSOT": 6,
+        "awaySOT": 4,
+        "homeCards": 4,
+        "awayCards": 2,
+        "date": "2026-10-11T15:30:00.000Z"
+      },
+      "Hull City||Everton": {
+        "homeGoals": 2,
         "awayGoals": 2,
-        "homeCorners": 6,
-        "awayCorners": 1,
+        "homeCorners": 7,
+        "awayCorners": 6,
         "homeSOT": 5,
         "awaySOT": 7,
         "homeCards": 2,
-        "awayCards": 5,
-        "date": "2026-09-12T14:00:00.000Z"
+        "awayCards": 0,
+        "date": "2026-10-11T13:00:00.000Z"
       },
-      "Liverpool||Fulham": {
-        "homeGoals": 0,
-        "awayGoals": 0,
+      "Crystal Palace||Nottingham Forest": {
+        "homeGoals": 3,
+        "awayGoals": 1,
         "homeCorners": 5,
         "awayCorners": 8,
+        "homeSOT": 7,
+        "awaySOT": 6,
+        "homeCards": 2,
+        "awayCards": 2,
+        "date": "2026-10-11T13:00:00.000Z"
+      },
+      "Manchester United||Tottenham Hotspur": {
+        "homeGoals": 1,
+        "awayGoals": 1,
+        "homeCorners": 4,
+        "awayCorners": 4,
+        "homeSOT": 4,
+        "awaySOT": 3,
+        "homeCards": 4,
+        "awayCards": 3,
+        "date": "2026-10-10T16:30:00.000Z"
+      },
+      "Sunderland||Brighton & Hove Albion": {
+        "homeGoals": 0,
+        "awayGoals": 2,
+        "homeCorners": 7,
+        "awayCorners": 5,
         "homeSOT": 3,
         "awaySOT": 4,
         "homeCards": 0,
         "awayCards": 1,
-        "date": "2026-09-12T14:00:00.000Z"
+        "date": "2026-10-10T14:00:00.000Z"
+      },
+      "Ipswich Town||Fulham": {
+        "homeGoals": 2,
+        "awayGoals": 1,
+        "homeCorners": 2,
+        "awayCorners": 5,
+        "homeSOT": 5,
+        "awaySOT": 5,
+        "homeCards": 2,
+        "awayCards": 4,
+        "date": "2026-10-10T14:00:00.000Z"
+      },
+      "Chelsea||Bournemouth": {
+        "homeGoals": 5,
+        "awayGoals": 1,
+        "homeCorners": 1,
+        "awayCorners": 7,
+        "homeSOT": 6,
+        "awaySOT": 4,
+        "homeCards": 0,
+        "awayCards": 4,
+        "date": "2026-10-10T14:00:00.000Z"
+      },
+      "Aston Villa||Brentford": {
+        "homeGoals": 2,
+        "awayGoals": 2,
+        "homeCorners": 2,
+        "awayCorners": 2,
+        "homeSOT": 7,
+        "awaySOT": 4,
+        "homeCards": 2,
+        "awayCards": 5,
+        "date": "2026-10-10T14:00:00.000Z"
+      },
+      "Arsenal||Leeds United": {
+        "homeGoals": 2,
+        "awayGoals": 1,
+        "homeCorners": 2,
+        "awayCorners": 4,
+        "homeSOT": 6,
+        "awaySOT": 5,
+        "homeCards": 1,
+        "awayCards": 4,
+        "date": "2026-10-10T11:30:00.000Z"
       }
     },
     "la-liga": {
-      "Barcelona||Racing de Santander": {
-        "homeGoals": 7,
-        "awayGoals": 2,
-        "homeCorners": 18,
-        "awayCorners": 0,
-        "homeSOT": 9,
-        "awaySOT": 3,
-        "homeCards": 3,
-        "awayCards": 2,
-        "date": "2026-09-16T19:30:00.000Z"
-      },
-      "Deportivo La Coruña||Sevilla": {
-        "homeGoals": 0,
-        "awayGoals": 1,
-        "homeCorners": 4,
-        "awayCorners": 4,
-        "homeSOT": 3,
-        "awaySOT": 6,
-        "homeCards": 1,
-        "awayCards": 4,
-        "date": "2026-09-16T17:00:00.000Z"
-      },
-      "Atlético Madrid||Osasuna": {
-        "homeGoals": 4,
-        "awayGoals": 0,
-        "homeCorners": 8,
-        "awayCorners": 0,
-        "homeSOT": 11,
-        "awaySOT": 1,
-        "homeCards": 1,
-        "awayCards": 2,
-        "date": "2026-09-16T17:00:00.000Z"
-      },
-      "Elche||Real Madrid": {
-        "homeGoals": 2,
+      "Levante UD||Sevilla": {
+        "homeGoals": 3,
         "awayGoals": 3,
-        "homeCorners": 2,
-        "awayCorners": 5,
-        "homeSOT": 3,
-        "awaySOT": 4,
-        "homeCards": 4,
-        "awayCards": 2,
-        "date": "2026-09-15T19:30:00.000Z"
-      },
-      "Deportivo Alavés||Valencia": {
-        "homeGoals": 0,
-        "awayGoals": 1,
-        "homeCorners": 2,
-        "awayCorners": 5,
-        "homeSOT": 3,
-        "awaySOT": 3,
-        "homeCards": 1,
-        "awayCards": 4,
-        "date": "2026-09-15T18:00:00.000Z"
-      },
-      "Rayo Vallecano||Espanyol": {
-        "homeGoals": 2,
-        "awayGoals": 1,
-        "homeCorners": 3,
-        "awayCorners": 5,
-        "homeSOT": 2,
-        "awaySOT": 5,
-        "homeCards": 5,
-        "awayCards": 1,
-        "date": "2026-09-15T17:00:00.000Z"
-      },
-      "Villarreal||Real Betis": {
-        "homeGoals": 1,
-        "awayGoals": 2,
-        "homeCorners": 7,
-        "awayCorners": 4,
+        "homeCorners": 5,
+        "awayCorners": 2,
         "homeSOT": 8,
-        "awaySOT": 12,
-        "homeCards": 1,
-        "awayCards": 0,
-        "date": "2026-09-14T19:00:00.000Z"
-      },
-      "Real Sociedad||Atlético Madrid": {
-        "homeGoals": 0,
-        "awayGoals": 3,
-        "homeCorners": 9,
-        "awayCorners": 3,
-        "homeSOT": 3,
         "awaySOT": 5,
         "homeCards": 2,
-        "awayCards": 1,
-        "date": "2026-09-13T19:00:00.000Z"
+        "awayCards": 6,
+        "date": "2026-10-12T19:00:00.000Z"
       },
-      "Getafe||Deportivo La Coruña": {
-        "homeGoals": 1,
-        "awayGoals": 1,
-        "homeCorners": 3,
-        "awayCorners": 7,
-        "homeSOT": 4,
-        "awaySOT": 3,
-        "homeCards": 3,
-        "awayCards": 1,
-        "date": "2026-09-13T16:30:00.000Z"
-      },
-      "Levante UD||Barcelona": {
+      "Racing de Santander||Valencia": {
         "homeGoals": 2,
-        "awayGoals": 4,
-        "homeCorners": 3,
-        "awayCorners": 5,
-        "homeSOT": 7,
-        "awaySOT": 6,
-        "homeCards": 1,
-        "awayCards": 1,
-        "date": "2026-09-13T14:15:00.000Z"
-      },
-      "Celta Vigo||Málaga": {
-        "homeGoals": 1,
-        "awayGoals": 1,
-        "homeCorners": 1,
-        "awayCorners": 5,
-        "homeSOT": 5,
-        "awaySOT": 2,
-        "homeCards": 1,
-        "awayCards": 1,
-        "date": "2026-09-13T12:00:00.000Z"
-      },
-      "Real Madrid||Rayo Vallecano": {
-        "homeGoals": 4,
-        "awayGoals": 1,
-        "homeCorners": 11,
-        "awayCorners": 5,
-        "homeSOT": 11,
-        "awaySOT": 7,
-        "homeCards": 0,
-        "awayCards": 1,
-        "date": "2026-09-12T19:00:00.000Z"
-      },
-      "Athletic Club||Elche": {
-        "homeGoals": 1,
-        "awayGoals": 1,
-        "homeCorners": 7,
-        "awayCorners": 1,
-        "homeSOT": 3,
-        "awaySOT": 1,
-        "homeCards": 3,
-        "awayCards": 3,
-        "date": "2026-09-12T16:30:00.000Z"
-      },
-      "Osasuna||Espanyol": {
-        "homeGoals": 0,
         "awayGoals": 2,
-        "homeCorners": 3,
+        "homeCorners": 8,
+        "awayCorners": 3,
+        "homeSOT": 11,
+        "awaySOT": 2,
+        "homeCards": 3,
+        "awayCards": 3,
+        "date": "2026-10-11T19:00:00.000Z"
+      },
+      "Real Betis||Osasuna": {
+        "homeGoals": 5,
+        "awayGoals": 2,
+        "homeCorners": 8,
         "awayCorners": 4,
-        "homeSOT": 4,
-        "awaySOT": 3,
+        "homeSOT": 7,
+        "awaySOT": 5,
         "homeCards": 2,
-        "awayCards": 3,
-        "date": "2026-09-12T14:15:00.000Z"
+        "awayCards": 5,
+        "date": "2026-10-11T16:30:00.000Z"
       },
-      "Racing de Santander||Deportivo Alavés": {
-        "homeGoals": 2,
-        "awayGoals": 1,
-        "homeCorners": 4,
-        "awayCorners": 6,
+      "Real Sociedad||Deportivo La Coruña": {
+        "homeGoals": 3,
+        "awayGoals": 2,
+        "homeCorners": 7,
+        "awayCorners": 10,
         "homeSOT": 4,
-        "awaySOT": 8,
-        "homeCards": 2,
-        "awayCards": 3,
-        "date": "2026-09-12T12:00:00.000Z"
+        "awaySOT": 7,
+        "homeCards": 1,
+        "awayCards": 2,
+        "date": "2026-10-11T14:15:00.000Z"
       },
-      "Sevilla||Valencia": {
-        "homeGoals": 1,
+      "Elche||Celta Vigo": {
+        "homeGoals": 0,
         "awayGoals": 0,
-        "homeCorners": 6,
-        "awayCorners": 4,
-        "homeSOT": 4,
+        "homeCorners": 5,
+        "awayCorners": 2,
+        "homeSOT": 2,
         "awaySOT": 0,
         "homeCards": 1,
+        "awayCards": 3,
+        "date": "2026-10-11T12:00:00.000Z"
+      },
+      "Real Madrid||Villarreal": {
+        "homeGoals": 1,
+        "awayGoals": 0,
+        "homeCorners": 9,
+        "awayCorners": 3,
+        "homeSOT": 4,
+        "awaySOT": 4,
+        "homeCards": 5,
         "awayCards": 2,
-        "date": "2026-09-11T19:00:00.000Z"
+        "date": "2026-10-10T19:00:00.000Z"
       },
-      "Elche||Real Sociedad": {
-        "homeGoals": 2,
-        "awayGoals": 3,
-        "homeCorners": 6,
-        "awayCorners": 7,
-        "homeSOT": 10,
-        "awaySOT": 6,
-        "homeCards": 4,
-        "awayCards": 1,
-        "date": "2026-09-07T19:30:00.000Z"
+      "Barcelona||Getafe": {
+        "homeGoals": 3,
+        "awayGoals": 0,
+        "homeCorners": 9,
+        "awayCorners": 2,
+        "homeSOT": 8,
+        "awaySOT": 1,
+        "homeCards": 2,
+        "awayCards": 4,
+        "date": "2026-10-10T16:30:00.000Z"
       },
-      "Getafe||Celta Vigo": {
+      "Deportivo Alavés||Atlético Madrid": {
+        "homeGoals": 1,
+        "awayGoals": 2,
+        "homeCorners": 0,
+        "awayCorners": 10,
+        "homeSOT": 3,
+        "awaySOT": 7,
+        "homeCards": 1,
+        "awayCards": 3,
+        "date": "2026-10-10T14:15:00.000Z"
+      },
+      "Málaga||Espanyol": {
         "homeGoals": 1,
         "awayGoals": 1,
-        "homeCorners": 3,
-        "awayCorners": 5,
-        "homeSOT": 2,
-        "awaySOT": 3,
+        "homeCorners": 8,
+        "awayCorners": 2,
+        "homeSOT": 7,
+        "awaySOT": 4,
         "homeCards": 4,
-        "awayCards": 2,
-        "date": "2026-09-07T17:00:00.000Z"
+        "awayCards": 5,
+        "date": "2026-10-09T19:00:00.000Z"
       }
     },
     "serie-a": {
-      "Inter||Udinese": {
-        "homeGoals": 5,
-        "awayGoals": 3,
-        "homeCorners": 10,
-        "awayCorners": 1,
-        "homeSOT": 12,
-        "awaySOT": 5,
-        "homeCards": 1,
-        "awayCards": 1,
-        "date": "2026-09-14T18:45:00.000Z"
-      },
-      "Torino||Roma": {
-        "homeGoals": 0,
-        "awayGoals": 2,
-        "homeCorners": 1,
-        "awayCorners": 8,
-        "homeSOT": 3,
-        "awaySOT": 5,
-        "homeCards": 0,
-        "awayCards": 2,
-        "date": "2026-09-14T16:30:00.000Z"
-      },
-      "Como||Parma": {
+      "Torino||Udinese": {
         "homeGoals": 2,
         "awayGoals": 1,
-        "homeCorners": 11,
-        "awayCorners": 4,
-        "homeSOT": 7,
-        "awaySOT": 4,
-        "homeCards": 1,
-        "awayCards": 0,
-        "date": "2026-09-14T16:30:00.000Z"
-      },
-      "Sassuolo||Juventus": {
-        "homeGoals": 3,
-        "awayGoals": 2,
-        "homeCorners": 3,
-        "awayCorners": 10,
-        "homeSOT": 6,
-        "awaySOT": 8,
-        "homeCards": 2,
-        "awayCards": 2,
-        "date": "2026-09-13T18:45:00.000Z"
-      },
-      "Napoli||Bologna": {
-        "homeGoals": 1,
-        "awayGoals": 0,
-        "homeCorners": 10,
-        "awayCorners": 0,
-        "homeSOT": 3,
-        "awaySOT": 2,
+        "homeCorners": 4,
+        "awayCorners": 3,
+        "homeSOT": 4,
+        "awaySOT": 1,
         "homeCards": 0,
         "awayCards": 1,
-        "date": "2026-09-13T16:00:00.000Z"
+        "date": "2026-10-12T18:45:00.000Z"
       },
-      "Lecce||Monza": {
+      "Atalanta||Venezia": {
         "homeGoals": 3,
-        "awayGoals": 2,
-        "homeCorners": 4,
-        "awayCorners": 6,
-        "homeSOT": 3,
-        "awaySOT": 11,
-        "homeCards": 2,
-        "awayCards": 0,
-        "date": "2026-09-13T13:00:00.000Z"
-      },
-      "Atalanta||Cagliari": {
-        "homeGoals": 1,
-        "awayGoals": 2,
-        "homeCorners": 3,
-        "awayCorners": 2,
-        "homeSOT": 4,
-        "awaySOT": 5,
-        "homeCards": null,
-        "awayCards": null,
-        "date": "2026-09-12T18:45:00.000Z"
-      },
-      "Lazio||Milan": {
-        "homeGoals": 2,
-        "awayGoals": 2,
-        "homeCorners": 2,
-        "awayCorners": 5,
-        "homeSOT": 6,
-        "awaySOT": 7,
-        "homeCards": 2,
-        "awayCards": 3,
-        "date": "2026-09-12T16:00:00.000Z"
-      },
-      "Genoa||Frosinone": {
-        "homeGoals": 1,
         "awayGoals": 1,
         "homeCorners": 8,
-        "awayCorners": 9,
-        "homeSOT": 5,
-        "awaySOT": 6,
-        "homeCards": 3,
+        "awayCorners": 7,
+        "homeSOT": 11,
+        "awaySOT": 4,
+        "homeCards": 1,
         "awayCards": 2,
-        "date": "2026-09-12T13:00:00.000Z"
+        "date": "2026-10-12T16:30:00.000Z"
       },
-      "Venezia||Fiorentina": {
-        "homeGoals": 2,
-        "awayGoals": 4,
-        "homeCorners": 2,
-        "awayCorners": 4,
-        "homeSOT": 3,
+      "Cagliari||Juventus": {
+        "homeGoals": 1,
+        "awayGoals": 1,
+        "homeCorners": 1,
+        "awayCorners": 9,
+        "homeSOT": 2,
         "awaySOT": 10,
         "homeCards": 2,
         "awayCards": 1,
-        "date": "2026-09-11T18:45:00.000Z"
+        "date": "2026-10-11T18:45:00.000Z"
       },
-      "Udinese||Lazio": {
-        "homeGoals": 1,
-        "awayGoals": 2,
-        "homeCorners": 2,
-        "awayCorners": 8,
-        "homeSOT": 6,
-        "awaySOT": 6,
-        "homeCards": 5,
-        "awayCards": 1,
-        "date": "2026-09-07T18:45:00.000Z"
-      },
-      "Cagliari||Lecce": {
-        "homeGoals": 1,
-        "awayGoals": 0,
-        "homeCorners": 7,
-        "awayCorners": 5,
-        "homeSOT": 9,
-        "awaySOT": 3,
-        "homeCards": 1,
-        "awayCards": 3,
-        "date": "2026-09-07T16:30:00.000Z"
-      }
-    },
-    "bundesliga": {
-      "SV 07 Elversberg||FC Bayern München": {
-        "homeGoals": 1,
-        "awayGoals": 2,
-        "homeCorners": 3,
-        "awayCorners": 9,
-        "homeSOT": 1,
-        "awaySOT": 6,
-        "homeCards": 2,
-        "awayCards": 0,
-        "date": "2026-09-13T15:30:00.000Z"
-      },
-      "RB Leipzig||Hamburger SV": {
-        "homeGoals": 5,
-        "awayGoals": 0,
-        "homeCorners": 7,
-        "awayCorners": 7,
-        "homeSOT": 6,
-        "awaySOT": 4,
-        "homeCards": 1,
-        "awayCards": 2,
-        "date": "2026-09-13T13:30:00.000Z"
-      },
-      "1. FC Köln||SV Werder Bremen": {
+      "Sassuolo||Milan": {
         "homeGoals": 1,
         "awayGoals": 1,
-        "homeCorners": 8,
+        "homeCorners": 3,
         "awayCorners": 5,
-        "homeSOT": 6,
-        "awaySOT": 5,
+        "homeSOT": 4,
+        "awaySOT": 6,
         "homeCards": 2,
-        "awayCards": 1,
-        "date": "2026-09-12T16:30:00.000Z"
+        "awayCards": 4,
+        "date": "2026-10-11T16:00:00.000Z"
       },
-      "SC Freiburg||Borussia M'gladbach": {
-        "homeGoals": 5,
+      "Lecce||Bologna": {
+        "homeGoals": 1,
+        "awayGoals": 2,
+        "homeCorners": 10,
+        "awayCorners": 3,
+        "homeSOT": 5,
+        "awaySOT": 5,
+        "homeCards": 3,
+        "awayCards": 2,
+        "date": "2026-10-11T13:00:00.000Z"
+      },
+      "Lazio||Monza": {
+        "homeGoals": 3,
+        "awayGoals": 1,
+        "homeCorners": 7,
+        "awayCorners": 6,
+        "homeSOT": 7,
+        "awaySOT": 6,
+        "homeCards": 3,
+        "awayCards": 1,
+        "date": "2026-10-11T13:00:00.000Z"
+      },
+      "Como||Roma": {
+        "homeGoals": 0,
         "awayGoals": 0,
         "homeCorners": 6,
         "awayCorners": 2,
-        "homeSOT": 9,
-        "awaySOT": 0,
-        "homeCards": 1,
-        "awayCards": 4,
-        "date": "2026-09-12T13:30:00.000Z"
+        "homeSOT": 4,
+        "awaySOT": 2,
+        "homeCards": 2,
+        "awayCards": 3,
+        "date": "2026-10-11T10:30:00.000Z"
       },
-      "Borussia Dortmund||SC Paderborn 07": {
+      "Napoli||Frosinone": {
         "homeGoals": 3,
+        "awayGoals": 0,
+        "homeCorners": 6,
+        "awayCorners": 4,
+        "homeSOT": 8,
+        "awaySOT": 1,
+        "homeCards": 2,
+        "awayCards": 0,
+        "date": "2026-10-10T18:45:00.000Z"
+      },
+      "Inter||Parma": {
+        "homeGoals": 3,
+        "awayGoals": 0,
+        "homeCorners": 3,
+        "awayCorners": 1,
+        "homeSOT": 6,
+        "awaySOT": 2,
+        "homeCards": 0,
+        "awayCards": 0,
+        "date": "2026-10-10T16:00:00.000Z"
+      },
+      "Genoa||Fiorentina": {
+        "homeGoals": 2,
+        "awayGoals": 1,
+        "homeCorners": 3,
+        "awayCorners": 4,
+        "homeSOT": 4,
+        "awaySOT": 3,
+        "homeCards": 5,
+        "awayCards": 3,
+        "date": "2026-10-10T13:00:00.000Z"
+      }
+    },
+    "bundesliga": {
+      "SC Freiburg||FC Schalke 04": {
+        "homeGoals": 2,
+        "awayGoals": 1,
+        "homeCorners": 7,
+        "awayCorners": 2,
+        "homeSOT": 4,
+        "awaySOT": 1,
+        "homeCards": 3,
+        "awayCards": 1,
+        "date": "2026-10-11T15:30:00.000Z"
+      },
+      "1. FC Köln||Borussia M'gladbach": {
+        "homeGoals": 2,
+        "awayGoals": 1,
+        "homeCorners": 6,
+        "awayCorners": 6,
+        "homeSOT": 7,
+        "awaySOT": 7,
+        "homeCards": 1,
+        "awayCards": 3,
+        "date": "2026-10-11T13:30:00.000Z"
+      },
+      "RB Leipzig||Eintracht Frankfurt": {
+        "homeGoals": 6,
+        "awayGoals": 0,
+        "homeCorners": 3,
+        "awayCorners": 6,
+        "homeSOT": 10,
+        "awaySOT": 9,
+        "homeCards": 1,
+        "awayCards": 3,
+        "date": "2026-10-10T16:30:00.000Z"
+      },
+      "SC Paderborn 07||VfB Stuttgart": {
+        "homeGoals": 0,
+        "awayGoals": 2,
+        "homeCorners": 7,
+        "awayCorners": 5,
+        "homeSOT": 6,
+        "awaySOT": 8,
+        "homeCards": 1,
+        "awayCards": 0,
+        "date": "2026-10-10T13:30:00.000Z"
+      },
+      "1. FSV Mainz 05||Bayer 04 Leverkusen": {
+        "homeGoals": 3,
+        "awayGoals": 4,
+        "homeCorners": 4,
+        "awayCorners": 3,
+        "homeSOT": 5,
+        "awaySOT": 7,
+        "homeCards": 3,
+        "awayCards": 1,
+        "date": "2026-10-10T13:30:00.000Z"
+      },
+      "FC Augsburg||FC Bayern München": {
+        "homeGoals": 2,
+        "awayGoals": 2,
+        "homeCorners": 5,
+        "awayCorners": 9,
+        "homeSOT": 5,
+        "awaySOT": 10,
+        "homeCards": 3,
+        "awayCards": 0,
+        "date": "2026-10-10T13:30:00.000Z"
+      },
+      "TSG Hoffenheim||Hamburger SV": {
+        "homeGoals": 2,
+        "awayGoals": 3,
+        "homeCorners": 7,
+        "awayCorners": 3,
+        "homeSOT": 4,
+        "awaySOT": 4,
+        "homeCards": 3,
+        "awayCards": 0,
+        "date": "2026-10-10T13:30:00.000Z"
+      },
+      "1. FC Union Berlin||SV 07 Elversberg": {
+        "homeGoals": 1,
         "awayGoals": 0,
         "homeCorners": 7,
         "awayCorners": 3,
-        "homeSOT": 8,
-        "awaySOT": 0,
-        "homeCards": 1,
+        "homeSOT": 6,
+        "awaySOT": 2,
+        "homeCards": 2,
         "awayCards": 1,
-        "date": "2026-09-12T13:30:00.000Z"
+        "date": "2026-10-10T13:30:00.000Z"
       },
-      "TSG Hoffenheim||VfB Stuttgart": {
-        "homeGoals": 2,
-        "awayGoals": 1,
-        "homeCorners": 5,
-        "awayCorners": 7,
-        "homeSOT": 8,
-        "awaySOT": 5,
-        "homeCards": 1,
-        "awayCards": 0,
-        "date": "2026-09-12T13:30:00.000Z"
-      },
-      "FC Augsburg||Bayer 04 Leverkusen": {
+      "Borussia Dortmund||SV Werder Bremen": {
         "homeGoals": 2,
         "awayGoals": 2,
-        "homeCorners": 2,
-        "awayCorners": 14,
-        "homeSOT": 5,
-        "awaySOT": 5,
-        "homeCards": 1,
+        "homeCorners": 9,
+        "awayCorners": 3,
+        "homeSOT": 10,
+        "awaySOT": 4,
+        "homeCards": 2,
         "awayCards": 1,
-        "date": "2026-09-12T13:30:00.000Z"
-      },
-      "1. FSV Mainz 05||Eintracht Frankfurt": {
-        "homeGoals": 1,
-        "awayGoals": 3,
-        "homeCorners": 4,
-        "awayCorners": 5,
-        "homeSOT": 5,
-        "awaySOT": 5,
-        "homeCards": 0,
-        "awayCards": 2,
-        "date": "2026-09-12T13:30:00.000Z"
-      },
-      "1. FC Union Berlin||FC Schalke 04": {
-        "homeGoals": 1,
-        "awayGoals": 3,
-        "homeCorners": 4,
-        "awayCorners": 5,
-        "homeSOT": 8,
-        "awaySOT": 10,
-        "homeCards": 3,
-        "awayCards": 1,
-        "date": "2026-09-11T18:30:00.000Z"
+        "date": "2026-10-09T18:30:00.000Z"
       }
     },
     "ligue-1": {
-      "Stade Brestois||Paris Saint-Germain": {
+      "Troyes||Olympique de Marseille": {
         "homeGoals": 0,
-        "awayGoals": 1,
-        "homeCorners": 3,
-        "awayCorners": 2,
-        "homeSOT": 4,
-        "awaySOT": 7,
-        "homeCards": 1,
-        "awayCards": 2,
-        "date": "2026-09-13T18:45:00.000Z"
-      },
-      "Le Mans||RC Lens": {
-        "homeGoals": 2,
         "awayGoals": 2,
-        "homeCorners": 3,
-        "awayCorners": 9,
-        "homeSOT": 5,
-        "awaySOT": 6,
-        "homeCards": 2,
-        "awayCards": 3,
-        "date": "2026-09-13T15:15:00.000Z"
-      },
-      "Lille||Troyes": {
-        "homeGoals": 2,
-        "awayGoals": 0,
-        "homeCorners": 2,
-        "awayCorners": 5,
-        "homeSOT": 6,
-        "awaySOT": 1,
-        "homeCards": 1,
-        "awayCards": 0,
-        "date": "2026-09-13T13:00:00.000Z"
-      },
-      "Paris FC||Olympique Lyonnais": {
-        "homeGoals": 0,
-        "awayGoals": 0,
-        "homeCorners": 4,
-        "awayCorners": 3,
-        "homeSOT": 4,
-        "awaySOT": 1,
-        "homeCards": 2,
-        "awayCards": 1,
-        "date": "2026-09-12T18:45:00.000Z"
-      },
-      "Lorient||Toulouse": {
-        "homeGoals": 2,
-        "awayGoals": 2,
-        "homeCorners": 4,
+        "homeCorners": 6,
         "awayCorners": 3,
         "homeSOT": 3,
-        "awaySOT": 4,
-        "homeCards": 1,
+        "awaySOT": 2,
+        "homeCards": 4,
+        "awayCards": 1,
+        "date": "2026-10-11T18:45:00.000Z"
+      },
+      "Stade Rennais||Auxerre": {
+        "homeGoals": 4,
+        "awayGoals": 1,
+        "homeCorners": 12,
+        "awayCorners": 5,
+        "homeSOT": 10,
+        "awaySOT": 5,
+        "homeCards": 4,
         "awayCards": 0,
-        "date": "2026-09-12T18:45:00.000Z"
+        "date": "2026-10-11T15:15:00.000Z"
       },
-      "Le Havre||Angers": {
-        "homeGoals": 0,
-        "awayGoals": 0,
-        "homeCorners": 4,
-        "awayCorners": 6,
-        "homeSOT": 6,
-        "awaySOT": 1,
-        "homeCards": 1,
-        "awayCards": 1,
-        "date": "2026-09-12T18:45:00.000Z"
-      },
-      "Auxerre||Nice": {
-        "homeGoals": 1,
-        "awayGoals": 0,
-        "homeCorners": 3,
-        "awayCorners": 8,
-        "homeSOT": 7,
-        "awaySOT": 4,
-        "homeCards": 1,
-        "awayCards": 1,
-        "date": "2026-09-12T18:45:00.000Z"
-      },
-      "RC Strasbourg||AS Monaco": {
-        "homeGoals": 1,
+      "Nice||RC Strasbourg": {
+        "homeGoals": 2,
         "awayGoals": 1,
         "homeCorners": 2,
-        "awayCorners": 7,
-        "homeSOT": 2,
+        "awayCorners": 3,
+        "homeSOT": 6,
         "awaySOT": 3,
         "homeCards": 1,
         "awayCards": 1,
-        "date": "2026-09-12T15:15:00.000Z"
+        "date": "2026-10-11T13:00:00.000Z"
       },
-      "Stade Rennais||Olympique de Marseille": {
+      "Paris Saint-Germain||Le Mans": {
+        "homeGoals": 3,
+        "awayGoals": 1,
+        "homeCorners": 4,
+        "awayCorners": 4,
+        "homeSOT": 8,
+        "awaySOT": 3,
+        "homeCards": 0,
+        "awayCards": 5,
+        "date": "2026-10-10T18:45:00.000Z"
+      },
+      "AS Monaco||Toulouse": {
+        "homeGoals": 2,
+        "awayGoals": 2,
+        "homeCorners": 4,
+        "awayCorners": 4,
+        "homeSOT": 4,
+        "awaySOT": 4,
+        "homeCards": 2,
+        "awayCards": 2,
+        "date": "2026-10-10T18:45:00.000Z"
+      },
+      "Lorient||Paris FC": {
         "homeGoals": 1,
         "awayGoals": 0,
         "homeCorners": 3,
+        "awayCorners": 9,
+        "homeSOT": 5,
+        "awaySOT": 3,
+        "homeCards": 1,
+        "awayCards": 5,
+        "date": "2026-10-10T18:45:00.000Z"
+      },
+      "Stade Brestois||Angers": {
+        "homeGoals": 5,
+        "awayGoals": 1,
+        "homeCorners": 4,
         "awayCorners": 5,
+        "homeSOT": 9,
+        "awaySOT": 3,
+        "homeCards": 1,
+        "awayCards": 1,
+        "date": "2026-10-10T18:45:00.000Z"
+      },
+      "Lille||Le Havre": {
+        "homeGoals": 1,
+        "awayGoals": 0,
+        "homeCorners": 4,
+        "awayCorners": 5,
+        "homeSOT": 1,
+        "awaySOT": 2,
+        "homeCards": 2,
+        "awayCards": 2,
+        "date": "2026-10-10T15:15:00.000Z"
+      },
+      "RC Lens||Olympique Lyonnais": {
+        "homeGoals": 2,
+        "awayGoals": 1,
+        "homeCorners": 7,
+        "awayCorners": 4,
         "homeSOT": 7,
         "awaySOT": 5,
         "homeCards": 1,
-        "awayCards": 4,
-        "date": "2026-09-11T18:45:00.000Z"
+        "awayCards": 1,
+        "date": "2026-10-09T18:45:00.000Z"
       }
     }
   }
